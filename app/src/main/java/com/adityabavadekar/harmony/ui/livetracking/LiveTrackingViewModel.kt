@@ -79,6 +79,7 @@ class LiveTrackingViewModel : ViewModel() {
     fun updateStepsCount(stepsSinceReboot: Int) {
         if (initialSteps == 0) initialSteps = stepsSinceReboot
         val newSteps = stepsSinceReboot - initialSteps
+        initialSteps += newSteps
         Log.d(
             TAG,
             "updateStepsCount: newSteps=$newSteps stepsSinceReboot=$stepsSinceReboot initialSteps=$initialSteps"
