@@ -102,4 +102,9 @@ dependencies {
 
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+
+    implementation(libs.play.services.location)
+//    implementation(libs.androidx.work.runtime)
+    runtimeOnly(libs.kotlinx.coroutines.play.services)
 }

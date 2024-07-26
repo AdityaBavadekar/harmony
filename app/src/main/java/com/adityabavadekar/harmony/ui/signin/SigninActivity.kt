@@ -20,12 +20,14 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.compose.setContent
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.adityabavadekar.harmony.ui.common.activitybase.GoogleSigninActivity
 import com.adityabavadekar.harmony.ui.main.MainActivity
+import com.adityabavadekar.harmony.ui.theme.HarmonyTheme
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 
 class SigninActivity : GoogleSigninActivity() {
@@ -34,45 +36,55 @@ class SigninActivity : GoogleSigninActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            var signUpScreenType by remember { mutableStateOf(SignUpScreenType.NONE) }
-            var isSignInScreen by remember { mutableStateOf(true) }
+            HarmonyTheme {
 
-            when (isSignInScreen) {
-                true -> {
-                    SignInScreen(
-                        signinWithGoogle = {
-                            signInGoogle()
-                        },
-                        switchToSignUp = {
-                            isSignInScreen = false
-                        }
-                    )
-                }
+                var signUpScreenType by remember { mutableStateOf(SignUpScreenType.NONE) }
+                var isSignInScreen by remember { mutableStateOf(true) }
 
-                false -> {
-                    if (hasNextSignUpScreen(signUpScreenType)) {
-                        GetNextSignUpScreen(
-                            signUpScreenType = signUpScreenType,
-                            onNext = {
-                                signUpScreenType = it
-                                Log.d(TAG, "onCreate SCREEN::[onNext](current=${it.name})")
-                            },
-                            onPrevious = {
-                                Log.d(TAG, "onCreate SCREEN::[onPrevious](current=${it.name})")
-                                if (it == SignUpScreenType.EMAIL) {
-                                    isSignInScreen = true
-                                    signUpScreenType = SignUpScreenType.NONE
-                                } else {
-                                    signUpScreenType = it
+                Surface {
+                    when (isSignInScreen) {
+                        true -> {
+                            SignInScreen(
+                                signinWithGoogle = {
+                                    signInGoogle()
+                                },
+                                switchToSignUp = {
+                                    isSignInScreen = false
+                                },
+                                onContinue = {
+                                    startActivity(Intent(this, MainActivity::class.java))
+                                    finish()
                                 }
+                            )
+                        }
+
+                        false -> {
+                            if (hasNextSignUpScreen(signUpScreenType)) {
+                                GetNextSignUpScreen(
+                                    signUpScreenType = signUpScreenType,
+                                    onNext = {
+                                        signUpScreenType = it
+                                        Log.d(TAG, "onCreate SCREEN::[onNext](current=${it.name})")
+                                    },
+                                    onPrevious = {
+                                        Log.d(TAG, "onCreate SCREEN::[onPrevious](current=${it.name})")
+                                        if (it == SignUpScreenType.EMAIL) {
+                                            isSignInScreen = true
+                                            signUpScreenType = SignUpScreenType.NONE
+                                        } else {
+                                            signUpScreenType = it
+                                        }
+                                    }
+                                )
+                            } else {
+                                //Completed Profile
+                                Log.d(TAG, "onCreate: USER SIGN UP PROFILE COMPLETED!")
+                                onLoggedIn()
                             }
-                        )
-                    } else {
-                        //Completed Profile
-                        Log.d(TAG, "onCreate: USER SIGN UP PROFILE COMPLETED!")
-                        onLoggedIn()
+                        }
                     }
                 }
+
             }
         }
     }
@@ -105,6 +117,7 @@ class SigninActivity : GoogleSigninActivity() {
 
     private fun onLoggedIn() {
         startActivity(Intent(this@SigninActivity, MainActivity::class.java))
+        finish()
     }
 
     override fun onStart() {

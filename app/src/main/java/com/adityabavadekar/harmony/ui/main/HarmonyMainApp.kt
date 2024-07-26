@@ -39,7 +39,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navDeepLink
 import com.adityabavadekar.harmony.R
+import com.adityabavadekar.harmony.data.WorkoutTypes
 import com.adityabavadekar.harmony.ui.activity.ActivityScreen
+import com.adityabavadekar.harmony.ui.common.CommonMenuActions
 import com.adityabavadekar.harmony.ui.common.component.HarmonyBottomNavigationItems
 import com.adityabavadekar.harmony.ui.common.component.HarmonyNavigationBar
 import com.adityabavadekar.harmony.ui.common.component.HarmonyTopAppBar
@@ -62,6 +64,7 @@ private const val PROFILE_DEEP_LINK_URI_PATTERN =
 private fun MainNavHost(
     mainAppState: HarmonyMainAppState,
     startDestination: String = HOME_ROUTE,
+    onAddNewClicked: (WorkoutTypes) -> Unit = {}
 ) {
     val navHostController = mainAppState.navController
     NavHost(
@@ -74,7 +77,7 @@ private fun MainNavHost(
                 navDeepLink { uriPattern = HOME_DEEP_LINK_URI_PATTERN }
             )
         ) {
-            HomeScreen()
+            HomeScreen(onAddNewClicked = onAddNewClicked)
         }
         composable(
             route = ACTIVITY_ROUTE,
@@ -103,6 +106,8 @@ fun NavController.navigateProfile(navOptions: NavOptions) = navigate(PROFILE_ROU
 @Composable
 fun HarmonyMainApp(
     mainAppState: HarmonyMainAppState = rememberHarmonyMainAppState(),
+    navigationToSettings: () -> Unit = {},
+    onAddNewClicked: (WorkoutTypes) -> Unit = {}
 ) {
     HarmonyBackground {
         Scaffold(
@@ -128,10 +133,12 @@ fun HarmonyMainApp(
                             )
                         },
                         onNavigationIconClicked = { /*TODO*/ },
-                        actionIcons = mainAppState.currentTopLevelDestination?.menuActions
-                            ?: emptyList(),
-                        onActionIconClicked = {},
-                        textStyle = MaterialTheme.typography.headlineLarge,
+                        actionIcons = listOf(
+                            CommonMenuActions.settings()
+                        ),
+                        onActionIconClicked = { index ->
+                            if (index == 0) navigationToSettings()
+                        },
                         centeredTitle = mainAppState.currentTopLevelDestination?.centeredTitle
                             ?: false
                     )
@@ -144,7 +151,10 @@ fun HarmonyMainApp(
                     .padding(it)
             ) {
                 Box {
-                    MainNavHost(mainAppState = mainAppState)
+                    MainNavHost(
+                        mainAppState = mainAppState,
+                        onAddNewClicked = onAddNewClicked
+                    )
                 }
             }
         }

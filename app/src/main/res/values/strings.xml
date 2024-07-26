@@ -26,4 +26,19 @@
     <string name="profile">Profile</string>
     <string name="profile_icon_description">Profile Icon</string>
     <string name="empty_string" />
+    <string name="about">About</string>
+    <string name="general">General</string>
+    <string name="account">Account</string>
+    <string name="notifications">Notifications</string>
+    <string name="more_options">More options</string>
+    <string name="distance">Distance</string>
+    <string name="steps">Steps</string>
+    <string name="speed">Speed</string>
+    <string name="start">Start</string>
+    <string name="finish">Finish</string>
+    <string name="pause">Pause</string>
+    <string name="resume">Resume</string>
+    <string name="status_paused">Paused</string>
+    <string name="status_finished">Finished</string>
+    <string name="status_not_started">Not Started</string>
 </resources>

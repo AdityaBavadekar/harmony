@@ -17,16 +17,40 @@
 package com.adityabavadekar.harmony
 
 import android.app.Application
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
+import com.adityabavadekar.harmony.ui.livetracking.service.LiveTrackerService
 
-class HarmonyApplication : Application(){
+class HarmonyApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
         Log.d(TAG, "onCreate: Application")
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            createNotificationChannels()
+            Log.d(TAG, "onCreate: NotificationChannels Created")
+        }
     }
 
-    companion object{
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun createNotificationChannels() {
+        val locationServiceChannel = NotificationChannel(
+            LiveTrackerService.LOCATION_NOTIFICATION_CHANNEL_ID,
+            "Location notifier service",
+            NotificationManager.IMPORTANCE_LOW
+        )
+
+        val notificationManager =
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(locationServiceChannel)
+    }
+
+    companion object {
         const val TAG = "[HarmonyApplication]"
     }
 

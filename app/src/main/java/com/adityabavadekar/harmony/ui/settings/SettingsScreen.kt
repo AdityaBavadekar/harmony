@@ -16,166 +16,109 @@
 
 package com.adityabavadekar.harmony.ui.settings
 
-import androidx.annotation.StringRes
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.ListItem
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import com.adityabavadekar.harmony.R
-import com.adityabavadekar.harmony.ui.common.component.Label
-import com.adityabavadekar.harmony.ui.common.component.clickableRipple
+import com.adityabavadekar.harmony.data.model.ThirdDegreeUserRecord
 import com.adityabavadekar.harmony.ui.common.icon.HarmonyIcons
 import com.adityabavadekar.harmony.ui.theme.HarmonyTheme
-
-@Preview
-@Composable
-fun SettingsScreen(modifier: Modifier = Modifier) {
-    Surface {
-        LazyColumn(
-            modifier = Modifier.padding(),
-            contentPadding = PaddingValues()
-        ) {
-            item {
-                SettingsListItem(
-                    icon = HarmonyIcons.Fitbit,
-                    primaryContent = {
-                        Text(
-                            text = "Title",
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                    },
-                    secondaryContent = { Text(text = "Title") },
-                    trailingContent = { Icon(HarmonyIcons.Edit, contentDescription = null) })
-//                SettingsGroup(textRes = R.string.search) {
-//                }
-            }
-        }
-    }
-}
+import com.adityabavadekar.harmony.utils.ImageAvatar
 
 @Composable
-fun SettingsGroup(
-    @StringRes textRes: Int,
-    content: @Composable ColumnScope.() -> Unit,
+fun SettingsScreen(
+    settingsViewModel: SettingsViewModel,
 ) {
-    Column(Modifier.fillMaxWidth()) {
-//        Column(Modifier.padding(horizontal = 18.dp)) {
-//        }
-        Label(text = stringResource(id = textRes))
-        content()
-    }
-}
-
-@OptIn(ExperimentalMaterialApi::class)
-@Composable
-fun SettingsListItem(
-    modifier: Modifier = Modifier,
-    icon: ImageVector? = null,
-    primaryContent: @Composable () -> Unit,
-    secondaryContent: (@Composable () -> Unit)? = null,
-    overlineContent: (@Composable () -> Unit)? = null,
-    trailingContent: (@Composable () -> Unit)? = null,
-    onClick: () -> Unit = {},
-) {
-    Row(
-        Modifier
-            .heightIn(min = SettingsListItemDefaults.minHeight)
-            .fillMaxWidth()
-            .clickableRipple(onClick = onClick)
-            .padding(SettingsListItemDefaults.padding),
-        verticalAlignment = Alignment.CenterVertically
+    val uiState by settingsViewModel.uiState.collectAsState()
+    LazyColumn(
+        modifier = Modifier.padding(),
+        contentPadding = PaddingValues()
     ) {
-        if (icon != null) {
-            Box(
-                Modifier
-                    .align(Alignment.CenterVertically)
-                    .padding(
-                        end = SettingsListItemDefaults.iconBoxPaddingEnd,
-                        start = SettingsListItemDefaults.iconBoxPaddingStart,
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Box(
-                    modifier = Modifier
-                        .padding(
-                            end = SettingsListItemDefaults.iconPaddingEnd,
-                            bottom = SettingsListItemDefaults.iconPaddingBottom
-                        )
-                ) {
-                    Icon(imageVector = icon, contentDescription = null)
-                }
-            }
-        }
-        Column(
-            Modifier
-                .fillMaxWidth()
-                .weight(1f)
-        ) {
-            Text(
-                modifier = Modifier.alpha(SettingsListItemDefaults.titleTextAlpha),
-                text = "Title",
-                style = MaterialTheme.typography.labelLarge
+        settingsGroupItem(R.string.general) {
+            SettingsListTextItem(
+                primaryText = "Theme",
+                secondaryText = "Choose your light or dark theme",
+                onClick = {}
             )
-            Text(
-                modifier = Modifier.alpha(SettingsListItemDefaults.subtitleTextAlpha),
-                text = "Subtitle",
-                style = MaterialTheme.typography.bodyMedium,
+            SettingsListTextItem(
+                primaryText = "Notifications",
+                onClick = {}
             )
         }
-        if (trailingContent != null) {
-            Box(
-                Modifier
-                    .align(Alignment.CenterVertically)
-                    .padding(
-                        start = SettingsListItemDefaults.trailingBoxPaddingStart,
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Box(
-                    modifier = Modifier
-                        .padding(
-                            end = SettingsListItemDefaults.iconPaddingEnd,
-                            bottom = SettingsListItemDefaults.iconPaddingBottom
-                        )
-                ) {
-                    trailingContent()
-                }
-            }
+        settingsGroupItem(R.string.account) {
+            SettingsListTextItem(
+                iconRenderer = {
+                    Image(
+                        painter = painterResource(
+                            id = uiState.thirdDegreeUserRecord.avatar?.drawableRes
+                                ?: ImageAvatar.getRandom()
+                        ),
+                        contentDescription = null
+                    )
+                },
+                primaryText = uiState.thirdDegreeUserRecord.getName(),
+                secondaryText = uiState.thirdDegreeUserRecord.email
+            )
+            SettingsListTextItem(
+                icon = HarmonyIcons.SignOut,
+                primaryText = "Sign out",
+                onClick = {}
+            )
+        }
+        settingsGroupItem(R.string.about) {
+            SettingsListTextItem(
+                primaryText = "Help",
+                secondaryText = "Find answers to your Harmony questions",
+                onClick = {}
+            )
+            SettingsListTextItem(
+                primaryText = "Send feedback",
+                secondaryText = "Help us improve Harmony",
+                onClick = {}
+            )
+            SettingsListTextItem(
+                primaryText = "Terms of Service",
+                onClick = {}
+            )
+            SettingsListTextItem(
+                primaryText = "Privacy Policy",
+                onClick = {}
+            )
+            SettingsListTextItem(
+                primaryText = "Open source licenses",
+                onClick = {}
+            )
+            SettingsListTextItem(
+                primaryText = "App version",
+                secondaryText = "1.0.0",
+                onClick = {}
+            )
+            SettingsListTextItem(
+                primaryText = "Created by Aditya Bavadekar"
+            )
+
         }
     }
 }
 
-object SettingsListItemDefaults {
-    val minHeight: Dp = 56.dp
-    val titleTextAlpha: Float = 1f
-    val subtitleTextAlpha: Float = 0.8f
-    val padding: Dp = 16.dp
-    val iconPaddingEnd = 16.dp
-    val iconPaddingBottom = 16.dp
-    val iconBoxPaddingEnd = 8.dp
-    val iconBoxPaddingStart = 8.dp
-    val trailingBoxPaddingStart = 16.dp
-
+@Preview(showBackground = true)
+@Composable
+private fun SettingsScreenPrev() {
+    val uiState = SettingsUiState(
+        thirdDegreeUserRecord = ThirdDegreeUserRecord.Builder("test")
+            .setName("Test User")
+            .setEmail("user@gmail.com")
+            .setAvatar(ImageAvatar.AvatarType.MALE3)
+            .build(),
+    )
+    HarmonyTheme {
+        SettingsScreen(settingsViewModel = SettingsViewModel(uiState))
+    }
 }

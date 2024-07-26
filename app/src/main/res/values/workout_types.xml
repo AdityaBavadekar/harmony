@@ -18,6 +18,7 @@
     <string name="workout_type">Workout Type</string>
 
     <string name="unknown">Unknown</string>
+    <string name="other">Other</string>
     <string name="treadmill_running">Treadmill running</string>
     <string name="push_ups">Push ups</string>
     <string name="pull_ups">Pull ups</string>
@@ -72,6 +73,7 @@
     <string name="rock_climbing">Rock climbing</string>
     <string name="walking">Walking</string>
     <string name="running">Running</string>
+    <string name="cycling">Cycling</string>
     <string name="stretching">Stretching</string>
     <string name="yoga">Yoga</string>
 

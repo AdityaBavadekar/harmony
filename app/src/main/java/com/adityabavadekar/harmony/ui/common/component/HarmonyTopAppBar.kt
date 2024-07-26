@@ -17,10 +17,13 @@
 package com.adityabavadekar.harmony.ui.common.component
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material.TopAppBar
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,6 +32,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -37,13 +44,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.adityabavadekar.harmony.R
+import com.adityabavadekar.harmony.ui.common.CommonMenuActions
 import com.adityabavadekar.harmony.ui.common.icon.HarmonyIcons
 import com.adityabavadekar.harmony.ui.theme.HarmonyTheme
 
 data class MenuAction(
     val icon: ImageVector,
     @StringRes val iconContentDescription: Int,
+    @StringRes val text: Int,
+    val type: MenuActionType = MenuActionType.ICON,
 )
+
+enum class MenuActionType { ICON, DROP_DOWN }
 
 private val topAppBarMinHeight = 64.dp
 
@@ -59,73 +71,83 @@ fun HarmonyTopAppBar(
     centeredTitle: Boolean = false,
     textStyle: TextStyle = MaterialTheme.typography.titleLarge,
 ) {
-    if (!centeredTitle) {
+    val titleContent = @Composable {
+        Text(
+            text = stringResource(id = titleRes),
+            style = textStyle
+        )
+    }
+    val navigationIconContent = @Composable {
+        if (navigationIcon != null) {
+            IconButton(
+                onClick = onNavigationIconClicked,
+                content = navigationIcon
+            )
+        }
+    }
+    val actionsContent = @Composable {
+        actionIcons.filter { it.type == MenuActionType.ICON }
+            .forEachIndexed { index, action ->
+                IconButton(onClick = { onActionIconClicked(index) }) {
+                    Icon(
+                        imageVector = action.icon,
+                        contentDescription = stringResource(id = action.iconContentDescription),
+                        tint = MaterialTheme.colorScheme.onSurface,
+                    )
+                }
+            }
+        val dropDownActions = actionIcons.filter { it.type == MenuActionType.DROP_DOWN }
+        var isDropDownOpen by remember { mutableStateOf(false) }
+        DropdownMenu(
+            expanded = isDropDownOpen,
+            onDismissRequest = { isDropDownOpen = false }) {
+            dropDownActions.forEachIndexed { index, menuAction ->
+                DropdownMenuItem(
+                    text = {
+                        Text(text = stringResource(id = menuAction.text))
+                    },
+                    onClick = {
+                        isDropDownOpen = false
+                        onActionIconClicked(index)
+                    }
+                )
+            }
+        }
+        if (dropDownActions.isNotEmpty()) {
+            IconButton(onClick = {
+                isDropDownOpen = true
+            }) {
+                Icon(
+                    imageVector = HarmonyIcons.MoreVert,
+                    contentDescription = stringResource(id = R.string.more_options),
+                    tint = MaterialTheme.colorScheme.onSurface,
+                )
+            }
+        }
+    }
+    val backgroundColor = MaterialTheme.colorScheme.surface
+    val contentColor = MaterialTheme.colorScheme.onSurface
+    val elevation = 4.dp
 
+    if (!centeredTitle) {
         TopAppBar(
             modifier = modifier.heightIn(min = topAppBarMinHeight),
-            title = {
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(id = titleRes),
-                    style = textStyle,
-                    textAlign = if (centeredTitle) TextAlign.Center else TextAlign.Start
-                )
-            },
-            navigationIcon = {
-                if (navigationIcon != null) {
-                    IconButton(
-                        onClick = onNavigationIconClicked,
-                        content = navigationIcon
-                    )
-                }
-            },
-            actions = {
-                actionIcons.forEachIndexed { index, (icon, iconContentDescription) ->
-                    IconButton(onClick = { onActionIconClicked(index) }) {
-                        Icon(
-                            imageVector = icon,
-                            contentDescription = stringResource(id = iconContentDescription),
-                            tint = MaterialTheme.colorScheme.onSurface,
-                        )
-                    }
-                }
-            },
-            backgroundColor = MaterialTheme.colorScheme.surface,
-            contentColor = MaterialTheme.colorScheme.onSurface,
-            elevation = 4.dp
+            title = titleContent,
+            navigationIcon = navigationIconContent,
+            actions = { actionsContent() },
+            backgroundColor = backgroundColor,
+            contentColor = contentColor,
+            elevation = elevation
         )
     } else {
-
         CenterAlignedTopAppBar(
-            title = {
-                Text(
-                    text = stringResource(id = titleRes),
-                    style = textStyle
-                )
-            },
-            navigationIcon = {
-                if (navigationIcon != null) {
-                    IconButton(
-                        onClick = onNavigationIconClicked,
-                        content = navigationIcon
-                    )
-                }
-            },
-            actions = {
-                actionIcons.forEachIndexed { index, (icon, iconContentDescription) ->
-                    IconButton(onClick = { onActionIconClicked(index) }) {
-                        Icon(
-                            imageVector = icon,
-                            contentDescription = stringResource(id = iconContentDescription),
-                            tint = MaterialTheme.colorScheme.onSurface,
-                        )
-                    }
-                }
-            },
+            title = titleContent,
+            navigationIcon = navigationIconContent,
+            actions = { actionsContent() },
             colors = TopAppBarDefaults.topAppBarColors().copy(
-                containerColor = MaterialTheme.colorScheme.surface,
-                navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
-                actionIconContentColor = MaterialTheme.colorScheme.onSurface,
+                containerColor = backgroundColor,
+                navigationIconContentColor = contentColor,
+                actionIconContentColor = contentColor,
             ),
         )
     }
@@ -146,7 +168,8 @@ private fun HarmonyTopAppBarPrev() {
                 )
             },
             actionIcons = listOf(
-                MenuAction(HarmonyIcons.Settings, R.string.settings),
+                MenuAction(HarmonyIcons.Settings, R.string.settings, R.string.settings),
+                CommonMenuActions.settings()
             ),
             onNavigationIconClicked = {},
             onActionIconClicked = {}
@@ -168,7 +191,8 @@ private fun HarmonyTopAppBarCenteredPrev() {
                 )
             },
             actionIcons = listOf(
-                MenuAction(HarmonyIcons.Settings, R.string.settings),
+                MenuAction(HarmonyIcons.Settings, R.string.settings, R.string.settings),
+                CommonMenuActions.settings()
             ),
             onNavigationIconClicked = {},
             onActionIconClicked = {},

@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-package com.adityabavadekar.harmony.ui.onboarding
+package com.adityabavadekar.harmony.data
 
-class Onboarding {
+enum class ApplicationTheme {
+    LIGHT, DARK, SYSTEM_DEFAULT
 }

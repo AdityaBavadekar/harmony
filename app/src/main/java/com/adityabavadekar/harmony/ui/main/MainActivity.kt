@@ -16,9 +16,13 @@
 
 package com.adityabavadekar.harmony.ui.main
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import com.adityabavadekar.harmony.ui.livetracking.LiveTrackingActivity
+import com.adityabavadekar.harmony.ui.settings.SettingsActivity
+import com.adityabavadekar.harmony.ui.theme.HarmonyTheme
 
 class MainActivity : ComponentActivity() {
 
@@ -26,7 +30,20 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            HarmonyMainApp()
+            HarmonyTheme {
+                HarmonyMainApp(
+                    navigationToSettings = {
+                        startActivity(Intent(this, SettingsActivity::class.java))
+                    },
+                    onAddNewClicked = { type ->
+                        //TODO
+                        Intent(this, LiveTrackingActivity::class.java).also {
+                            it.putExtra(LiveTrackingActivity.EXTRA_WORKOUT_TYPE_ORDINAL, type.ordinal)
+                            startActivity(it)
+                        }
+                    }
+                )
+            }
         }
     }
 }

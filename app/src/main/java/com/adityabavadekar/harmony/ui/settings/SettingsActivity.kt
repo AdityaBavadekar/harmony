@@ -14,18 +14,25 @@
  * limitations under the License.
  */
 
-package com.adityabavadekar.harmony.utils
+package com.adityabavadekar.harmony.ui.settings
 
-import android.annotation.SuppressLint
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.viewModels
+import com.adityabavadekar.harmony.ui.theme.HarmonyTheme
 
-@SuppressLint("DefaultLocale")
-class NumberUtils {
-    companion object {
-        fun formatNumber(number: Long): String = String.format("%,d", number)
-        fun formatNumber(number: Float): String = String.format("%,.1f", number)
-        fun formatNumber(number: Float, integerFormatting: Boolean): String {
-            return if (!integerFormatting) formatNumber(number)
-            else formatNumber(number.toLong())
+class SettingsActivity : ComponentActivity() {
+
+    private val viewModel by viewModels<SettingsViewModel>()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        setContent {
+            HarmonyTheme {
+                SettingsScreen(viewModel)
+            }
         }
     }
 }

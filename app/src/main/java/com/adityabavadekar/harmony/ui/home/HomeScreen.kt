@@ -25,12 +25,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.adityabavadekar.harmony.data.WorkoutTypes
 import com.adityabavadekar.harmony.ui.common.component.StatsSummaryScreen
 import com.adityabavadekar.harmony.ui.common.icon.HarmonyIcons
 
 @Preview
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier) {
+fun HomeScreen(
+    onAddNewClicked: (WorkoutTypes) -> Unit = {}
+) {
     Scaffold (
         floatingActionButton = {
             FloatingActionButton(onClick = {  }) {
@@ -39,7 +42,9 @@ fun HomeScreen(modifier: Modifier = Modifier) {
         }
     ){
         Column(Modifier.fillMaxSize().padding(it)) {
-            StatsSummaryScreen()
+            StatsSummaryScreen(
+                onAddNewClicked = onAddNewClicked
+            )
         }
     }
 }

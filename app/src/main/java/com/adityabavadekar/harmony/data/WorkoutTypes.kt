@@ -16,17 +16,20 @@
 
 package com.adityabavadekar.harmony.data
 
+import androidx.annotation.DrawableRes
 import com.adityabavadekar.harmony.R
 
 enum class WorkoutCategories { AEROBIC, WEIGHT, WATER, BALL, STRETCHING, WINTER, GENERAL, HILL, GYM, OTHER, SPORTS }
 
 enum class WorkoutTypes(
     val category: List<WorkoutCategories>,
-    nameRes: Int = R.string.workout_type //type: @StringRes
+    val nameRes: Int = R.string.workout_type, //type: @StringRes
+    @DrawableRes val drawableRes: Int = R.drawable.other_excercises
 ) {
     // All Workouts together come under "ALL" Category 
 
     TYPE_UNKNOWN(listOf(WorkoutCategories.OTHER), R.string.unknown),
+    TYPE_OTHER(listOf(WorkoutCategories.OTHER), R.string.other),
 
     /* Gym Workouts*/
     TYPE_TREADMILL_RUNNING(listOf(WorkoutCategories.AEROBIC, WorkoutCategories.GYM), R.string.treadmill_running),
@@ -95,8 +98,9 @@ enum class WorkoutTypes(
     TYPE_ROCK_CLIMBING(listOf(WorkoutCategories.HILL, WorkoutCategories.SPORTS), R.string.rock_climbing),
 
     /* Common Aerobic Exercises */
-    TYPE_WALKING(listOf(WorkoutCategories.AEROBIC), R.string.walking),
-    TYPE_RUNNING(listOf(WorkoutCategories.AEROBIC), R.string.running),
+    TYPE_WALKING(listOf(WorkoutCategories.AEROBIC), R.string.walking, R.drawable.walking),
+    TYPE_RUNNING(listOf(WorkoutCategories.AEROBIC), R.string.running, R.drawable.running),
+    TYPE_CYCLING(listOf(WorkoutCategories.AEROBIC), R.string.cycling, R.drawable.cycling),
     TYPE_STRETCHING(listOf(WorkoutCategories.STRETCHING), R.string.stretching),
 
     /* Yoga Exercises */

@@ -14,18 +14,15 @@
  * limitations under the License.
  */
 
-package com.adityabavadekar.harmony.utils
+package com.adityabavadekar.harmony.ui.settings
 
-import android.annotation.SuppressLint
+import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
-@SuppressLint("DefaultLocale")
-class NumberUtils {
-    companion object {
-        fun formatNumber(number: Long): String = String.format("%,d", number)
-        fun formatNumber(number: Float): String = String.format("%,.1f", number)
-        fun formatNumber(number: Float, integerFormatting: Boolean): String {
-            return if (!integerFormatting) formatNumber(number)
-            else formatNumber(number.toLong())
-        }
-    }
+class SettingsViewModel(initialUiState: SettingsUiState = SettingsUiState()) : ViewModel() {
+
+    private val _uiState = MutableStateFlow(initialUiState)
+    val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
 }

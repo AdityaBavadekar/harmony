@@ -16,23 +16,16 @@
 
 package com.adityabavadekar.harmony.data.model
 
-import com.adityabavadekar.harmony.data.AchievementTypes
-import com.adityabavadekar.harmony.ui.common.Gender
-import com.adityabavadekar.harmony.utils.ImageAvatar
+data class PassedTime(val start: Long) {
 
-/**
- * Represents User related all information
- */
-data class UserRecord(
-    override val firstName: String,
-    override val lastName: String?,
-    val uid: String,
-    val created: Long,
-    val birthDate: Long?,
-    val gender: Gender,
-    val email: String,
-    val emailVerified: Boolean,
-    val avatar: ImageAvatar.AvatarType?,
-    val userFitnessRecord: UserFitnessRecord,
-    val achievements: List<AchievementTypes>,
-) : NameRecord
+    private var lastTime: Long = 0
+
+    fun update(time: Long) {
+        lastTime = time
+    }
+
+    fun get(): TimeDifference {
+        return TimeDifference.from(startMillis = start, endMillis = lastTime)
+    }
+
+}

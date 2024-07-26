@@ -16,20 +16,19 @@
 
 package com.adityabavadekar.harmony.ui.common.component
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.preference.PreferenceManager
-import android.view.InputDevice
-import android.view.MotionEvent
-import android.view.View.OnGenericMotionListener
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidView
+import com.adityabavadekar.harmony.ui.common.LocationPinOverlay
 import com.adityabavadekar.harmony.ui.common.component.map.rememberMapViewWithLifecycle
+import com.adityabavadekar.harmony.ui.livetracking.GeoLocation
 import com.adityabavadekar.harmony.ui.theme.HarmonyTheme
-import org.osmdroid.api.IGeoPoint
 import org.osmdroid.config.Configuration
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.CopyrightOverlay
@@ -50,48 +49,42 @@ fun initialiseMapView(applicationContext: Context) {
  * @param modifier Modifiers to apply to the map.
  * @param onLoad This will get called once the map has been loaded.
  */
+@SuppressLint("ClickableViewAccessibility")
 @Composable
 fun ComposeMapView(
     modifier: Modifier = Modifier,
+    point: GeoLocation = GeoLocation(0.00, 0.00),
+    disableTouchControls: Boolean = false,
+    initialize: Boolean = true,
     mapViewState: MapView = rememberMapViewWithLifecycle(),
-    onLoad: ((map: MapView) -> Unit)? = null
+    onLoad: ((map: MapView) -> Unit)? = null,
 ) {
     val context = LocalContext.current
+
+    if (initialize) initialiseMapView(context.applicationContext)
+
     AndroidView(
         { mapViewState },
         modifier
     ) { mapView ->
         val copyrightOverlay = CopyrightOverlay(context)
-        mapView.overlays.add(copyrightOverlay)
+        mapView.overlays.clear()
+        mapView.overlays.add(0, copyrightOverlay)
 
-        mapView.setOnGenericMotionListener(
-            OnGenericMotionListener { _, event ->
-                /**
-                 * mouse wheel zooming ftw
-                 * http://stackoverflow.com/questions/11024809/how-can-my-view-respond-to-a-mousewheel
-                 */
-                if (0 != (event.source and InputDevice.SOURCE_CLASS_POINTER)) {
-                    when (event.action) {
-                        MotionEvent.ACTION_SCROLL -> {
-                            if (event.getAxisValue(MotionEvent.AXIS_VSCROLL) < 0.0f) mapView.controller
-                                .zoomOut()
-                            else {
-                                //this part just centers the map on the current mouse location before the zoom action occurs
-                                val iGeoPoint: IGeoPoint = mapView.getProjection()
-                                    .fromPixels(event.x.toInt(), event.y.toInt())
-                                mapView.controller.animateTo(iGeoPoint)
-                                mapView.controller.zoomIn()
-                            }
-                            return@OnGenericMotionListener true
-                        }
-                    }
-                }
-                false
-            }
-        )
-
-        //needed for pinch zooms
-        mapView.setMultiTouchControls(true);
+        if (disableTouchControls) {
+            mapView.setOnTouchListener { _, _ -> true }
+        }
+//        val myLocationNewOverlay = MyLocationNewOverlay(mapView)
+//        val startMarker = Marker(mapView)
+//        startMarker.icon = mapView.resources.getDrawable(R.drawable.location_pin)
+//        startMarker.position = point
+//        startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+//        mapView.overlays.add(1, startMarker)
+//        mapView.overlays.add(myLocationNewOverlay)
+        val overlay = LocationPinOverlay(mapView, location = point)
+        mapView.overlays.add(1, overlay)
+        mapView.controller.setCenter(point.geoPoint)
+        mapView.controller.animateTo(point.geoPoint, 19.00, 200)
 
         onLoad?.invoke(mapView)
     }

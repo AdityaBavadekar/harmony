@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
-package com.adityabavadekar.harmony.utils
+package com.adityabavadekar.harmony.ui.common
 
-import android.annotation.SuppressLint
+import com.adityabavadekar.harmony.R
+import com.adityabavadekar.harmony.ui.common.component.MenuAction
+import com.adityabavadekar.harmony.ui.common.component.MenuActionType
+import com.adityabavadekar.harmony.ui.common.icon.HarmonyIcons
 
-@SuppressLint("DefaultLocale")
-class NumberUtils {
-    companion object {
-        fun formatNumber(number: Long): String = String.format("%,d", number)
-        fun formatNumber(number: Float): String = String.format("%,.1f", number)
-        fun formatNumber(number: Float, integerFormatting: Boolean): String {
-            return if (!integerFormatting) formatNumber(number)
-            else formatNumber(number.toLong())
-        }
+object CommonMenuActions {
+    fun settings(): MenuAction {
+        return MenuAction(
+            icon = HarmonyIcons.Settings,
+            iconContentDescription = R.string.settings,
+            text = R.string.settings,
+            type = MenuActionType.DROP_DOWN
+        )
     }
 }

@@ -21,31 +21,46 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.adityabavadekar.harmony.ui.common.activitybase.GoogleSigninActivity.Companion.getLastSigninAccount
 import com.adityabavadekar.harmony.ui.main.MainActivity
 import com.adityabavadekar.harmony.ui.onboarding.WelcomeScreen
 import com.adityabavadekar.harmony.ui.signin.SigninActivity
+import com.adityabavadekar.harmony.ui.theme.HarmonyTheme
 import com.adityabavadekar.harmony.utils.preferences.PreferencesKeys
 import com.adityabavadekar.harmony.utils.preferences.preferencesManager
 
-class TestActivity : ComponentActivity() {
+class LauncherActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        val isOnboardingCompleted =
-            preferencesManager.getBoolean(PreferencesKeys.ONBOARDING_COMPLETED, false)
-        val homeIntent = Intent(this, MainActivity::class.java)
-        val signinIntent = Intent(this, SigninActivity::class.java)
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        if (isOnboardingCompleted) startActivity(homeIntent)
-        else {
+        val isOnboardingCompleted =
+            preferencesManager.getBoolean(PreferencesKeys.ONBOARDING_COMPLETED, false)
+
+        val nextIntentClass = if (getLastSigninAccount() == null) SigninActivity::class.java
+            else MainActivity::class.java
+        if (isOnboardingCompleted) {
+            startActivity(Intent(this, nextIntentClass))
+            finish()
+        } else {
             setContent {
-                WelcomeScreen {
-                    if (getLastSigninAccount() == null) startActivity(signinIntent)
-                    else startActivity(homeIntent)
+                HarmonyTheme(darkTheme = false, dynamicColor = false) {
+                    WelcomeScreen(
+                        onCompleted = {
+                            preferencesManager.setBoolean(
+                                PreferencesKeys.ONBOARDING_COMPLETED,
+                                true
+                            )
+                            startActivity(Intent(this, nextIntentClass))
+                            finish()
+                        }
+                    )
                 }
             }
         }
+
 
     }
 }

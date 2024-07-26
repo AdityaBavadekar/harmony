@@ -17,7 +17,6 @@
 package com.adityabavadekar.harmony.ui.activity
 
 import androidx.annotation.DrawableRes
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -61,11 +60,11 @@ fun ActivityScreen(modifier: Modifier = Modifier) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text(
+            /*Text(
                 text = "Activity",
                 style = MaterialTheme.typography.headlineLarge,
                 modifier = Modifier.padding(28.dp)
-            )
+            )*/
 
             Column(
                 horizontalAlignment = Alignment.Start,
@@ -79,13 +78,6 @@ fun ActivityScreen(modifier: Modifier = Modifier) {
                             System.currentTimeMillis()
                         )
                     }
-                    item {
-                        ActivityItem2(
-                            "Cycling",
-                            "12 Kcal",
-                            System.currentTimeMillis()
-                        )
-                    }
                 }
             }
         }
@@ -94,114 +86,6 @@ fun ActivityScreen(modifier: Modifier = Modifier) {
 
 @Composable
 fun ActivityItem(title: String, text: String, timestamp: Long) {
-    Column(
-        Modifier
-            .fillMaxWidth()
-            .background(Color.Yellow)
-            .clickableRipple()
-    ) {
-        Row(
-            Modifier.padding(horizontal = 28.dp, vertical = 18.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(
-                Modifier.weight(1f),
-                horizontalAlignment = Alignment.Start,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    modifier = Modifier.alpha(0.9f),
-                    text = title,
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.W400
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    modifier = Modifier.alpha(0.7f),
-                    text = text,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-            Column {
-                Row(
-                    Modifier.fillMaxHeight(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        modifier = Modifier.alpha(0.7f),
-                        text = SimpleDateFormat(
-                            "dd MMM yyyy",
-                            Locale.getDefault()
-                        ).format(Date(timestamp)),
-                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
-                    )
-                    Text(
-                        modifier = Modifier
-                            .alpha(0.7f)
-                            .padding(horizontal = 2.dp),
-                        text = "•",
-                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
-                    )
-                    Text(
-                        modifier = Modifier.alpha(0.7f),
-                        text = "1:30s",
-                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Row {
-                    Surface(
-                        color = MaterialTheme.colorScheme.primary,
-                        shape = RoundedCornerShape(
-                            topStart = 8.dp,
-                            bottomStart = 8.dp
-                        )
-                    ) {
-                        Box(
-                            Modifier.padding(4.dp),
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(text = "50", style = MaterialTheme.typography.bodySmall)
-                                HorizontalSpacer(size = 4.dp)
-                                Icon(
-                                    painter = painterResource(id = R.drawable.steps),
-                                    contentDescription = "Steps count",
-                                    modifier = Modifier.size(MaterialTheme.typography.bodySmall.fontSize.value.dp)
-                                )
-                            }
-                        }
-                    }
-                    Surface(
-                        color = MaterialTheme.colorScheme.tertiary,
-                        shape = RoundedCornerShape(
-                            topEnd = 8.dp,
-                            bottomEnd = 8.dp
-                        )
-                    ) {
-                        Box(
-                            Modifier.padding(4.dp)
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(text = "8", style = MaterialTheme.typography.bodySmall)
-                                HorizontalSpacer(size = 4.dp)
-                                Text(text = "km", style = MaterialTheme.typography.bodySmall)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun ActivityItem2(title: String, text: String, timestamp: Long) {
     Column(
         Modifier
             .fillMaxWidth()
@@ -303,7 +187,7 @@ fun NutItem(
     @DrawableRes trailingIcon: Int? = null,
     trailingIconContentDescription: String? = null,
     textColor: Color = MaterialTheme.colorScheme.onSurface,
-    color: Color = MaterialTheme.colorScheme.primary
+    color: Color = MaterialTheme.colorScheme.primary,
 ) {
     val textStyle = MaterialTheme.typography.bodyMedium.copy(color = textColor)
     Surface(

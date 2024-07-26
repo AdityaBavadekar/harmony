@@ -16,16 +16,6 @@
 
 package com.adityabavadekar.harmony.utils
 
-import android.annotation.SuppressLint
+class LocationUniformFilter {
 
-@SuppressLint("DefaultLocale")
-class NumberUtils {
-    companion object {
-        fun formatNumber(number: Long): String = String.format("%,d", number)
-        fun formatNumber(number: Float): String = String.format("%,.1f", number)
-        fun formatNumber(number: Float, integerFormatting: Boolean): String {
-            return if (!integerFormatting) formatNumber(number)
-            else formatNumber(number.toLong())
-        }
-    }
 }

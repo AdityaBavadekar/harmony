@@ -48,12 +48,14 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.adityabavadekar.harmony.R
+import com.adityabavadekar.harmony.data.WorkoutTypes
 import com.adityabavadekar.harmony.ui.theme.HarmonyTheme
 import com.adityabavadekar.harmony.utils.ColorUtils
 import com.adityabavadekar.harmony.utils.SleepUtils
@@ -69,7 +71,7 @@ private val homeScreenItemPaddingVertical = 16.dp
 private val homeScreenItemPaddingHorizontal = 18.dp
 
 @Composable
-private fun getStatsItemSurfaceColor() :Color{
+private fun getStatsItemSurfaceColor(): Color {
     return ColorUtils.getCardColor()
 //    return MaterialTheme.colorScheme.surfaceContainerHighest
 }
@@ -331,13 +333,15 @@ fun StepsCount(modifier: Modifier = Modifier) {
 
 
 @Composable
-fun QuickNewWorkoutAccess(modifier: Modifier = Modifier) {
+fun QuickNewWorkoutAccess(
+    modifier: Modifier = Modifier,
+    onClick: (WorkoutTypes) -> Unit = {},
+) {
     val items = listOf(
-        Pair(R.drawable.walking, "Walking"),
-        Pair(R.drawable.running, "Running"),
-        Pair(R.drawable.cycling, "Cycling"),
-        Pair(R.drawable.dumbel, "Workout"),
-        Pair(R.drawable.other_excercises, "Other"),
+        WorkoutTypes.TYPE_WALKING,
+        WorkoutTypes.TYPE_RUNNING,
+        WorkoutTypes.TYPE_CYCLING,
+        WorkoutTypes.TYPE_OTHER,
     )
     HomeScreenListItem(clickable = false, addPadding = false) {
         Column(
@@ -356,13 +360,15 @@ fun QuickNewWorkoutAccess(modifier: Modifier = Modifier) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                repeat(items.size) {
+                items.forEach { item ->
                     Surface(
                         shape = RoundedCornerShape(16.dp)
                     ) {
                         Column(
                             Modifier
-                                .clickableRipple()
+                                .clickableRipple(onClick = {
+                                    onClick(item)
+                                })
                                 .padding(8.dp),
                             verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -371,13 +377,12 @@ fun QuickNewWorkoutAccess(modifier: Modifier = Modifier) {
                                 modifier = Modifier
                                     .size(48.dp)
                                     .padding(8.dp),
-                                painter = painterResource(id = items[it].first),
-                                contentDescription = items[it].second
+                                painter = painterResource(id = item.drawableRes),
+                                contentDescription = stringResource(id = item.nameRes)
                             )
                             Text(
-                                text = items[it].second,
-                                textAlign = TextAlign.Center,
-                                style = MaterialTheme.typography.labelSmall
+                                text = stringResource(id = item.nameRes),
+                                textAlign = TextAlign.Center
                             )
                         }
                     }
@@ -580,7 +585,9 @@ private fun LazyListScope.statsItem(
 }
 
 @Composable
-fun StatsSummaryScreen() {
+fun StatsSummaryScreen(
+    onAddNewClicked: (WorkoutTypes) -> Unit = {}
+) {
     Column(
         Modifier
             .fillMaxSize()
@@ -595,7 +602,7 @@ fun StatsSummaryScreen() {
                 StepsCount()
             }
             statsItem {
-                QuickNewWorkoutAccess()
+                QuickNewWorkoutAccess(onClick = onAddNewClicked)
             }
             statsItem {
                 DailyTarget()
@@ -613,7 +620,7 @@ fun StatsSummaryScreen() {
     }
 }
 
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(showBackground = true)
 @Composable
 private fun TestItem() {
     HarmonyTheme {

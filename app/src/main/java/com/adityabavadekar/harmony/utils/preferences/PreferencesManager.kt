@@ -23,23 +23,23 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 
 class PreferencesManager private constructor(context: Context) {
-    fun putString(key: PreferencesKeys, value: String?) {
+    fun setString(key: PreferencesKeys, value: String?) {
         editAsync { putString(key.name, value) }
     }
 
-    fun putInt(key: PreferencesKeys, value: Int) {
+    fun setInt(key: PreferencesKeys, value: Int) {
         editAsync { putInt(key.name, value) }
     }
 
-    fun putLong(key: PreferencesKeys, value: Long) {
+    fun setLong(key: PreferencesKeys, value: Long) {
         editAsync { putLong(key.name, value) }
     }
 
-    fun putFloat(key: PreferencesKeys, value: Float) {
+    fun setFloat(key: PreferencesKeys, value: Float) {
         editAsync { putFloat(key.name, value) }
     }
 
-    fun putBoolean(key: PreferencesKeys, value: Boolean) {
+    fun setBoolean(key: PreferencesKeys, value: Boolean) {
         editAsync { putBoolean(key.name, value) }
     }
 
@@ -88,12 +88,6 @@ class PreferencesManager private constructor(context: Context) {
     fun get(key: PreferencesKeys, default: Float? = null): Float? = getFloat(key, default)
     fun get(key: PreferencesKeys, default: Long? = null): Long? = getLong(key, default)
     fun get(key: PreferencesKeys, default: Boolean): Boolean = getBoolean(key, default)
-
-    fun set(key: PreferencesKeys, value: String?) {
-        sharedPreferences.edit {
-            putString(key.name, value)
-        }
-    }
 
     fun editAsync(editValues: SharedPreferences.Editor.() -> Unit) {
         sharedPreferences.edit {

@@ -19,6 +19,7 @@ package com.adityabavadekar.harmony.ui.common.icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.rounded.Logout
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.ViewAgenda
 import androidx.compose.material.icons.rounded.AccountCircle
@@ -60,4 +61,5 @@ object HarmonyIcons {
     val Search = Icons.Rounded.Search
     val Settings = Icons.Rounded.Settings
     val Fitbit = Icons.Rounded.Fitbit
+    val SignOut = Icons.AutoMirrored.Rounded.Logout
 }

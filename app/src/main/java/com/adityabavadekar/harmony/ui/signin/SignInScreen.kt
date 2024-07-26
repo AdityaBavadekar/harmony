@@ -51,7 +51,8 @@ import com.adityabavadekar.harmony.ui.theme.LinkColor
 @Composable
 fun SignInScreen(
     signinWithGoogle: () -> Unit = {},
-    switchToSignUp: () -> Unit = {}
+    switchToSignUp: () -> Unit = {},
+    onContinue: () -> Unit = {},
 ) {
     val email = remember {
         mutableStateOf(TextFieldValue())
@@ -103,7 +104,7 @@ fun SignInScreen(
                     clickableText = "Sign Up",
                     onClick = switchToSignUp
                 )
-                BottomBar()
+                BottomBar(onPositiveClick = onContinue)
             }
         }
     }

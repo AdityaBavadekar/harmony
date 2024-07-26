@@ -90,11 +90,11 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text(
+            /*Text(
                 text = "Profile",
                 style = MaterialTheme.typography.headlineLarge,
                 modifier = Modifier.padding(28.dp)
-            )
+            )*/
 
             LazyColumn(
                 Modifier

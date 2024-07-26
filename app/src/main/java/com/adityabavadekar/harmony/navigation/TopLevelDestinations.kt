@@ -18,7 +18,6 @@ package com.adityabavadekar.harmony.navigation
 
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.adityabavadekar.harmony.R
-import com.adityabavadekar.harmony.ui.common.component.MenuAction
 import com.adityabavadekar.harmony.ui.common.icon.HarmonyIcons
 
 enum class TopLevelDestination(
@@ -27,15 +26,13 @@ enum class TopLevelDestination(
     val iconTextId: Int,
     val titleTextId: Int,
     val showTopAppBar: Boolean = true,
-    val centeredTitle:Boolean = false,
-    val menuActions: List<MenuAction> = emptyList(),
+    val centeredTitle: Boolean = false,
 ) {
     HOME(
         selectedIcon = HarmonyIcons.Analytics,
         unselectedIcon = HarmonyIcons.Analytics,
         iconTextId = R.string.home_icon_description,
         titleTextId = R.string.home,
-        menuActions = listOf(MenuAction(HarmonyIcons.Settings, R.string.settings))
     ),
     ACTIVITY(
         selectedIcon = HarmonyIcons.Analytics,

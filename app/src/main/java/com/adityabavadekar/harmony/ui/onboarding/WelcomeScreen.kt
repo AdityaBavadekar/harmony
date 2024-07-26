@@ -59,38 +59,38 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import com.adityabavadekar.harmony.R
-import com.adityabavadekar.harmony.ui.theme.HarmonyTheme
 import kotlinx.coroutines.launch
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun WelcomeScreen(
     onCompleted: () -> Unit = {},
+    onPageChanged: (pageIndex:Int) -> Unit = {},
+    currentCarouselPageIndex : Int = 0
 ) {
     val pages = getCarouselPagesList()
-    val pagerState = rememberPagerState { return@rememberPagerState pages.size }
+    val pagerState = rememberPagerState(initialPage = currentCarouselPageIndex) { return@rememberPagerState pages.size }
 
     @Composable
     fun getContentAtIndex(pageIndex: Int) {
         WelcomeCarouselItem(pages[pageIndex])
     }
 
-    HarmonyTheme {
-        Surface {
-            Row {
-                Box(Modifier.fillMaxSize()) {
-                    HorizontalPager(
-                        modifier = Modifier.fillMaxSize(),
-                        state = pagerState,
-                    ) { pageIndex ->
-                        Column { getContentAtIndex(pageIndex) }
-                    }
-                    PagerScrollIndicators(
-                        pagerState = pagerState,
-                        modifier = Modifier.align(Alignment.BottomCenter),
-                        onCompleted = onCompleted
-                    )
+    Surface {
+        Row {
+            Box(Modifier.fillMaxSize()) {
+                HorizontalPager(
+                    modifier = Modifier.fillMaxSize(),
+                    state = pagerState,
+                ) { pageIndex ->
+                    Column { getContentAtIndex(pageIndex) }
                 }
+                PagerScrollIndicators(
+                    pagerState = pagerState,
+                    modifier = Modifier.align(Alignment.BottomCenter),
+                    onCompleted = onCompleted,
+                    onPageChanged = onPageChanged,
+                )
             }
         }
     }
@@ -117,6 +117,7 @@ fun PagerScrollIndicators(
     pagerState: PagerState,
     modifier: Modifier = Modifier,
     onCompleted: () -> Unit,
+    onPageChanged: (pageIndex:Int) -> Unit = {},
 ) {
     val pageCount = pagerState.pageCount
     val coroutineScope = rememberCoroutineScope()
@@ -146,6 +147,7 @@ fun PagerScrollIndicators(
                 if (nextPageIndex >= pagerState.pageCount) {
                     onCompleted()
                 } else {
+                    onPageChanged(nextPageIndex)
                     coroutineScope.launch {
                         pagerState.animateScrollToPage(nextPageIndex)
                     }

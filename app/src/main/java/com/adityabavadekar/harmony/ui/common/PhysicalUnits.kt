@@ -141,7 +141,8 @@ interface SIConvertibleUnits<T> {
 }
 
 class Length(lengthInMeters: Float) : PhysicalUnit<LengthUnits>() {
-    private val unit: LengthUnits = LengthUnits.METERS
+    var unit: LengthUnits = LengthUnits.METERS
+        private set
     private var length = lengthInMeters
     override fun getValue(targetUnit: LengthUnits): Float {
         return unit.fromSI(getSIValue())
@@ -153,7 +154,8 @@ class Length(lengthInMeters: Float) : PhysicalUnit<LengthUnits>() {
 }
 
 class Mass(massInKg: Float) : PhysicalUnit<MassUnits>() {
-    private val unit: MassUnits = MassUnits.KG
+    var unit: MassUnits = MassUnits.KG
+        private set
     private var mass = massInKg
     override fun getValue(targetUnit: MassUnits): Float {
         return unit.fromSI(getSIValue())
@@ -165,7 +167,8 @@ class Mass(massInKg: Float) : PhysicalUnit<MassUnits>() {
 }
 
 class Temperature(temperatureInCelsius: Float) : PhysicalUnit<TemperatureUnits>() {
-    private val unit: TemperatureUnits = TemperatureUnits.CELSIUS
+    var unit: TemperatureUnits = TemperatureUnits.CELSIUS
+        private set
     private var temperature = temperatureInCelsius
     override fun getValue(targetUnit: TemperatureUnits): Float {
         return unit.fromSI(getSIValue())
@@ -177,7 +180,8 @@ class Temperature(temperatureInCelsius: Float) : PhysicalUnit<TemperatureUnits>(
 }
 
 class Speed(speedInMetersSec: Float) : PhysicalUnit<SpeedUnits>() {
-    private val unit: SpeedUnits = SpeedUnits.METERS_PER_SECOND
+    var unit: SpeedUnits = SpeedUnits.METERS_PER_SECOND
+        private set
     private var speed = speedInMetersSec
     override fun getValue(targetUnit: SpeedUnits): Float {
         return unit.fromSI(getSIValue())
@@ -189,7 +193,8 @@ class Speed(speedInMetersSec: Float) : PhysicalUnit<SpeedUnits>() {
 }
 
 class Volume(volumeInLitres: Float) : PhysicalUnit<SpeedUnits>() {
-    private val unit: VolumeUnits = VolumeUnits.LITERS
+    var unit: VolumeUnits = VolumeUnits.LITERS
+        private set
     private var volume = volumeInLitres
     override fun getValue(targetUnit: SpeedUnits): Float {
         return unit.fromSI(getSIValue())
@@ -202,7 +207,8 @@ class Volume(volumeInLitres: Float) : PhysicalUnit<SpeedUnits>() {
 }
 
 class Pressure(pressureInPascals: Float) : PhysicalUnit<PressureUnits>() {
-    private val unit: PressureUnits = PressureUnits.PASCAL
+    var unit: PressureUnits = PressureUnits.PASCAL
+        private set
     private var pressure = pressureInPascals
 
     override fun getValue(targetUnit: PressureUnits): Float {
