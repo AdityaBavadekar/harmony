@@ -16,6 +16,19 @@
 
 package com.adityabavadekar.harmony.database.converter
 
-class WorkoutLapListTypeConverter {
+import androidx.room.TypeConverter
+import com.adityabavadekar.harmony.data.WorkoutTypes
+
+class WorkoutTypesTypeConverter {
+
+    @TypeConverter
+    fun fromWorkoutTypes(type: WorkoutTypes): String {
+        return type.name
+    }
+
+    @TypeConverter
+    fun toWorkoutTypes(name: String): WorkoutTypes {
+        return WorkoutTypes.valueOf(name)
+    }
 
 }

@@ -41,4 +41,7 @@
     <string name="status_paused">Paused</string>
     <string name="status_finished">Finished</string>
     <string name="status_not_started">Not Started</string>
+    <string name="ok">OK</string>
+    <string name="google_signout_failed_message">You could not be signed out. Please try again after some time</string>
+    <string name="something_went_wrong">Something went wrong!</string>
 </resources>

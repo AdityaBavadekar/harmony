@@ -17,5 +17,8 @@
 package com.adityabavadekar.harmony.utils.preferences
 
 enum class PreferencesKeys {
-    ONBOARDING_COMPLETED, THEME
+    ONBOARDING_COMPLETED,
+    THEME,
+    USER_EMAIL,
+
 }

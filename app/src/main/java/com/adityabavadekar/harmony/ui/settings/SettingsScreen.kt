@@ -35,6 +35,7 @@ import com.adityabavadekar.harmony.utils.ImageAvatar
 @Composable
 fun SettingsScreen(
     settingsViewModel: SettingsViewModel,
+    onLogoutClicked: () -> Unit = {},
 ) {
     val uiState by settingsViewModel.uiState.collectAsState()
     LazyColumn(
@@ -69,7 +70,7 @@ fun SettingsScreen(
             SettingsListTextItem(
                 icon = HarmonyIcons.SignOut,
                 primaryText = "Sign out",
-                onClick = {}
+                onClick = onLogoutClicked
             )
         }
         settingsGroupItem(R.string.about) {

@@ -173,7 +173,7 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
                             HarmonyTimeInputField(
                                 modifier = Modifier.weight(1f, fill = false),
                                 hint = "Sleep",
-                                onValueChanged = { hour: Int, minute: Int -> }
+                                onValueChanged = { _: Int, _: Int -> }
                             )
 
                             Spacer(modifier = Modifier.width(8.dp))
@@ -181,7 +181,7 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
                             HarmonyTimeInputField(
                                 modifier = Modifier.weight(1f, fill = false),
                                 hint = "Wake up",
-                                onValueChanged = { hour: Int, minute: Int -> }
+                                onValueChanged = { _: Int, _: Int -> }
                             )
                         }
                     }

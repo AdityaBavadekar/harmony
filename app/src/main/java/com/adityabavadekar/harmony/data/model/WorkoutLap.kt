@@ -19,4 +19,6 @@ package com.adityabavadekar.harmony.data.model
 data class WorkoutLap(
     val startTimestamp: Long,
     val endTimestamp: Long,
-)
+) {
+    fun diff() = endTimestamp - startTimestamp
+}

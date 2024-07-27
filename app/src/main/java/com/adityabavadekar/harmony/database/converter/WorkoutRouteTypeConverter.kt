@@ -16,6 +16,22 @@
 
 package com.adityabavadekar.harmony.database.converter
 
-class WorkoutLapTypeConverter {
+import androidx.room.TypeConverter
+import com.adityabavadekar.harmony.data.model.WorkoutRoute
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+
+class WorkoutRouteTypeConverter {
+
+    @TypeConverter
+    fun fromWorkoutRoute(route: WorkoutRoute): String {
+        return Gson().toJson(route)
+    }
+
+    @TypeConverter
+    fun toWorkoutRoute(jsonString: String): WorkoutRoute {
+        val type = object : TypeToken<WorkoutRoute>() {}.type
+        return Gson().fromJson(jsonString, type)
+    }
 
 }

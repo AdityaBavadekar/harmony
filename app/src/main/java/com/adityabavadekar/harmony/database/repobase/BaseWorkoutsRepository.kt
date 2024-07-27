@@ -14,23 +14,14 @@
  * limitations under the License.
  */
 
-package com.adityabavadekar.harmony.database.converter
+package com.adityabavadekar.harmony.database.repobase
 
-import androidx.room.TypeConverter
-import com.adityabavadekar.harmony.data.model.WorkoutLap
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+import com.adityabavadekar.harmony.data.model.WorkoutRecord
 
-class WorkoutLapListTypeConverter {
-
-    @TypeConverter
-    fun fromWorkoutLapList(lapList: List<WorkoutLap>): String {
-        return Gson().toJson(lapList)
-    }
-
-    @TypeConverter
-    fun toWorkoutLapList(jsonString: String): List<WorkoutLap> {
-        val type = object : TypeToken<List<WorkoutLap>>() {}.type
-        return Gson().fromJson(jsonString, type)
-    }
+internal interface BaseWorkoutsRepository {
+    fun getAll(): List<WorkoutRecord>
+    fun getWorkoutRecord(recordId: Int): WorkoutRecord?
+    fun getIncompleteWorkoutRecord(): WorkoutRecord?
+    suspend fun insertWorkoutRecord(record: WorkoutRecord)
+    suspend fun updateWorkoutRecord(record: WorkoutRecord)
 }

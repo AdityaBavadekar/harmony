@@ -28,6 +28,8 @@ import com.adityabavadekar.harmony.ui.livetracking.service.LiveTrackerService
 
 class HarmonyApplication : Application() {
 
+    private lateinit var database: HarmonyRoomDatabase
+
     override fun onCreate() {
         super.onCreate()
         Log.d(TAG, "onCreate: Application")
@@ -37,9 +39,11 @@ class HarmonyApplication : Application() {
             Log.d(TAG, "onCreate: NotificationChannels Created")
         }
 
-        HarmonyRoomDatabase.getDatabase(this)
+        database = HarmonyRoomDatabase.getDatabase(this)
         Log.d(TAG, "onCreate: Database initialised")
     }
+
+    fun getDatabase() = database
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun createNotificationChannels() {

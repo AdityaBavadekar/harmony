@@ -16,23 +16,68 @@
 
 package com.adityabavadekar.harmony.data.model
 
-import com.adityabavadekar.harmony.ui.common.Speed
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import com.adityabavadekar.harmony.data.WorkoutTypes
 
+@Entity(tableName = "workouts_table")
 data class WorkoutRecord(
-    val type: String,
+    val type: WorkoutTypes,
     val title: String,
     val description: String,
     val startTimestamp: Long,
     val endTimestamp: Long,
-    val temperatureCelsius: Float,
+    val temperatureCelsius: Float? = null,
     val distanceMeters: Float,
+    val stepsCount: Int,
     val notes: String? = null,
     val laps: List<WorkoutLap> = listOf(),
     val workoutRoute: WorkoutRoute? = null,
     val totalEnergyBurnedCal: Int? = null,
-    val minSpeed: Speed? = null,
-    val maxSpeed: Speed? = null,
-    val avgSpeed: Speed? = null,
-    val speeds: List<Speed> = listOf(),
-    val additionalWorkoutInformation: Map<String, Any> = mapOf()
-)
+    val minSpeedMetersSec: Float? = null,
+    val maxSpeedMetersSec: Float? = null,
+    val avgSpeedMetersSec: Float? = null,
+    val speedsMetersSec: List<Float> = listOf(),
+    val completed: Boolean = false,
+) {
+    @PrimaryKey(autoGenerate = true)
+    var id: Int = 0
+
+    fun timeDifference() =
+        TimeDifference.from(startTimestamp, endTimestamp - laps.sumOf { it.diff() })
+
+    companion object {
+        fun simple(
+            type: WorkoutTypes,
+            startTimestamp: Long,
+            endTimestamp: Long,
+            distanceMeters: Float,
+            stepsCount: Int,
+            totalEnergyBurnedCal: Int = 0,
+            avgSpeedMetersSec: Float? = null,
+            maxSpeedMetersSec: Float? = null,
+            minSpeedMetersSec: Float? = null,
+        ): WorkoutRecord {
+            return WorkoutRecord(
+                type = type,
+                title = "",
+                description = "",
+                startTimestamp = startTimestamp,
+                endTimestamp = endTimestamp,
+                temperatureCelsius = null,
+                distanceMeters = distanceMeters,
+                stepsCount = stepsCount,
+                notes = null,
+                laps = listOf(),
+                workoutRoute = null,
+                totalEnergyBurnedCal = totalEnergyBurnedCal,
+                minSpeedMetersSec = minSpeedMetersSec,
+                maxSpeedMetersSec = maxSpeedMetersSec,
+                avgSpeedMetersSec = avgSpeedMetersSec,
+                speedsMetersSec = listOf(),
+                completed = true
+            )
+        }
+    }
+
+}

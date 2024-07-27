@@ -16,7 +16,6 @@
 
 package com.adityabavadekar.harmony.ui.common.component
 
-import android.content.res.Configuration
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -24,6 +23,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -37,15 +37,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import com.adityabavadekar.harmony.R
 import com.adityabavadekar.harmony.ui.theme.HarmonyTheme
+import com.adityabavadekar.harmony.utils.ThemePreviews
 
+/**
+ * Themed GoogleSignInButton designed by following guidelines from https://developers.google.com/identity/branding-guidelines
+ * */
 @Composable
 fun ThemedGoogleSigninButton(
-    onClick: () -> Unit = {}
+    onClick: () -> Unit = {},
+    fillWidth: Boolean = false,
 ) {
     Button(
+        modifier = Modifier.then(
+            if (fillWidth) Modifier.fillMaxWidth()
+            else Modifier
+        ),
         colors = ButtonColors(
             MaterialTheme.colorScheme.surface,
             MaterialTheme.colorScheme.onSurface,
@@ -53,11 +64,12 @@ fun ThemedGoogleSigninButton(
             MaterialTheme.colorScheme.onSurface,
         ),
         contentPadding = PaddingValues(),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)),
         onClick = onClick
     ) {
         Row(
-            Modifier.height(40.dp),
+            Modifier
+                .height(40.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
@@ -70,14 +82,15 @@ fun ThemedGoogleSigninButton(
             Spacer(modifier = Modifier.width(10.dp))
             Text(
                 text = "Sign in with Google",
-                style = androidx.compose.material3.MaterialTheme.typography.labelLarge
+                style = MaterialTheme.typography.labelLarge,
+                fontFamily = FontFamily(Font(R.font.roboto_regular))
             )
             Spacer(modifier = Modifier.width(12.dp))
         }
     }
 }
 
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
+@ThemePreviews
 @Composable
 private fun GButtonPrev() {
     HarmonyTheme {
@@ -91,15 +104,15 @@ private fun GButtonPrev() {
     }
 }
 
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@ThemePreviews
 @Composable
-private fun GButtonDarkPrev() {
+private fun GButtonFullPrev() {
     HarmonyTheme {
         Surface {
             Column(
                 Modifier.padding(18.dp)
             ) {
-                ThemedGoogleSigninButton()
+                ThemedGoogleSigninButton(fillWidth = true)
             }
         }
     }

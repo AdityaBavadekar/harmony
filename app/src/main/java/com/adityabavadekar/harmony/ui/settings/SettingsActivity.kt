@@ -16,23 +16,56 @@
 
 package com.adityabavadekar.harmony.ui.settings
 
+import android.content.Intent
 import android.os.Bundle
-import androidx.activity.ComponentActivity
+import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import com.adityabavadekar.harmony.R
+import com.adityabavadekar.harmony.database.repo.AccountRepository
+import com.adityabavadekar.harmony.ui.LauncherActivity
+import com.adityabavadekar.harmony.ui.common.activitybase.GoogleSigninActivity
 import com.adityabavadekar.harmony.ui.theme.HarmonyTheme
+import com.adityabavadekar.harmony.utils.asHarmonyApp
+import com.adityabavadekar.harmony.utils.showErrorDialog
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 
-class SettingsActivity : ComponentActivity() {
+class SettingsActivity : GoogleSigninActivity() {
 
     private val viewModel by viewModels<SettingsViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val accountRepo =
+            AccountRepository(application.asHarmonyApp().getDatabase().accountDao())
+        viewModel.setAccount(accountRepo)
+
         setContent {
             HarmonyTheme {
-                SettingsScreen(viewModel)
+                SettingsScreen(
+                    viewModel,
+                    onLogoutClicked = {
+
+                    }
+                )
             }
         }
+    }
+
+    override fun onLoggedInWithGoogle(account: GoogleSignInAccount) {}
+    override fun onGoogleSigninFailure(errorCode: Int) {}
+
+    override fun onGoogleSigninLogoutCompleted() {
+        startActivity(Intent(this, LauncherActivity::class.java))
+        finishAffinity() //Finish all activities bellow this activity including this activity
+    }
+
+    override fun onGoogleSigninLogoutFailed(e: Exception) {
+        Log.e(TAG, "onGoogleSigninLogoutFailed", e)
+        showErrorDialog(
+            title = getString(R.string.something_went_wrong),
+            message = getString(R.string.google_signout_failed_message)
+        )
     }
 }

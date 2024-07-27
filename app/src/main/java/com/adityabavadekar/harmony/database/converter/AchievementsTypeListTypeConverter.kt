@@ -17,20 +17,16 @@
 package com.adityabavadekar.harmony.database.converter
 
 import androidx.room.TypeConverter
-import com.adityabavadekar.harmony.data.model.WorkoutLap
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+import com.adityabavadekar.harmony.data.AchievementTypes
 
-class WorkoutLapListTypeConverter {
+class AchievementsTypeListTypeConverter {
 
     @TypeConverter
-    fun fromWorkoutLapList(lapList: List<WorkoutLap>): String {
-        return Gson().toJson(lapList)
-    }
+    fun fromAchievementsTypeList(types: List<AchievementTypes>): String = types.joinToString("|")
 
     @TypeConverter
-    fun toWorkoutLapList(jsonString: String): List<WorkoutLap> {
-        val type = object : TypeToken<List<WorkoutLap>>() {}.type
-        return Gson().fromJson(jsonString, type)
+    fun toAchievementsTypeList(listString: String): List<AchievementTypes> {
+        return listString.split("|").map { AchievementTypes.valueOf(it) }
     }
+
 }

@@ -17,6 +17,7 @@
 package com.adityabavadekar.harmony.utils
 
 import android.annotation.SuppressLint
+import java.math.RoundingMode
 
 @SuppressLint("DefaultLocale")
 class NumberUtils {
@@ -27,5 +28,7 @@ class NumberUtils {
             return if (!integerFormatting) formatNumber(number)
             else formatNumber(number.toLong())
         }
+        fun roundFloat(number: Float, decimalPlaces: Int = 1): Float =
+            number.toBigDecimal().setScale(decimalPlaces, RoundingMode.UP).toFloat()
     }
 }

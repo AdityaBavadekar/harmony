@@ -37,6 +37,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -45,6 +46,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.adityabavadekar.harmony.ui.common.component.HarmonyTextInput
 import com.adityabavadekar.harmony.ui.common.component.ThemedGoogleSigninButton
+import com.adityabavadekar.harmony.ui.common.component.VerticalSpacer
 import com.adityabavadekar.harmony.ui.theme.HarmonyTheme
 import com.adityabavadekar.harmony.ui.theme.LinkColor
 
@@ -111,6 +113,62 @@ fun SignInScreen(
 }
 
 @Composable
+fun GoogleSignInScreen(
+    signinWithGoogle: () -> Unit = {},
+    switchToSignUp: () -> Unit = {},
+    onContinue: () -> Unit = {},
+) {
+    BigTitleAndButtonsScreen(bigTitleText = "Sign In") {
+        Column(
+            Modifier
+                .padding(18.dp)
+                .fillMaxSize()
+                .weight(1f),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+
+            DecorationBox {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    VerticalSpacer()
+                    Text(
+                        modifier = Modifier
+                            .padding(8.dp),
+                        text = "Join Harmony and start your wellness journey today.",
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                    Text(
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .alpha(0.7f),
+                        text = "Sign in with Google to continue",
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.labelLarge
+                    )
+                    VerticalSpacer(size = 50.dp)
+                    ThemedGoogleSigninButton(
+                        onClick = signinWithGoogle,
+                        fillWidth = true
+                    )
+                    VerticalSpacer()
+                }
+            }
+
+            VerticalSpacer()
+            SignInScreenSwitcher(
+                normalText = "Don't have an account?",
+                clickableText = "Sign Up",
+                onClick = switchToSignUp
+            )
+        }
+    }
+}
+
+@Composable
 fun SignInScreenSwitcher(
     normalText: String,
     clickableText: String,
@@ -144,7 +202,7 @@ fun BottomBar(
     negativeButtonText: String = "Back",
     positiveButtonText: String = "Continue",
     onPositiveClick: () -> Unit = {},
-    onNegativeClick: () -> Unit = {}
+    onNegativeClick: () -> Unit = {},
 ) {
     Row(
         modifier = Modifier
@@ -167,7 +225,7 @@ fun BottomBar(
 private fun SignInScreenPrev() {
     HarmonyTheme {
         Surface {
-            SignInScreen()
+            GoogleSignInScreen()
         }
     }
 }

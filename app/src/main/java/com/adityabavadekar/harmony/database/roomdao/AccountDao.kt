@@ -14,23 +14,24 @@
  * limitations under the License.
  */
 
-package com.adityabavadekar.harmony.database.converter
+package com.adityabavadekar.harmony.database.roomdao
 
-import androidx.room.TypeConverter
-import com.adityabavadekar.harmony.data.model.WorkoutLap
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.Update
+import com.adityabavadekar.harmony.data.model.UserRecord
 
-class WorkoutLapListTypeConverter {
+@Dao
+interface AccountDao {
+    @Query("SELECT * FROM accounts_table LIMIT 1")
+    fun getAccount(): UserRecord
 
-    @TypeConverter
-    fun fromWorkoutLapList(lapList: List<WorkoutLap>): String {
-        return Gson().toJson(lapList)
-    }
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun addAccount(account: UserRecord)
 
-    @TypeConverter
-    fun toWorkoutLapList(jsonString: String): List<WorkoutLap> {
-        val type = object : TypeToken<List<WorkoutLap>>() {}.type
-        return Gson().fromJson(jsonString, type)
-    }
+    @Update
+    suspend fun updateAccount(account: UserRecord)
+
 }

@@ -21,6 +21,7 @@ data class TimeDifference(
     val hours: Int,
     val minutes: Int,
     val seconds: Int,
+    private val millisDifference: Long,
 ) {
 
     fun formatForDisplay(): String {
@@ -45,7 +46,13 @@ data class TimeDifference(
 
     companion object {
         fun zero(): TimeDifference {
-            return TimeDifference(days = 0, hours = 0, minutes = 0, seconds = 0)
+            return TimeDifference(
+                days = 0,
+                hours = 0,
+                minutes = 0,
+                seconds = 0,
+                millisDifference = 0
+            )
         }
 
         fun from(startMillis: Long, endMillis: Long): TimeDifference {
@@ -55,6 +62,13 @@ data class TimeDifference(
 
         fun now(startMillis: Long): TimeDifference {
             return from(startMillis, System.currentTimeMillis())
+        }
+
+        fun now(startMillis: Long, ignorablePauses: List<WorkoutLap>): TimeDifference {
+            return from(
+                startMillis,
+                System.currentTimeMillis() - ignorablePauses.sumOf { it.diff() }
+            )
         }
 
         fun from(interval: Long): TimeDifference {
@@ -71,7 +85,8 @@ data class TimeDifference(
                 days = days.toInt(),
                 hours = hours.toInt(),
                 minutes = minutes.toInt(),
-                seconds = seconds.toInt()
+                seconds = seconds.toInt(),
+                millisDifference = interval
             )
         }
 

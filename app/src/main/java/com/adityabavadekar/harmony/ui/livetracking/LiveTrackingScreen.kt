@@ -412,7 +412,6 @@ fun LiveTrackingScreen(
                     Modifier.padding(18.dp),
                     verticalArrangement = Arrangement.Center,
                 ) {
-                    Text(text = uiState.locationCoordinates.speedOrNull()?.toBigDecimal()?.setScale(3, RoundingMode.UP)?.toFloat()?.toString()?:"0")
                     LiveTrackingActivityLabel(
                         activityLabel = stringResource(id = uiState.workoutType.nameRes),
                         status = uiState.workoutStatus

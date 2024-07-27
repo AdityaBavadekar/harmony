@@ -19,7 +19,6 @@ package com.adityabavadekar.harmony.data.model
 data class WorkoutLocation(
     val lat: Float,
     val long: Float,
-    val name: String?,
     val altitudeMeter: Float,
     val startTimestamp: Long,
     val endTimestamp: Long,

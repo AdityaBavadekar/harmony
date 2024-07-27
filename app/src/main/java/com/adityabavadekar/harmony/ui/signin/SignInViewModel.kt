@@ -14,26 +14,27 @@
  * limitations under the License.
  */
 
-package com.adityabavadekar.harmony.ui.settings
+package com.adityabavadekar.harmony.ui.signin
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.adityabavadekar.harmony.data.model.UserRecord
 import com.adityabavadekar.harmony.database.repo.AccountRepository
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class SettingsViewModel(initialUiState: SettingsUiState = SettingsUiState()) : ViewModel() {
-    private val _uiState = MutableStateFlow(initialUiState)
-    val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
-
-    fun setAccount(repo: AccountRepository) {
+class SignInViewModel : ViewModel() {
+    fun addAccount(repo: AccountRepository, account: GoogleSignInAccount) {
         viewModelScope.launch {
-            val account = repo.getAccount()
-            _uiState.value = _uiState.value.copy(
-                thirdDegreeUserRecord = account.toThirdDegreeUserRecord()
-            )
+            repo.addAccount(UserRecord.fromGoogleAccount(account))
         }
     }
+
+
+    private var _uiState: MutableStateFlow<SignInUiState?> = MutableStateFlow(null)
+    val uiState: StateFlow<SignInUiState?> = _uiState.asStateFlow()
+
 }

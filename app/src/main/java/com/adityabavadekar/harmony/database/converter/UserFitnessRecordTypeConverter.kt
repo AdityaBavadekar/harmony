@@ -17,20 +17,18 @@
 package com.adityabavadekar.harmony.database.converter
 
 import androidx.room.TypeConverter
-import com.adityabavadekar.harmony.data.model.WorkoutLap
+import com.adityabavadekar.harmony.data.model.UserFitnessRecord
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
-class WorkoutLapListTypeConverter {
+class UserFitnessRecordTypeConverter {
 
     @TypeConverter
-    fun fromWorkoutLapList(lapList: List<WorkoutLap>): String {
-        return Gson().toJson(lapList)
-    }
+    fun fromUserFitnessRecord(record: UserFitnessRecord): String = Gson().toJson(record)
 
     @TypeConverter
-    fun toWorkoutLapList(jsonString: String): List<WorkoutLap> {
-        val type = object : TypeToken<List<WorkoutLap>>() {}.type
+    fun toUserFitnessRecord(jsonString: String): UserFitnessRecord {
+        val type = object : TypeToken<UserFitnessRecord>() {}.type
         return Gson().fromJson(jsonString, type)
     }
 }

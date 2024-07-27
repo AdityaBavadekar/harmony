@@ -21,7 +21,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.adityabavadekar.harmony.ui.common.activitybase.GoogleSigninActivity.Companion.getLastSigninAccount
 import com.adityabavadekar.harmony.ui.main.MainActivity
 import com.adityabavadekar.harmony.ui.onboarding.WelcomeScreen
@@ -40,7 +39,7 @@ class LauncherActivity : ComponentActivity() {
             preferencesManager.getBoolean(PreferencesKeys.ONBOARDING_COMPLETED, false)
 
         val nextIntentClass = if (getLastSigninAccount() == null) SigninActivity::class.java
-            else MainActivity::class.java
+        else MainActivity::class.java
         if (isOnboardingCompleted) {
             startActivity(Intent(this, nextIntentClass))
             finish()
@@ -60,7 +59,5 @@ class LauncherActivity : ComponentActivity() {
                 }
             }
         }
-
-
     }
 }

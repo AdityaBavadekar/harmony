@@ -46,7 +46,9 @@ import com.adityabavadekar.harmony.ui.theme.HarmonyTheme
 
 class LiveTrackingActivity : PermissionActivity(), LiveTrackingEventsListener, SensorEventListener {
 
-    private val viewModel: LiveTrackingViewModel by viewModels()
+    private val viewModel: LiveTrackingViewModel by viewModels<LiveTrackingViewModel> {
+        LiveTrackingViewModel.Factory(application)
+    }
     private lateinit var sensorManager: SensorManager
     private var initialSteps = 0
 
@@ -121,7 +123,6 @@ class LiveTrackingActivity : PermissionActivity(), LiveTrackingEventsListener, S
         Log.d(TAG, "startLocationService")
         val intent = Intent(this, LiveTrackerService::class.java).apply {
             action = LiveTrackerService.LOC_ACTION_START
-            //startService(this)
         }
         ContextCompat.startForegroundService(this, intent)
     }

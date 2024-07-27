@@ -16,18 +16,26 @@
 
 package com.adityabavadekar.harmony.ui.signin
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -35,6 +43,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -49,8 +58,69 @@ import com.adityabavadekar.harmony.ui.common.component.HarmonyDatePicker
 import com.adityabavadekar.harmony.ui.common.component.HarmonyListItemInputField
 import com.adityabavadekar.harmony.ui.common.component.HarmonyPhysicalMeasurementInput
 import com.adityabavadekar.harmony.ui.common.component.HarmonyTextInput
+import com.adityabavadekar.harmony.ui.common.component.VerticalSpacer
+import com.adityabavadekar.harmony.ui.common.component.rememberAgeDatePickerState
 import com.adityabavadekar.harmony.ui.theme.HarmonyTheme
 import java.util.Calendar
+
+@Composable
+fun DecorationBox(content: @Composable ColumnScope.() -> Unit) {
+    Surface(
+        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Column(
+            Modifier.padding(
+                horizontal = 18.dp,
+                vertical = 16.dp
+            )
+        ) {
+            content()
+        }
+    }
+}
+
+@Composable
+fun BigTitleAndButtonsScreen(
+    bigTitleText: String,
+    positiveButtonText: String = "Next",
+    onNext: () -> Unit = {},
+    onPrevious: () -> Unit = {},
+    innerContent: @Composable ColumnScope.() -> Unit,
+) {
+    Column(Modifier.fillMaxSize()) {
+        Column(
+            Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = bigTitleText,
+                style = MaterialTheme.typography.headlineLarge,
+                modifier = Modifier.padding(28.dp)
+            )
+
+            Column(
+                Modifier
+                    .padding(vertical = 28.dp)
+                    .fillMaxSize()
+                    .weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                innerContent()
+            }
+            Column {
+                BottomBar(
+                    positiveButtonText = positiveButtonText,
+                    onPositiveClick = onNext,
+                    onNegativeClick = onPrevious
+                )
+            }
+        }
+    }
+
+}
 
 @Composable
 fun SignUpEmailInputScreen(
@@ -61,44 +131,23 @@ fun SignUpEmailInputScreen(
     val email = remember {
         mutableStateOf(TextFieldValue())
     }
-    Column(Modifier.fillMaxSize()) {
-        Column(
-            Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = "Sign Up",
-                style = MaterialTheme.typography.headlineLarge,
-                modifier = Modifier.padding(28.dp)
+    BigTitleAndButtonsScreen(
+        bigTitleText = "Sign Up",
+        onNext = onNext,
+        onPrevious = onPrevious
+    ) {
+        DecorationBox {
+            HarmonyTextInput(
+                hint = "Email address",
+                value = email.value,
+                onValueChanged = { email.value = it },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             )
-
-            Column(
-                Modifier
-                    .padding(vertical = 28.dp)
-                    .fillMaxSize()
-                    .weight(1f),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                HarmonyTextInput(
-                    hint = "Email address",
-                    value = email.value,
-                    onValueChanged = { email.value = it },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                )
-            }
-            Column {
-                BottomBar(
-                    positiveButtonText = "Next",
-                    onPositiveClick = onNext,
-                    onNegativeClick = onPrevious
-                )
-            }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignUpBirthdateInputScreen(
     modifier: Modifier = Modifier,
@@ -109,45 +158,41 @@ fun SignUpBirthdateInputScreen(
     val calculatedAge = remember {
         mutableIntStateOf(0)
     }
-    Column(Modifier.fillMaxSize()) {
+    val datePickerState = rememberAgeDatePickerState()
+
+
+    BigTitleAndButtonsScreen(
+        bigTitleText = "What is your date of birth?",
+        onNext = onNext,
+        onPrevious = onPrevious
+    ) {
+
         Column(
             Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text(
-                text = "What is your date of birth?",
-                style = MaterialTheme.typography.headlineLarge,
-                modifier = Modifier.padding(28.dp)
-            )
-
+            val c = Calendar.getInstance()
+            datePickerState.selectedDateMillis?.let {
+                c.timeInMillis = it
+                calculatedAge.intValue = currentYear - c.get(Calendar.YEAR)
+            }
             Text(
                 text = "You are ${calculatedAge.intValue} years of age",
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Light),
-                modifier = Modifier.padding(28.dp)
-            )
-
-            Column(
-                Modifier
-                    .padding(vertical = 28.dp)
-                    .fillMaxSize()
-                    .weight(1f),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                HarmonyDatePicker(onDateChangedListener = {
-                    calculatedAge.intValue = currentYear - it.year
-                })
-                Spacer(modifier = Modifier.height(8.dp))
-
-            }
-            Column {
-                BottomBar(
-                    positiveButtonText = "Next",
-                    onPositiveClick = onNext,
-                    onNegativeClick = onPrevious
+                modifier = Modifier.padding(
+                    horizontal = 28.dp
                 )
-            }
+            )
+            VerticalSpacer()
+            DatePicker(
+                modifier = Modifier.padding(18.dp),
+                state = datePickerState,
+                colors = DatePickerDefaults.colors().copy(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                title = {}
+            )
         }
     }
 }
@@ -164,52 +209,36 @@ fun SignUpNamePasswordInputScreen(
     val password = remember {
         mutableStateOf(TextFieldValue())
     }
-    Column(Modifier.fillMaxSize()) {
-        Column(
-            Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = "Name and Password",
-                style = MaterialTheme.typography.headlineLarge,
-                modifier = Modifier.padding(28.dp)
+
+
+    BigTitleAndButtonsScreen(
+        bigTitleText = "Name and Password",
+        positiveButtonText = "Create my account",
+        onNext = onNext,
+        onPrevious = onPrevious
+    ) {
+        Column {
+            CircularProfileImage(
+                size = CircularProfileImageSize.MEDIUM,
+                margin = PaddingValues(8.dp)
             )
+        }
+        VerticalSpacer()
 
-            Column(
-                Modifier
-                    .padding(vertical = 28.dp)
-                    .fillMaxSize()
-                    .weight(1f),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.SpaceEvenly
-            ) {
-
-                Column {
-                    CircularProfileImage()
-                }
-
-                Column {
-                    HarmonyTextInput(
-                        hint = "Full name",
-                        value = name.value,
-                        onValueChanged = { name.value = it },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    HarmonyTextInput(
-                        hint = "Password",
-                        value = password.value,
-                        onValueChanged = { password.value = it },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    )
-                }
-            }
+        DecorationBox {
             Column {
-                BottomBar(
-                    positiveButtonText = "Create my account",
-                    onPositiveClick = onNext,
-                    onNegativeClick = onPrevious
+                HarmonyTextInput(
+                    hint = "Full name",
+                    value = name.value,
+                    onValueChanged = { name.value = it },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                HarmonyTextInput(
+                    hint = "Password",
+                    value = password.value,
+                    onValueChanged = { password.value = it },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 )
             }
         }
@@ -233,44 +262,36 @@ fun SignUpAfterScreen(
         mutableStateOf(TextFieldValue())
     }
 
-
-    Column(Modifier.fillMaxSize()) {
+    BigTitleAndButtonsScreen(
+        bigTitleText = "About you",
+        positiveButtonText = "Save",
+        onNext = onNext,
+        onPrevious = onPrevious
+    ) {
         Column(
-            Modifier.fillMaxWidth(),
+            Modifier
+                .padding(vertical = 28.dp, horizontal = 18.dp)
+                .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.SpaceEvenly
         ) {
-            Text(
-                text = "About you",
-                style = MaterialTheme.typography.headlineLarge,
-                modifier = Modifier.padding(28.dp)
-            )
-
             Column(
-                Modifier
-                    .padding(vertical = 28.dp, horizontal = 18.dp)
-                    .fillMaxSize()
-                    .weight(1f),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.SpaceEvenly
+                verticalArrangement = Arrangement.Center
             ) {
+                CircularProfileImage(
+                    size = CircularProfileImageSize.MEDIUM,
+                    margin = PaddingValues(8.dp)
+                )
+                Text(
+                    modifier = Modifier.alpha(0.8f),
+                    text = "User Name",
+                    style = MaterialTheme.typography.titleLarge
+                )
+            }
 
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    CircularProfileImage(
-                        size = CircularProfileImageSize.MEDIUM,
-                        margin = PaddingValues(8.dp)
-                    )
-                    Text(
-                        modifier = Modifier.alpha(0.8f),
-                        text = "User Name",
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                }
-
-                Column {
+            DecorationBox {
+                Column(Modifier.padding(horizontal = 8.dp)) {
                     HarmonyListItemInputField(
                         modifier = Modifier.fillMaxWidth(),
                         hint = "Gender",
@@ -307,15 +328,8 @@ fun SignUpAfterScreen(
                         onUnitSelected = { heightUnit = LengthUnits.entries[it] }
                     )
                 }
+            }
 
-            }
-            Column {
-                BottomBar(
-                    positiveButtonText = "Create account",
-                    onPositiveClick = onNext,
-                    onNegativeClick = onPrevious
-                )
-            }
         }
     }
 }
@@ -330,13 +344,12 @@ fun hasNextSignUpScreen(signUpScreenType: SignUpScreenType): Boolean {
 fun GetNextSignUpScreen(
     signUpScreenType: SignUpScreenType,
     onNext: (currentType: SignUpScreenType) -> Unit,
-    onPrevious: (currentType: SignUpScreenType) -> Unit
+    onPrevious: (currentType: SignUpScreenType) -> Unit,
 ) {
     return when (signUpScreenType) {
         SignUpScreenType.NONE -> SignUpEmailInputScreen(
             onNext = { onNext(SignUpScreenType.EMAIL) },
-            onPrevious = { onPrevious(SignUpScreenType.EMAIL) }
-        )
+            onPrevious = { onPrevious(SignUpScreenType.EMAIL) })
 
         SignUpScreenType.EMAIL -> SignUpBirthdateInputScreen(
             onNext = { onNext(SignUpScreenType.DOB) },

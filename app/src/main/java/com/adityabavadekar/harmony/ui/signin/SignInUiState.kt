@@ -14,23 +14,15 @@
  * limitations under the License.
  */
 
-package com.adityabavadekar.harmony.database.converter
+package com.adityabavadekar.harmony.ui.signin
 
-import androidx.room.TypeConverter
-import com.adityabavadekar.harmony.data.model.WorkoutLap
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+import com.adityabavadekar.harmony.ui.common.Gender
 
-class WorkoutLapListTypeConverter {
-
-    @TypeConverter
-    fun fromWorkoutLapList(lapList: List<WorkoutLap>): String {
-        return Gson().toJson(lapList)
-    }
-
-    @TypeConverter
-    fun toWorkoutLapList(jsonString: String): List<WorkoutLap> {
-        val type = object : TypeToken<List<WorkoutLap>>() {}.type
-        return Gson().fromJson(jsonString, type)
-    }
-}
+data class SignInUiState(
+    val email:String?,
+    val name:String?,
+    val gender: Gender?,
+    val weight:Float?,
+    val height:Float?,
+    val dateOfBirth:Long?,
+)

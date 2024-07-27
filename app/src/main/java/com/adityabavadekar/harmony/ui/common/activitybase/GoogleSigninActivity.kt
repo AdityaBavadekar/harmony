@@ -18,6 +18,7 @@
 
 package com.adityabavadekar.harmony.ui.common.activitybase
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -55,17 +56,7 @@ abstract class GoogleSigninActivity : ComponentActivity() {
     }
 
     private fun initialiseOnCreate() {
-        // Configure sign-in to request the user's ID, email address, and basic
-        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestProfile()
-            .requestEmail()
-            .build()
-
-        // [START build_client]
-        // Build a GoogleSignInClient with the options specified by gso.
-        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-        // [END build_client]
+        mGoogleSignInClient = buildClient(this)
     }
 
     fun signInGoogle() {
@@ -133,6 +124,22 @@ abstract class GoogleSigninActivity : ComponentActivity() {
         fun Context.getLastSigninAccount(): GoogleSignInAccount? {
             return GoogleSignIn.getLastSignedInAccount(this)
         }
+
+        fun buildClient(activity: Activity): GoogleSignInClient {
+
+            // Configure sign-in to request the user's ID, email address, and basic
+            // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
+            val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestProfile()
+                .requestEmail()
+                .build()
+
+            // [START build_client]
+            // Build a GoogleSignInClient with the options specified by gso.
+            return GoogleSignIn.getClient(activity, gso);
+            // [END build_client]
+        }
+
     }
 
 }

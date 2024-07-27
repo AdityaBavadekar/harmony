@@ -18,9 +18,9 @@ package com.adityabavadekar.harmony.ui.livetracking.service
 
 import android.annotation.SuppressLint
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.location.Location
-import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
@@ -61,52 +61,36 @@ class LiveTrackerService : Service(), LocationUpdateListener {
         stopSelf()
     }
 
-    private fun buildNotification(): NotificationCompat.Builder {
-        val notification = NotificationCompat.Builder(this, LOCATION_NOTIFICATION_CHANNEL_ID)
-            .setContentTitle("Location tracking is live")
-            .setContentText("Tracking location in background, feel free to close the app.")
-            .setSmallIcon(R.drawable.location_pin)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setColor(Color.Cyan.toArgb())
-            .setOngoing(true)
-            .setAutoCancel(false)
-        return notification
-    }
-
     @SuppressLint("MissingPermission")
     private fun startSelf() {
-        val notification = buildNotification()
+        val notification = buildNotification(applicationContext)
         locationClient.startLocationRetrieval(LOCATION_UPDATES_INTERVAL)
-        startForeground(LOCATION_NOTIFICATION_ID, notification.build())
+
+        if (PermissionUtils.areNotificationsAllowed(this)) {
+            startForeground(LOCATION_NOTIFICATION_ID, notification.build())
+        }
     }
 
-    private fun printLocation(location: Location): String {
-        return GeoLocation.from(location).toString()
+    private fun getGeoLocationString(location: Location): String {
+        return " [Speed=" + GeoLocation.from(location).speedOrNull().toString() + "]"
     }
 
-    @SuppressLint("MissingPermission")
+    @SuppressLint("MissingPermission", "NewApi")
     override fun onLocationUpdate(location: Location) {
-        Log.d(TAG, "onLocationUpdate: $location")
+        Log.d(TAG, "onLocationUpdate: ${getGeoLocationString(location)}")
         val notificationManagerCompat = NotificationManagerCompat.from(applicationContext)
 
-        val updatedNotification = buildNotification()
+        val updatedNotification = buildNotification(applicationContext)
             .setContentText("Current location: ${location.latitude}, ${location.longitude}")
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (!PermissionUtils.areAllGranted(
-                    PermissionUtils.notificationPermissions(),
-                    applicationContext
-                )
-            ) {
-                throw PermissionUtils.PermissionsNotGrantedException(PermissionUtils.notificationPermissions())
-            }
+        if (PermissionUtils.areNotificationsAllowed(this)) {
+            notificationManagerCompat.notify(
+                LOCATION_NOTIFICATION_ID,
+                updatedNotification.build()
+            )
+        } else {
+            throw PermissionUtils.PermissionsNotGrantedException(PermissionUtils.notificationPermissions())
         }
-
-        notificationManagerCompat.notify(
-            LOCATION_NOTIFICATION_ID,
-            updatedNotification.build()
-        )
-
         forwardLocationUpdates(location)
     }
 
@@ -130,21 +114,34 @@ class LiveTrackerService : Service(), LocationUpdateListener {
     }
 
     companion object {
-        const val LOC_UPDATE_INTENT_ACTION = "location_update"
-        const val LOC_UPDATE_INTENT_BUNDLE_LOC_KEY = "location"
-        const val LOC_UPDATE_INTENT_BUNDLE = "location_update_data"
         private const val TAG = "[LiveTrackerService]"
         private const val LOCATION_NOTIFICATION_ID = 101
-        private const val LOCATION_UPDATES_INTERVAL = 500L
+        private const val LOCATION_UPDATES_INTERVAL = 300L //ms
+        const val LOC_UPDATE_INTENT_ACTION =
+            "com.adityabavadekar.harmony.intent.action.location_update"
+        const val LOC_UPDATE_INTENT_BUNDLE_LOC_KEY = "location"
+        const val LOC_UPDATE_INTENT_BUNDLE = "location_update_data"
         const val LOCATION_NOTIFICATION_CHANNEL_ID = "location_channel"
         const val LOC_ACTION_START = "action_start"
         const val LOC_ACTION_STOP = "action_stop"
+
+        internal fun buildNotification(context: Context): NotificationCompat.Builder {
+            val notification = NotificationCompat.Builder(context, LOCATION_NOTIFICATION_CHANNEL_ID)
+                .setContentTitle("Location tracking is live")
+                .setContentText("Tracking location in background, feel free to close the app.")
+                .setSmallIcon(R.drawable.location_pin)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setColor(Color.Cyan.toArgb())
+                .setOngoing(true)
+                .setAutoCancel(false)
+            return notification
+        }
 
         fun decodeLocationUpdatesIntent(intent: Intent?): Location? {
             if (intent == null || !intent.hasExtra(LOC_UPDATE_INTENT_BUNDLE)) return null
 
             val bundle = intent.getBundleExtra(LOC_UPDATE_INTENT_BUNDLE) ?: return null
-            return bundle.getParcelable<Location>(LOC_UPDATE_INTENT_BUNDLE_LOC_KEY)
+            return bundle.getParcelable(LOC_UPDATE_INTENT_BUNDLE_LOC_KEY)
         }
     }
 }

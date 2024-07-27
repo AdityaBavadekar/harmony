@@ -20,21 +20,29 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.adityabavadekar.harmony.data.model.UserRecord
+import com.adityabavadekar.harmony.database.repo.AccountRepository
 import com.adityabavadekar.harmony.ui.common.activitybase.GoogleSigninActivity
 import com.adityabavadekar.harmony.ui.main.MainActivity
 import com.adityabavadekar.harmony.ui.theme.HarmonyTheme
+import com.adityabavadekar.harmony.utils.asHarmonyApp
+import com.adityabavadekar.harmony.utils.preferences.PreferencesKeys
+import com.adityabavadekar.harmony.utils.preferences.preferencesManager
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 
 class SigninActivity : GoogleSigninActivity() {
 
+    private val viewModel: SignInViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             HarmonyTheme {
 
@@ -44,7 +52,7 @@ class SigninActivity : GoogleSigninActivity() {
                 Surface {
                     when (isSignInScreen) {
                         true -> {
-                            SignInScreen(
+                            GoogleSignInScreen(
                                 signinWithGoogle = {
                                     signInGoogle()
                                 },
@@ -67,7 +75,10 @@ class SigninActivity : GoogleSigninActivity() {
                                         Log.d(TAG, "onCreate SCREEN::[onNext](current=${it.name})")
                                     },
                                     onPrevious = {
-                                        Log.d(TAG, "onCreate SCREEN::[onPrevious](current=${it.name})")
+                                        Log.d(
+                                            TAG,
+                                            "onCreate SCREEN::[onPrevious](current=${it.name})"
+                                        )
                                         if (it == SignUpScreenType.EMAIL) {
                                             isSignInScreen = true
                                             signUpScreenType = SignUpScreenType.NONE
@@ -98,6 +109,11 @@ class SigninActivity : GoogleSigninActivity() {
                     "photoUrl=${account.photoUrl},\n" +
                     ")"
         )
+        preferencesManager.setString(PreferencesKeys.USER_EMAIL, account.email)
+
+        val repo = AccountRepository(application.asHarmonyApp().getDatabase().accountDao())
+        viewModel.addAccount(repo, account)
+
         onLoggedIn()
     }
 

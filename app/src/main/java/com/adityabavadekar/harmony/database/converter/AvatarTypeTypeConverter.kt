@@ -17,20 +17,14 @@
 package com.adityabavadekar.harmony.database.converter
 
 import androidx.room.TypeConverter
-import com.adityabavadekar.harmony.data.model.WorkoutLap
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+import com.adityabavadekar.harmony.utils.ImageAvatar
 
-class WorkoutLapListTypeConverter {
+class AvatarTypeTypeConverter {
 
     @TypeConverter
-    fun fromWorkoutLapList(lapList: List<WorkoutLap>): String {
-        return Gson().toJson(lapList)
-    }
+    fun fromAvatarType(type: ImageAvatar.AvatarType): String = type.name
 
     @TypeConverter
-    fun toWorkoutLapList(jsonString: String): List<WorkoutLap> {
-        val type = object : TypeToken<List<WorkoutLap>>() {}.type
-        return Gson().fromJson(jsonString, type)
-    }
+    fun toAvatarType(name: String): ImageAvatar.AvatarType = ImageAvatar.AvatarType.valueOf(name)
+
 }

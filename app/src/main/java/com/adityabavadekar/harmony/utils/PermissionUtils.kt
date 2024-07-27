@@ -41,6 +41,13 @@ class PermissionUtils {
             return listOf(android.Manifest.permission.POST_NOTIFICATIONS)
         }
 
+        fun areNotificationsAllowed(context: Context): Boolean {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                return areAllGranted(notificationPermissions(), context)
+            }
+            return true
+        }
+
         fun isGranted(permission: String, context: Context): Boolean {
             return ActivityCompat.checkSelfPermission(
                 context,

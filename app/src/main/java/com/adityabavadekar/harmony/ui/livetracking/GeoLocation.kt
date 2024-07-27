@@ -18,6 +18,7 @@ package com.adityabavadekar.harmony.ui.livetracking
 
 import android.location.Location
 import com.adityabavadekar.harmony.ui.common.Speed
+import com.adityabavadekar.harmony.utils.NumberUtils
 import org.osmdroid.api.IGeoPoint
 import org.osmdroid.util.GeoPoint
 
@@ -73,16 +74,12 @@ class GeoLocation(
     val requireHorizontalDisplacement: Float
         get() = horizontalDisplacement!!
 
-    fun changeSpeed(newValue: Float) {
-        speedMs = newValue
-    }
-
     companion object {
         fun from(location: Location): GeoLocation {
 
             var speed = 0f
             var altitude = 0.00
-            if (location.hasSpeed()) speed = location.speed
+            if (location.hasSpeed()) speed = NumberUtils.roundFloat(location.speed, 4)
             if (location.hasAltitude()) altitude = location.altitude
 
             return GeoLocation(
