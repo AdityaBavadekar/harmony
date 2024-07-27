@@ -23,6 +23,7 @@ import android.content.Context
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import com.adityabavadekar.harmony.database.HarmonyRoomDatabase
 import com.adityabavadekar.harmony.ui.livetracking.service.LiveTrackerService
 
 class HarmonyApplication : Application() {
@@ -35,6 +36,9 @@ class HarmonyApplication : Application() {
             createNotificationChannels()
             Log.d(TAG, "onCreate: NotificationChannels Created")
         }
+
+        HarmonyRoomDatabase.getDatabase(this)
+        Log.d(TAG, "onCreate: Database initialised")
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
