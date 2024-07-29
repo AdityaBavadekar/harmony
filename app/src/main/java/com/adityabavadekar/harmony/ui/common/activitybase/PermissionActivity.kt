@@ -17,6 +17,7 @@
 package com.adityabavadekar.harmony.ui.common.activitybase
 
 import android.content.pm.PackageManager
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
@@ -39,7 +40,21 @@ abstract class PermissionActivity : ComponentActivity() {
             }
         }
 
+    private val multipleRequestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissionMap ->
+            permissionMap.forEach { (permissionString, granted) ->
+                if (granted) onGranted(permissionString)
+                else onDenied(permissionString)
+            }
+        }
+
+    fun requestMultiple(permissions: List<String>) {
+        Log.i(TAG, "requestMultiple: Asking [$permissions]")
+        multipleRequestPermissionLauncher.launch(permissions.toTypedArray())
+    }
+
     fun requestPermission(permission: String) {
+        Log.i(TAG, "requestPermission: Asking '$permission'")
         when {
             ContextCompat.checkSelfPermission(
                 this,
@@ -56,6 +71,9 @@ abstract class PermissionActivity : ComponentActivity() {
                 requestPermissionLauncher.launch(permission)
             }
         }
+    }
 
+    companion object{
+        private const val TAG = "[PermissionActivity]"
     }
 }

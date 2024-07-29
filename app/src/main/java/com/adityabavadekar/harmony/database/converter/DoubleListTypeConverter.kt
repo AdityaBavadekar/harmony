@@ -14,7 +14,23 @@
  * limitations under the License.
  */
 
-package com.adityabavadekar.harmony.database
+package com.adityabavadekar.harmony.database.converter
 
-class ModelTypeConverters {
+import androidx.room.TypeConverter
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+
+class DoubleListTypeConverter {
+
+    @TypeConverter
+    fun fromFloatList(list: List<Double>): String {
+        return Gson().toJson(list)
+    }
+
+    @TypeConverter
+    fun toFloatList(jsonString: String): List<Double> {
+        val type = object : TypeToken<List<Double>>() {}.type
+        return Gson().fromJson(jsonString, type)
+    }
+
 }

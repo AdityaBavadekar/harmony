@@ -17,5 +17,7 @@
 package com.adityabavadekar.harmony.ui.common
 
 enum class Gender {
-    MALE, FEMALE, OTHER
+    MALE,
+    FEMALE,
+    OTHER
 }

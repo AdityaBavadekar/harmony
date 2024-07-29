@@ -27,6 +27,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -40,6 +42,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navDeepLink
 import com.adityabavadekar.harmony.R
 import com.adityabavadekar.harmony.data.WorkoutTypes
+import com.adityabavadekar.harmony.data.model.UserRecord
+import com.adityabavadekar.harmony.data.model.WorkoutSummaryRecord
 import com.adityabavadekar.harmony.ui.activity.ActivityScreen
 import com.adityabavadekar.harmony.ui.common.CommonMenuActions
 import com.adityabavadekar.harmony.ui.common.component.HarmonyBottomNavigationItems
@@ -64,7 +68,9 @@ private const val PROFILE_DEEP_LINK_URI_PATTERN =
 private fun MainNavHost(
     mainAppState: HarmonyMainAppState,
     startDestination: String = HOME_ROUTE,
-    onAddNewClicked: (WorkoutTypes) -> Unit = {}
+    onAddNewClicked: (WorkoutTypes) -> Unit = {},
+    workoutsData: State<List<WorkoutSummaryRecord>>,
+    accountData: State<UserRecord?>
 ) {
     val navHostController = mainAppState.navController
     NavHost(
@@ -85,7 +91,7 @@ private fun MainNavHost(
                 navDeepLink { uriPattern = ACTIVITY_DEEP_LINK_URI_PATTERN }
             )
         ) {
-            ActivityScreen()
+            ActivityScreen(workoutsData = workoutsData.value)
         }
         composable(
             route = PROFILE_ROUTE,
@@ -93,7 +99,7 @@ private fun MainNavHost(
                 navDeepLink { uriPattern = PROFILE_DEEP_LINK_URI_PATTERN }
             )
         ) {
-            ProfileScreen()
+            ProfileScreen(account = accountData.value)
         }
     }
 }
@@ -107,7 +113,9 @@ fun NavController.navigateProfile(navOptions: NavOptions) = navigate(PROFILE_ROU
 fun HarmonyMainApp(
     mainAppState: HarmonyMainAppState = rememberHarmonyMainAppState(),
     navigationToSettings: () -> Unit = {},
-    onAddNewClicked: (WorkoutTypes) -> Unit = {}
+    onAddNewClicked: (WorkoutTypes) -> Unit = {},
+    workoutsData: State<List<WorkoutSummaryRecord>> = mutableStateOf(listOf()),
+    accountData: State<UserRecord?> = mutableStateOf(null),
 ) {
     HarmonyBackground {
         Scaffold(
@@ -153,7 +161,9 @@ fun HarmonyMainApp(
                 Box {
                     MainNavHost(
                         mainAppState = mainAppState,
-                        onAddNewClicked = onAddNewClicked
+                        onAddNewClicked = onAddNewClicked,
+                        workoutsData = workoutsData,
+                        accountData = accountData
                     )
                 }
             }

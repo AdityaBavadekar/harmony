@@ -20,11 +20,17 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.adityabavadekar.harmony.ui.livetracking.LiveTrackingActivity
 import com.adityabavadekar.harmony.ui.settings.SettingsActivity
 import com.adityabavadekar.harmony.ui.theme.HarmonyTheme
 
 class MainActivity : ComponentActivity() {
+
+    private val viewModel : MainActivityViewModel by viewModels {
+        MainActivityViewModel.Factory(application)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,10 +44,15 @@ class MainActivity : ComponentActivity() {
                     onAddNewClicked = { type ->
                         //TODO
                         Intent(this, LiveTrackingActivity::class.java).also {
-                            it.putExtra(LiveTrackingActivity.EXTRA_WORKOUT_TYPE_ORDINAL, type.ordinal)
+                            it.putExtra(
+                                LiveTrackingActivity.EXTRA_WORKOUT_TYPE_ORDINAL,
+                                type.ordinal
+                            )
                             startActivity(it)
                         }
-                    }
+                    },
+                    workoutsData = viewModel.workouts.collectAsStateWithLifecycle(),
+                    accountData = viewModel.account.collectAsStateWithLifecycle(),
                 )
             }
         }

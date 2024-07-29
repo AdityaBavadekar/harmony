@@ -17,23 +17,34 @@
 package com.adityabavadekar.harmony.ui
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.adityabavadekar.harmony.ui.common.activitybase.GoogleSigninActivity.Companion.getLastSigninAccount
+import com.adityabavadekar.harmony.ui.common.activitybase.PermissionActivity
 import com.adityabavadekar.harmony.ui.main.MainActivity
 import com.adityabavadekar.harmony.ui.onboarding.WelcomeScreen
 import com.adityabavadekar.harmony.ui.signin.SigninActivity
 import com.adityabavadekar.harmony.ui.theme.HarmonyTheme
+import com.adityabavadekar.harmony.utils.PermissionUtils
 import com.adityabavadekar.harmony.utils.preferences.PreferencesKeys
 import com.adityabavadekar.harmony.utils.preferences.preferencesManager
 
-class LauncherActivity : ComponentActivity() {
+class LauncherActivity : PermissionActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        val askPermissions = PermissionUtils.locationPermissions().toMutableList()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            askPermissions.addAll(PermissionUtils.notificationPermissions())
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            askPermissions.addAll(PermissionUtils.physicalActivityPermissions())
+        }
+        requestMultiple(askPermissions)
 
         val isOnboardingCompleted =
             preferencesManager.getBoolean(PreferencesKeys.ONBOARDING_COMPLETED, false)
@@ -60,4 +71,10 @@ class LauncherActivity : ComponentActivity() {
             }
         }
     }
+
+    override fun onGranted(permission: String) {}
+
+    override fun onDenied(permission: String) {}
+
+    override fun onShouldShowPermissionUI(permission: String) {}
 }

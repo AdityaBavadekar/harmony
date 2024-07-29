@@ -34,14 +34,18 @@ import com.adityabavadekar.harmony.ui.common.icon.HarmonyIcons
 fun HomeScreen(
     onAddNewClicked: (WorkoutTypes) -> Unit = {}
 ) {
-    Scaffold (
+    Scaffold(
         floatingActionButton = {
-            FloatingActionButton(onClick = {  }) {
+            FloatingActionButton(onClick = { }) {
                 Icon(imageVector = HarmonyIcons.Add, contentDescription = null)
             }
         }
-    ){
-        Column(Modifier.fillMaxSize().padding(it)) {
+    ) {
+        Column(
+            Modifier
+                .fillMaxSize()
+                .padding(it)
+        ) {
             StatsSummaryScreen(
                 onAddNewClicked = onAddNewClicked
             )

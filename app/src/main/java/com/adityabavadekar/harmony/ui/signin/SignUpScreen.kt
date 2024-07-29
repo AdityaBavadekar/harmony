@@ -16,9 +16,8 @@
 
 package com.adityabavadekar.harmony.ui.signin
 
-import androidx.compose.foundation.background
+import android.util.Half.toFloat
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
@@ -35,7 +34,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -43,7 +41,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -54,7 +52,6 @@ import com.adityabavadekar.harmony.ui.common.LengthUnits
 import com.adityabavadekar.harmony.ui.common.MassUnits
 import com.adityabavadekar.harmony.ui.common.component.CircularProfileImage
 import com.adityabavadekar.harmony.ui.common.component.CircularProfileImageSize
-import com.adityabavadekar.harmony.ui.common.component.HarmonyDatePicker
 import com.adityabavadekar.harmony.ui.common.component.HarmonyListItemInputField
 import com.adityabavadekar.harmony.ui.common.component.HarmonyPhysicalMeasurementInput
 import com.adityabavadekar.harmony.ui.common.component.HarmonyTextInput
@@ -64,9 +61,14 @@ import com.adityabavadekar.harmony.ui.theme.HarmonyTheme
 import java.util.Calendar
 
 @Composable
-fun DecorationBox(content: @Composable ColumnScope.() -> Unit) {
+fun DecorationBox(
+    modifier: Modifier = Modifier,
+    color: Color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
+    content: @Composable ColumnScope.() -> Unit
+) {
     Surface(
-        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
+        modifier = modifier,
+        color = color,
         shape = RoundedCornerShape(16.dp)
     ) {
         Column(
@@ -83,7 +85,8 @@ fun DecorationBox(content: @Composable ColumnScope.() -> Unit) {
 @Composable
 fun BigTitleAndButtonsScreen(
     bigTitleText: String,
-    positiveButtonText: String = "Next",
+    positiveButtonText: String? = "Next",
+    negativeButtonText: String? = "Back",
     onNext: () -> Unit = {},
     onPrevious: () -> Unit = {},
     innerContent: @Composable ColumnScope.() -> Unit,
@@ -113,6 +116,7 @@ fun BigTitleAndButtonsScreen(
             Column {
                 BottomBar(
                     positiveButtonText = positiveButtonText,
+                    negativeButtonText = negativeButtonText,
                     onPositiveClick = onNext,
                     onNegativeClick = onPrevious
                 )
@@ -151,15 +155,23 @@ fun SignUpEmailInputScreen(
 @Composable
 fun SignUpBirthdateInputScreen(
     modifier: Modifier = Modifier,
+    dateOfBirth: Long? = null,
+    updateDateOfBirth: (Long) -> Unit = {},
     onNext: () -> Unit = {},
     onPrevious: () -> Unit = {},
 ) {
+    val c = Calendar.getInstance()
     val currentYear = Calendar.getInstance().get(Calendar.YEAR)
     val calculatedAge = remember {
         mutableIntStateOf(0)
     }
     val datePickerState = rememberAgeDatePickerState()
+    dateOfBirth?.let { datePickerState.selectedDateMillis = it }
 
+    fun calculateAge(l: Long) {
+        c.timeInMillis = l
+        calculatedAge.intValue = currentYear - c.get(Calendar.YEAR)
+    }
 
     BigTitleAndButtonsScreen(
         bigTitleText = "What is your date of birth?",
@@ -172,10 +184,9 @@ fun SignUpBirthdateInputScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            val c = Calendar.getInstance()
             datePickerState.selectedDateMillis?.let {
-                c.timeInMillis = it
-                calculatedAge.intValue = currentYear - c.get(Calendar.YEAR)
+                calculateAge(it)
+                updateDateOfBirth(it)
             }
             Text(
                 text = "You are ${calculatedAge.intValue} years of age",
@@ -247,20 +258,18 @@ fun SignUpNamePasswordInputScreen(
 
 @Composable
 fun SignUpAfterScreen(
-    modifier: Modifier = Modifier,
     onNext: () -> Unit = {},
     onPrevious: () -> Unit = {},
+    gender: Gender? = null,
+    onGenderChanged: (Gender) -> Unit = {},
+    weight: Double? = null,
+    weightUnit: MassUnits = MassUnits.KG,
+    onWeightChanged: (value: Double, unit: MassUnits) -> Unit = { _, _ -> },
+    height: Double? = null,
+    heightUnit: LengthUnits = LengthUnits.CENTIMETERS,
+    onHeightChanged: (value: Double, unit: LengthUnits) -> Unit = { _, _ -> },
 ) {
-    var gender = Gender.MALE
-    var heightUnit = LengthUnits.CENTIMETERS
-    var weightUnit = MassUnits.KG
-
-    val height = remember {
-        mutableStateOf(TextFieldValue())
-    }
-    val weight = remember {
-        mutableStateOf(TextFieldValue())
-    }
+    val defaultGender = Gender.MALE
 
     BigTitleAndButtonsScreen(
         bigTitleText = "About you",
@@ -296,36 +305,42 @@ fun SignUpAfterScreen(
                         modifier = Modifier.fillMaxWidth(),
                         hint = "Gender",
                         itemCount = Gender.entries.size,
-                        defaultSelectedIndex = gender.ordinal,
+                        defaultSelectedIndex = gender?.ordinal ?: defaultGender.ordinal,
                         getLabel = {
                             Gender.entries[it].name.lowercase()
                                 .replaceFirstChar { c -> c.uppercaseChar() }
                         },
-                        onSelected = { gender = Gender.entries[it] }
+                        onSelected = { onGenderChanged(Gender.entries[it]) }
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
 
                     HarmonyPhysicalMeasurementInput(
                         hint = "Weight",
-                        physicalValue = weight.value,
-                        onPhysicalValueChanged = { weight.value = it },
+                        physicalValue = weight?.toDouble() ?: 40.0,
+                        maxCount = 600,
+                        onValueChanged = { onWeightChanged(it, weightUnit) },
                         unitValuesCount = MassUnits.entries.size,
                         defaultUnitIndex = weightUnit.ordinal,
                         getUnitLabel = { MassUnits.entries[it].shortSymbol() },
-                        onUnitSelected = { weightUnit = MassUnits.entries[it] }
+                        onUnitSelected = {
+                            onWeightChanged(weight ?: 0.0, MassUnits.entries[it])
+                        }
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
 
                     HarmonyPhysicalMeasurementInput(
                         hint = "Height",
-                        physicalValue = height.value,
-                        onPhysicalValueChanged = { height.value = it },
+                        physicalValue = height?.toDouble() ?: 130.0,
+                        maxCount = 1700,
+                        onValueChanged = { onHeightChanged(it, heightUnit) },
                         unitValuesCount = LengthUnits.entries.size,
                         defaultUnitIndex = heightUnit.ordinal,
                         getUnitLabel = { LengthUnits.entries[it].shortSymbol() },
-                        onUnitSelected = { heightUnit = LengthUnits.entries[it] }
+                        onUnitSelected = {
+                            onHeightChanged(height ?: 0.0, LengthUnits.entries[it])
+                        }
                     )
                 }
             }
@@ -334,7 +349,13 @@ fun SignUpAfterScreen(
     }
 }
 
-enum class SignUpScreenType { NONE, EMAIL, DOB, NAME_PASSWORD, PROFILE }
+enum class SignUpScreenType {
+    NONE,
+    EMAIL,
+    DOB,
+    NAME_PASSWORD,
+    PROFILE
+}
 
 fun hasNextSignUpScreen(signUpScreenType: SignUpScreenType): Boolean {
     return signUpScreenType != SignUpScreenType.NAME_PASSWORD

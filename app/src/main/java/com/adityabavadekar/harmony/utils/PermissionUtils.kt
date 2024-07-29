@@ -41,6 +41,11 @@ class PermissionUtils {
             return listOf(android.Manifest.permission.POST_NOTIFICATIONS)
         }
 
+        @RequiresApi(Build.VERSION_CODES.Q)
+        fun physicalActivityPermissions(): List<String> {
+            return listOf(android.Manifest.permission.ACTIVITY_RECOGNITION)
+        }
+
         fun areNotificationsAllowed(context: Context): Boolean {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 return areAllGranted(notificationPermissions(), context)

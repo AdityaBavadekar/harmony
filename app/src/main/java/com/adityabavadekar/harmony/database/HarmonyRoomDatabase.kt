@@ -23,18 +23,19 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.adityabavadekar.harmony.data.model.UserRecord
 import com.adityabavadekar.harmony.data.model.WorkoutRecord
+import com.adityabavadekar.harmony.data.model.WorkoutSummaryRecord
 import com.adityabavadekar.harmony.database.roomdao.AccountDao
 import com.adityabavadekar.harmony.database.roomdao.WorkoutsDao
 
 @TypeConverters(
     value = [
-        //WorkoutRecord realted TypeConverter
+        //WorkoutRecord related TypeConverter
         com.adityabavadekar.harmony.database.converter.WorkoutLapListTypeConverter::class,
         com.adityabavadekar.harmony.database.converter.WorkoutRouteTypeConverter::class,
         com.adityabavadekar.harmony.database.converter.WorkoutTypesTypeConverter::class,
-        com.adityabavadekar.harmony.database.converter.FloatListTypeConverter::class,
+        com.adityabavadekar.harmony.database.converter.DoubleListTypeConverter::class,
 
-        //UserRecord realted TypeConverter
+        //UserRecord related TypeConverter
         com.adityabavadekar.harmony.database.converter.UserFitnessRecordTypeConverter::class,
         com.adityabavadekar.harmony.database.converter.AchievementsTypeListTypeConverter::class,
         com.adityabavadekar.harmony.database.converter.AvatarTypeTypeConverter::class,
@@ -46,6 +47,9 @@ import com.adityabavadekar.harmony.database.roomdao.WorkoutsDao
         WorkoutRecord::class,
         UserRecord::class
     ],
+    views = [
+        WorkoutSummaryRecord::class
+    ],
     exportSchema = false,
     version = 1
 )
@@ -56,6 +60,8 @@ abstract class HarmonyRoomDatabase : RoomDatabase() {
     abstract fun accountDao(): AccountDao
 
     companion object {
+        private const val DATABASE_NAME = "harmony_app_database"
+
         /** The value of a volatile variable is never cached, and all reads and writes are to and from the main memory. */
         @Volatile
         private var instance: HarmonyRoomDatabase? = null
@@ -73,7 +79,7 @@ abstract class HarmonyRoomDatabase : RoomDatabase() {
                 instance = Room.databaseBuilder(
                     context,
                     HarmonyRoomDatabase::class.java,
-                    "harmony_app_database"
+                    DATABASE_NAME
                 )
                     .fallbackToDestructiveMigration()
                     .build()

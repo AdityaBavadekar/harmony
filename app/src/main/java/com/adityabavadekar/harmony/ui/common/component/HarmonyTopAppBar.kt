@@ -17,8 +17,6 @@
 package com.adityabavadekar.harmony.ui.common.component
 
 import androidx.annotation.StringRes
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material.TopAppBar
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -29,7 +27,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -40,7 +37,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.adityabavadekar.harmony.R
@@ -55,7 +51,10 @@ data class MenuAction(
     val type: MenuActionType = MenuActionType.ICON,
 )
 
-enum class MenuActionType { ICON, DROP_DOWN }
+enum class MenuActionType {
+    ICON,
+    DROP_DOWN
+}
 
 private val topAppBarMinHeight = 64.dp
 

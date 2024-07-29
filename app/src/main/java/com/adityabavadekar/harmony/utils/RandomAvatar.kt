@@ -44,7 +44,8 @@ class ImageAvatar {
         MALE1(R.drawable.m1, Gender.MALE),
         MALE2(R.drawable.m2, Gender.MALE),
         MALE3(R.drawable.m3, Gender.MALE),
-        MALE4(R.drawable.m4, Gender.MALE), MALE5(
+        MALE4(R.drawable.m4, Gender.MALE),
+        MALE5(
             R.drawable.m5, Gender.MALE
         ),
         MALE6(R.drawable.m6, Gender.MALE),
@@ -52,8 +53,10 @@ class ImageAvatar {
         FEMALE1(R.drawable.m1, Gender.FEMALE),
         FEMALE2(R.drawable.m2, Gender.FEMALE),
         FEMALE3(R.drawable.m3, Gender.FEMALE),
-        FEMALE4(R.drawable.m4, Gender.FEMALE), FEMALE5(R.drawable.m5, Gender.FEMALE),
-        FEMALE6(R.drawable.m6, Gender.FEMALE), FEMALE7(R.drawable.m7, Gender.FEMALE),
+        FEMALE4(R.drawable.m4, Gender.FEMALE),
+        FEMALE5(R.drawable.m5, Gender.FEMALE),
+        FEMALE6(R.drawable.m6, Gender.FEMALE),
+        FEMALE7(R.drawable.m7, Gender.FEMALE),
         NEUTRAL_SMILE(R.drawable.smilie_pixel, Gender.OTHER)
     }
 

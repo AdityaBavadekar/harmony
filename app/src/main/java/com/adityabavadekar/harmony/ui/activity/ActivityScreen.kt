@@ -17,13 +17,12 @@
 package com.adityabavadekar.harmony.ui.activity
 
 import androidx.annotation.DrawableRes
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -48,7 +47,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.adityabavadekar.harmony.R
 import com.adityabavadekar.harmony.data.WorkoutTypes
-import com.adityabavadekar.harmony.data.model.WorkoutRecord
+import com.adityabavadekar.harmony.data.model.WorkoutSummaryRecord
 import com.adityabavadekar.harmony.ui.common.component.HorizontalSpacer
 import com.adityabavadekar.harmony.ui.common.component.clickableRipple
 import com.adityabavadekar.harmony.ui.theme.HarmonyTheme
@@ -57,7 +56,9 @@ import java.util.Date
 import java.util.Locale
 
 @Composable
-fun ActivityScreen(modifier: Modifier = Modifier) {
+fun ActivityScreen(
+    workoutsData: List<WorkoutSummaryRecord> = listOf()
+) {
 
     Column(Modifier.fillMaxSize()) {
         Column(
@@ -65,27 +66,10 @@ fun ActivityScreen(modifier: Modifier = Modifier) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            /*Text(
-                text = "Activity",
-                style = MaterialTheme.typography.headlineLarge,
-                modifier = Modifier.padding(28.dp)
-            )*/
-
-            Column(
-                horizontalAlignment = Alignment.Start,
-                verticalArrangement = Arrangement.Center
-            ) {
-                LazyColumn {
+            LazyColumn {
+                workoutsData.forEach { record ->
                     item {
-                        ActivityItem(
-                            WorkoutRecord.simple(
-                                type = WorkoutTypes.TYPE_WALKING,
-                                startTimestamp = System.currentTimeMillis() - 1000 * 600,
-                                endTimestamp = System.currentTimeMillis(),
-                                distanceMeters = 1000 * 5f,
-                                stepsCount = 145
-                            )
-                        )
+                        ActivityItem(record = record)
                     }
                 }
             }
@@ -95,14 +79,21 @@ fun ActivityScreen(modifier: Modifier = Modifier) {
 
 @Composable
 fun ActivityItem(
-    record: WorkoutRecord,
+    record: WorkoutSummaryRecord,
 ) {
-
-    val colorsList = listOf(
-        Color(0xFFD8EFD3),
-        Color(0xFFFEFFD2),
-        Color(0xFFE7D4B5),
-    )
+    val colorsList = if (isSystemInDarkTheme()) {
+        listOf(
+            Color(0xFF4A4A4A),
+            Color(0xFF3C3C3C),
+            Color(0xFF2A2A2A)
+        )
+    } else {
+        listOf(
+            Color(0xFFD8EFD3),
+            Color(0xFFFEFFD2),
+            Color(0xFFE7D4B5),
+        )
+    }
 
     Column(
         Modifier
@@ -182,7 +173,7 @@ fun ActivityItem(
                         )
                     )
                     NutItem(
-                        text = "${record.stepsCount ?: 0}",
+                        text = "${record.stepsCount}",
                         color = colorsList[1],
                         trailingIcon = R.drawable.steps,
                         trailingIconContentDescription = "Steps count",
@@ -234,12 +225,25 @@ fun NutItem(
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 private fun ActivityScreenPrev() {
+
+    val testData = listOf(
+        WorkoutSummaryRecord(
+            id = 0,
+            type = WorkoutTypes.TYPE_YOGA,
+            title = null,
+            startTimestamp = System.currentTimeMillis(),
+            endTimestamp = System.currentTimeMillis() + 1000 * 60,
+            distanceMeters = 20000.0,
+            stepsCount = 452,
+            pauseDurationSec = 1000,
+            totalEnergyBurnedCal = 128.0
+        )
+    )
+
     HarmonyTheme {
-        Surface {
-            ActivityScreen()
-        }
+        ActivityScreen(workoutsData = testData)
     }
 }

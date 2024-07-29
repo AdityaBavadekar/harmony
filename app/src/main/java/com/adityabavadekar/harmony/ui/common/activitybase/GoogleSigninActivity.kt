@@ -25,6 +25,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
+import com.adityabavadekar.harmony.R
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -118,18 +119,24 @@ abstract class GoogleSigninActivity : ComponentActivity() {
     }
 
     companion object {
-        const val TAG = "[GoogleSigninActivity]"
+        private const val TAG = "[GoogleSigninActivity]"
         private const val GOOGLE_SIGN_IN_CODE = 21
 
+        /*
+        @Suppress("LocalVariableName")
+        private val user_gender_scope = Scope("https://www.googleapis.com/auth/user.gender.read")
+        private val user_dob_scope = Scope("https://www.googleapis.com/auth/user.birthday.read")
+        */
         fun Context.getLastSigninAccount(): GoogleSignInAccount? {
             return GoogleSignIn.getLastSignedInAccount(this)
         }
 
         fun buildClient(activity: Activity): GoogleSignInClient {
-
             // Configure sign-in to request the user's ID, email address, and basic
             // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
             val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(activity.applicationContext.getString(R.string.default_web_client_id))
+                //.requestScopes(user_gender_scope, user_dob_scope)
                 .requestProfile()
                 .requestEmail()
                 .build()

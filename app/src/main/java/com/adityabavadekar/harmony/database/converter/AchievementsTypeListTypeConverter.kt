@@ -22,10 +22,14 @@ import com.adityabavadekar.harmony.data.AchievementTypes
 class AchievementsTypeListTypeConverter {
 
     @TypeConverter
-    fun fromAchievementsTypeList(types: List<AchievementTypes>): String = types.joinToString("|")
+    fun fromAchievementsTypeList(types: List<AchievementTypes>): String {
+        if (types.isEmpty()) return ""
+        return types.joinToString("|")
+    }
 
     @TypeConverter
     fun toAchievementsTypeList(listString: String): List<AchievementTypes> {
+        if (listString == "") return listOf()
         return listString.split("|").map { AchievementTypes.valueOf(it) }
     }
 

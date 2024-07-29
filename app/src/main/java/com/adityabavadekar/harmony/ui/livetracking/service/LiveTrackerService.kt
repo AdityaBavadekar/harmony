@@ -71,13 +71,9 @@ class LiveTrackerService : Service(), LocationUpdateListener {
         }
     }
 
-    private fun getGeoLocationString(location: Location): String {
-        return " [Speed=" + GeoLocation.from(location).speedOrNull().toString() + "]"
-    }
-
     @SuppressLint("MissingPermission", "NewApi")
     override fun onLocationUpdate(location: Location) {
-        Log.d(TAG, "onLocationUpdate: ${getGeoLocationString(location)}")
+        Log.d(TAG, "onLocationUpdate: ${GeoLocation.from(location)}")
         val notificationManagerCompat = NotificationManagerCompat.from(applicationContext)
 
         val updatedNotification = buildNotification(applicationContext)
@@ -89,7 +85,11 @@ class LiveTrackerService : Service(), LocationUpdateListener {
                 updatedNotification.build()
             )
         } else {
-            throw PermissionUtils.PermissionsNotGrantedException(PermissionUtils.notificationPermissions())
+            Log.w(
+                TAG,
+                "onLocationUpdate: Notification Permission not granted!",
+                PermissionUtils.PermissionsNotGrantedException(PermissionUtils.notificationPermissions())
+            )
         }
         forwardLocationUpdates(location)
     }

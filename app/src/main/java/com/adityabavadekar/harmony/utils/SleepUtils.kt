@@ -18,7 +18,11 @@ package com.adityabavadekar.harmony.utils
 
 class SleepUtils {
 
-    enum class SleepType { RECOMMENDED, INSUFFICIENT, OVERSLEEPING }
+    enum class SleepType {
+        RECOMMENDED,
+        INSUFFICIENT,
+        OVERSLEEPING
+    }
 
     companion object {
 

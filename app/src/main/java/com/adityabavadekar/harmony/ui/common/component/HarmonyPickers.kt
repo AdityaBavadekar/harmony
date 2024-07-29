@@ -72,13 +72,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.adityabavadekar.harmony.ui.common.LengthUnits
+import com.adityabavadekar.harmony.ui.common.TimeUnits
 import com.adityabavadekar.harmony.ui.theme.HarmonyTheme
 import dev.chrisbanes.snapper.ExperimentalSnapperApi
 import dev.chrisbanes.snapper.SnapperLayoutInfo
 import dev.chrisbanes.snapper.rememberLazyListSnapperLayoutInfo
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import java.util.Calendar
 import kotlin.math.absoluteValue
 
@@ -186,7 +184,7 @@ private fun calculateInfiniteIndexValue(itemIndex: Int, totalItemCount: Int): In
 private fun calculateSnappedItemIndex(
     snapperLayoutInfo: SnapperLayoutInfo,
     infinite: Boolean,
-    totalItemCount: Int
+    totalItemCount: Int,
 ): Int? {
     var currentItemIndex: Int? = snapperLayoutInfo.currentItem?.index
     if (currentItemIndex != null) {
@@ -246,7 +244,7 @@ fun HarmonyNumberPicker(
     visibleItemsCount: Int = 3,
     getLabel: (Int) -> (String) = { it.toString() },
     fontSize: TextUnit = 32.sp,
-    infinite: Boolean = false
+    infinite: Boolean = false,
 ) {
     HarmonyPicker(
         modifier = modifier,
@@ -381,7 +379,7 @@ fun HarmonyDatePickerItem(
     itemIndex: Int,
     getLabel: (Int) -> kotlin.String,
     fontSize: TextUnit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier
@@ -404,7 +402,7 @@ fun HarmonyPopupListPicker(
     isExpanded: Boolean,
     setNotExpanded: () -> Unit,
     onSelected: (itemIndex: Int) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     DropdownMenu(
         modifier = modifier,
@@ -430,6 +428,7 @@ fun rememberPickerState() = remember { PickerState() }
 
 class PickerState {
     var selectedItem by mutableStateOf("")
+    var index by mutableIntStateOf(0)
     private var consumed = false
     fun isConsumed() = consumed
     fun consume() {
@@ -450,16 +449,6 @@ fun Picker(
     textStyle: TextStyle = LocalTextStyle.current,
     dividerColor: Color = LocalContentColor.current,
 ) {
-
-    var addIndex = 0
-    if (state.selectedItem != "") {
-        for (i in 0..itemCount) {
-            if (getLabel(i) == state.selectedItem) {
-                addIndex = i
-                break
-            }
-        }
-    }
     val visibleItemsMiddle = visibleItemsCount / 2
     val listScrollCount = Integer.MAX_VALUE
     val listScrollMiddle = listScrollCount / 2
@@ -467,6 +456,16 @@ fun Picker(
         listScrollMiddle - listScrollMiddle % itemCount - visibleItemsMiddle + startIndex
 
     fun getItem(index: Int) = getLabel((index + 0) % itemCount)
+
+    var addIndex = 0
+    if (!state.isConsumed() && state.selectedItem != "") {
+        for (i in 0..itemCount) {
+            if (getLabel(i) == state.selectedItem) {
+                addIndex = i
+                break
+            }
+        }
+    }
 
     val listState = rememberLazyListState(initialFirstVisibleItemIndex = listStartIndex)
     val flingBehavior = rememberSnapFlingBehavior(lazyListState = listState)
@@ -484,23 +483,23 @@ fun Picker(
             1f to Color.Transparent
         )
     }
-
-    LaunchedEffect(listState, state.selectedItem) {
+    LaunchedEffect(key1 = 0) {
         if (!state.isConsumed()) {
-            if (addIndex > 0) listState.scrollToItem(addIndex - 1)
+            listState.scrollToItem(addIndex + if (addIndex > 0) -1 else 0)
             state.consume()
-        } else {
-            snapshotFlow { listState.firstVisibleItemIndex }
-                .map { index -> getItem(index + visibleItemsMiddle) }
-                .distinctUntilChanged()
-                .collect { item ->
-                    state.selectedItem = item
-                }
         }
     }
 
-    Box(modifier = modifier) {
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.firstVisibleItemIndex }
+            .collect {
+                val index = it + 1 % itemCount
+                state.selectedItem = getItem(index)
+            }
 
+    }
+
+    Box(modifier = modifier) {
         LazyColumn(
             state = listState,
             flingBehavior = flingBehavior,
@@ -553,10 +552,12 @@ private fun PickerTest() {
     HarmonyTheme {
         Surface {
             Row {
+                val state = rememberPickerState()
+                Text(text = "${state.selectedItem}|${state.index}")
                 Picker(
-                    state = rememberPickerState(),
-                    itemCount = LengthUnits.entries.size,
-                    getLabel = { LengthUnits.entries[it].name },
+                    state = state,
+                    itemCount = TimeUnits.entries.size,
+                    getLabel = { TimeUnits.entries[it].name },
                     visibleItemsCount = 3,
                     modifier = Modifier.weight(0.3f),
                     textModifier = Modifier.padding(8.dp),

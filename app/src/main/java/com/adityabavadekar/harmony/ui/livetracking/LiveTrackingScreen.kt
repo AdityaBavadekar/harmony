@@ -16,21 +16,19 @@
 
 package com.adityabavadekar.harmony.ui.livetracking
 
-import android.annotation.SuppressLint
-import android.graphics.drawable.Drawable
-import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -42,47 +40,54 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.adityabavadekar.harmony.R
 import com.adityabavadekar.harmony.data.WorkoutTypes
 import com.adityabavadekar.harmony.data.model.TimeDifference
 import com.adityabavadekar.harmony.ui.common.Length
 import com.adityabavadekar.harmony.ui.common.Speed
+import com.adityabavadekar.harmony.ui.common.component.AnimationComponents
 import com.adityabavadekar.harmony.ui.common.component.ComposeMapView
 import com.adityabavadekar.harmony.ui.common.component.HorizontalSpacer
-import com.adityabavadekar.harmony.ui.common.component.LotieLoader
-import com.adityabavadekar.harmony.ui.common.component.LottieAnimationSpeed
 import com.adityabavadekar.harmony.ui.common.component.VerticalSpacer
 import com.adityabavadekar.harmony.ui.common.component.animations.CountDownAnimation
 import com.adityabavadekar.harmony.ui.theme.HarmonyTheme
+import com.adityabavadekar.harmony.utils.ConfigurationUtils
+import com.adityabavadekar.harmony.utils.LandscapePreview
 import com.adityabavadekar.harmony.utils.NumberUtils
-import org.osmdroid.util.GeoPoint
-import org.osmdroid.views.overlay.Marker
-import java.math.RoundingMode
 
 @Composable
 fun MapView(
     modifier: Modifier = Modifier,
     locationCoordinates: GeoLocation,
+    showMapView: Boolean = true
 ) {
     Column(
         modifier
             .fillMaxWidth()
     ) {
-        ComposeMapView(
-            point = locationCoordinates,
-            disableTouchControls = true
-        ) {
-            //TODO
-            //it.onPause()
-            //it.onDetach()
-            //it.onResume()
+        if (showMapView) {
+            ComposeMapView(
+                initialize = true,
+                point = locationCoordinates,
+                disableTouchControls = true
+            ) {
+                //TODO
+                //it.onPause()
+                //it.onDetach()
+                //it.onResume()
+            }
+        } else {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Green)
+            )
         }
     }
 }
@@ -108,37 +113,59 @@ fun LiveTrackingActivityLabel(
     activityLabel: String = "Cycling",
     status: LiveWorkoutStatus,
 ) {
-    Row(
+    Column(
         modifier = modifier
-            .fillMaxWidth()
-            .padding(bottom = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
+            .fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            modifier = Modifier
-                .alpha(0.9f)
-                .align(Alignment.CenterVertically),
-            text = activityLabel,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-        )
-        HorizontalSpacer(size = 8.dp)
-        Box(
-            Modifier.size(48.dp),
-            contentAlignment = Alignment.Center
+
+        Surface(
+            //color = MaterialTheme.colorScheme.primaryContainer,
+            shape = RoundedCornerShape(16.dp)
         ) {
-            if (status.isLive()) {
-                LotieLoader(rawFileRes = R.raw.live_anim, speed = LottieAnimationSpeed.SPEED_2X)
-            } else {
-                Surface(
-                    color = MaterialTheme.colorScheme.error.copy(alpha = 0.7f),
-                    shape = CircleShape
-                ) {
-                    Box(
-                        Modifier.size(18.dp),
-                        content = {}
+            Box(
+                modifier = Modifier
+                    .then(
+                        if (status.isLive()) Modifier.background(AnimationComponents.gradientAnimation())
+                        else Modifier
                     )
+
+            ) {
+                Row(
+                    modifier = Modifier
+                        .padding(horizontal = 18.dp, vertical = 14.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .alpha(0.9f),
+                        text = activityLabel,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    HorizontalSpacer(size = 8.dp)
+                    /*Box(
+                        Modifier.size(48.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (status.isLive()) {
+                            LotieLoader(
+                                rawFileRes = R.raw.live_anim,
+                                speed = LottieAnimationSpeed.SPEED_2X
+                            )
+                        } else {
+                            Surface(
+                                color = MaterialTheme.colorScheme.error.copy(alpha = 0.7f),
+                                shape = CircleShape
+                            ) {
+                                Box(
+                                    Modifier.size(16.dp),
+                                    content = {}
+                                )
+                            }
+                        }
+                    }*/
                 }
             }
         }
@@ -147,14 +174,17 @@ fun LiveTrackingActivityLabel(
 
 @Composable
 fun LiveTrackingBottomButtons(
+    modifier: Modifier = Modifier,
     status: LiveWorkoutStatus,
     onStartClicked: () -> Unit = {},
     onPauseClicked: () -> Unit = {},
     onResumeClicked: () -> Unit = {},
     onFinishClicked: () -> Unit = {},
+    addExtraPadding: Boolean = true,
 ) {
+
     Row(
-        Modifier.fillMaxWidth(),
+        modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         @Composable
@@ -162,7 +192,8 @@ fun LiveTrackingBottomButtons(
             LiveTrackingButton(
                 text = stringResource(R.string.start),
                 modifier = Modifier.weight(1f),
-                onClick = onStartClicked
+                onClick = onStartClicked,
+                addExtraPadding = addExtraPadding
             )
         }
 
@@ -171,7 +202,8 @@ fun LiveTrackingBottomButtons(
             LiveTrackingButton(
                 text = stringResource(R.string.pause),
                 modifier = Modifier.weight(1f),
-                onClick = onPauseClicked
+                onClick = onPauseClicked,
+                addExtraPadding = addExtraPadding
             )
         }
 
@@ -180,7 +212,8 @@ fun LiveTrackingBottomButtons(
             LiveTrackingButton(
                 text = stringResource(R.string.resume),
                 modifier = Modifier.weight(1f),
-                onClick = onResumeClicked
+                onClick = onResumeClicked,
+                addExtraPadding = addExtraPadding
             )
         }
 
@@ -190,7 +223,8 @@ fun LiveTrackingBottomButtons(
                 text = stringResource(R.string.finish),
                 modifier = Modifier.weight(1f),
                 onClick = onFinishClicked,
-                outlined = outlined
+                outlined = outlined,
+                addExtraPadding = addExtraPadding
             )
         }
 
@@ -219,12 +253,15 @@ fun LiveTrackingButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
     outlined: Boolean = false,
+    addExtraPadding: Boolean = true
 ) {
-    val paddingValues = PaddingValues(vertical = 18.dp, horizontal = 32.dp)
+    var paddingValues = PaddingValues(vertical = 18.dp, horizontal = 32.dp)
+    if (!addExtraPadding) paddingValues = PaddingValues(8.dp)
     if (outlined) {
         OutlinedButton(
-            modifier = modifier
-                .fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .then(modifier),
             contentPadding = paddingValues,
             onClick = onClick
         ) {
@@ -232,8 +269,9 @@ fun LiveTrackingButton(
         }
     } else {
         Button(
-            modifier = modifier
-                .fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .then(modifier),
             contentPadding = paddingValues,
             onClick = onClick
         ) {
@@ -245,11 +283,21 @@ fun LiveTrackingButton(
 @Composable
 fun LiveTrackingTelemetryItem(
     modifier: Modifier = Modifier,
-    telemetry: Float = 14f,
+    telemetry: String,
     telemetryUnit: String? = null,
     telemetryLabel: String = "<>",
-    integerFormatting: Boolean = false,
 ) {
+    val isLandscape = ConfigurationUtils.isLandscape()
+    val telemetryStyle: TextStyle
+    val telemetryUnitStyle: TextStyle
+    if (isLandscape) {
+        telemetryStyle = MaterialTheme.typography.headlineMedium
+        telemetryUnitStyle = MaterialTheme.typography.labelSmall
+    } else {
+        telemetryStyle = MaterialTheme.typography.headlineLarge
+        telemetryUnitStyle = MaterialTheme.typography.labelSmall
+    }
+
     Column(
         modifier = modifier
     ) {
@@ -262,18 +310,15 @@ fun LiveTrackingTelemetryItem(
             ) {
                 Text(
                     modifier = Modifier.alpha(0.8f),
-                    text = NumberUtils.formatNumber(
-                        telemetry,
-                        integerFormatting = integerFormatting
-                    ),
-                    style = MaterialTheme.typography.headlineLarge,
+                    text = telemetry,
+                    style = telemetryStyle,
                     fontWeight = FontWeight.Bold,
                 )
-                VerticalSpacer()
+                if (!isLandscape) VerticalSpacer()
                 Text(
                     modifier = Modifier.alpha(0.9f),
                     text = telemetryUnit ?: "",
-                    style = MaterialTheme.typography.labelSmall
+                    style = telemetryUnitStyle
                 )
                 Text(
                     modifier = Modifier.alpha(0.9f),
@@ -285,8 +330,14 @@ fun LiveTrackingTelemetryItem(
 }
 
 enum class LiveWorkoutStatus {
-    NOT_STARTED, PAUSED, LIVE, FINISHED;
+    NOT_STARTED,
+    PAUSED,
+    LIVE,
+    FINISHED;
 
+    /**
+     * Returns true if the value is equal to LIVE or PAUSED
+     * */
     fun isTrackable(): Boolean {
         return this == LIVE || this == PAUSED
     }
@@ -311,6 +362,8 @@ fun LiveTrackingTime(
     time: String = "00:00",
     workoutStatus: LiveWorkoutStatus,
 ) {
+    val isLandscape = ConfigurationUtils.isLandscape()
+
     val statusTextStyle: TextStyle
     val timeTextStyle: TextStyle
     val contentColor: Color
@@ -325,13 +378,22 @@ fun LiveTrackingTime(
         LiveWorkoutStatus.LIVE -> {
             contentColor = MaterialTheme.colorScheme.primary
             statusTextStyle = MaterialTheme.typography.bodyLarge
-            timeTextStyle = MaterialTheme.typography.displayLarge
+            if (isLandscape) {
+                timeTextStyle = MaterialTheme.typography.displaySmall
+            } else {
+                timeTextStyle = MaterialTheme.typography.displayLarge
+            }
         }
 
         else -> {
             contentColor = MaterialTheme.colorScheme.tertiary
-            statusTextStyle = MaterialTheme.typography.displayLarge
-            timeTextStyle = MaterialTheme.typography.displaySmall
+            if (isLandscape) {
+                statusTextStyle = MaterialTheme.typography.displaySmall
+                timeTextStyle = MaterialTheme.typography.titleLarge
+            } else {
+                statusTextStyle = MaterialTheme.typography.displayLarge
+                timeTextStyle = MaterialTheme.typography.displaySmall
+            }
         }
     }
 
@@ -339,25 +401,11 @@ fun LiveTrackingTime(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Surface(
-            shape = RoundedCornerShape(8.dp),
-            contentColor = contentColor,
-        ) {
+        val timeText = @Composable {
             Column(
-                modifier = Modifier
-                    .height(180.dp)
-                    .padding(8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                statusText?.let {
-                    Text(
-                        modifier = Modifier.alpha(0.9f),
-                        text = it,
-                        style = statusTextStyle,
-                        fontWeight = FontWeight.Bold,
-                    )
-                }
                 Text(
                     text = time,
                     style = timeTextStyle,
@@ -365,7 +413,45 @@ fun LiveTrackingTime(
                 )
                 VerticalSpacer()
                 Text(text = "Time")
-
+            }
+        }
+        val statusTextItem = @Composable {
+            Text(
+                modifier = Modifier.alpha(0.9f),
+                text = statusText ?: "",
+                style = statusTextStyle,
+                fontWeight = FontWeight.Bold,
+            )
+        }
+        Surface(
+            contentColor = contentColor,
+        ) {
+            Column(
+                modifier = Modifier
+                    .then(
+                        if (isLandscape) Modifier
+                        else Modifier
+                            .height(160.dp)
+                            .padding(8.dp)
+                    ),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                AnimatedVisibility(visible = statusText != null) {
+                    if (isLandscape) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            statusTextItem()
+                            timeText()
+                        }
+                    } else {
+                        statusTextItem()
+                    }
+                }
+                if (!isLandscape) timeText()
             }
         }
     }
@@ -395,60 +481,93 @@ interface LiveTrackingEventsListener {
 fun LiveTrackingScreen(
     uiState: LiveTrackingUiState,
     listener: LiveTrackingEventsListener = LiveTrackingEventsListener.empty(),
+    showMapView: Boolean = true,
 ) {
-    Column(
-        Modifier.fillMaxSize()
-    ) {
-        MapView(
-            modifier = Modifier.weight(1f),
-            locationCoordinates = uiState.locationCoordinates
-        )
+    val isLandscape = ConfigurationUtils.isLandscape()
 
+    // TODO: screenWidthDp = 311.dp ? Adjust layout
+    @Composable
+    fun mapContent(modifier: Modifier) {
+        MapView(
+            modifier = modifier,
+            locationCoordinates = uiState.locationCoordinates,
+            showMapView = showMapView
+        )
+    }
+
+    @Composable
+    fun telemetryContent(modifier: Modifier = Modifier) {
         Column(
-            Modifier.fillMaxWidth()
+            modifier.fillMaxWidth()
         ) {
             Surface {
                 Column(
-                    Modifier.padding(18.dp),
-                    verticalArrangement = Arrangement.Center,
+                    Modifier
+                        .then(
+                            if (isLandscape) Modifier.fillMaxHeight()
+                            else Modifier.fillMaxWidth()
+                        )
+                        .padding(
+                            horizontal = if (isLandscape) 12.dp else 18.dp,
+                            vertical = if (isLandscape) 8.dp else 18.dp
+                        ),
+                    verticalArrangement = if (!isLandscape) Arrangement.Center else Arrangement.SpaceEvenly,
                 ) {
                     LiveTrackingActivityLabel(
                         activityLabel = stringResource(id = uiState.workoutType.nameRes),
                         status = uiState.workoutStatus
                     )
                     LiveTrackingTime(
-                        Modifier
-                            .align(Alignment.CenterHorizontally),
+                        Modifier.align(Alignment.CenterHorizontally),
                         time = uiState.liveTimeDifference.formatForDisplay(),
                         workoutStatus = uiState.workoutStatus
                     )
                     LiveTrackingSpaceEvenRow {
                         LiveTrackingTelemetryItem(
-                            telemetry = uiState.distance.getSIValue(),
-                            telemetryUnit = uiState.distance.unit.shortSymbol(),
+                            telemetry = NumberUtils.formatDouble(
+                                uiState.distanceUnit.fromSI(uiState.distance.getSIValue())
+                            ),
+                            telemetryUnit = uiState.distanceUnit.shortSymbol(),
                             telemetryLabel = stringResource(R.string.distance)
                         )
                         LiveTrackingTelemetryItem(
-                            telemetry = uiState.stepsCount.toFloat(),
-                            telemetryLabel = stringResource(R.string.steps),
-                            integerFormatting = true
+                            telemetry = uiState.stepsCount.toString(),
+                            telemetryLabel = stringResource(R.string.steps)
                         )
                         LiveTrackingTelemetryItem(
-                            telemetry = uiState.speed.getSIValue(),
-                            telemetryUnit = uiState.speed.unit.shortSymbol(),
+                            telemetry = NumberUtils.formatDouble(
+                                uiState.speedUnit.fromSI(uiState.speed.getSIValue())
+                            ),
+                            telemetryUnit = uiState.speedUnit.shortSymbol(),
                             telemetryLabel = stringResource(R.string.speed)
                         )
                     }
-                    VerticalSpacer(size = 32.dp)
+                    VerticalSpacer(size = if (isLandscape) 0.dp else 32.dp)
                     LiveTrackingBottomButtons(
                         status = uiState.workoutStatus,
                         onStartClicked = { listener.onStartClicked() },
                         onPauseClicked = { listener.onPauseClicked() },
                         onResumeClicked = { listener.onResumeClicked() },
                         onFinishClicked = { listener.onFinishClicked() },
+                        addExtraPadding = if (isLandscape) !uiState.workoutStatus.isPaused() else true
                     )
                 }
             }
+        }
+    }
+
+    if (isLandscape) {
+        Row(
+            Modifier.fillMaxSize(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            telemetryContent(modifier = Modifier.weight(1f))
+            mapContent(modifier = Modifier.weight(1f))
+        }
+    } else {
+        Column(Modifier.fillMaxSize()) {
+            mapContent(modifier = Modifier.weight(1f))
+            telemetryContent()
         }
     }
 }
@@ -457,10 +576,15 @@ fun LiveTrackingScreen(
 fun LiveTrackingDeciderScreen(
     uiState: LiveTrackingUiState,
     listener: LiveTrackingEventsListener = LiveTrackingEventsListener.empty(),
+    showMapView: Boolean = true
 ) {
     when (uiState.countDownFinished) {
         false -> LiveTrackingCountDownScreen(onCompleted = { listener.onCountDownFinished() })
-        true -> LiveTrackingScreen(uiState, listener = listener)
+        true -> LiveTrackingScreen(
+            uiState,
+            listener = listener,
+            showMapView = showMapView
+        )
     }
 }
 
@@ -475,6 +599,7 @@ fun LiveTrackingCountDownScreen(
         ) {
             CountDownAnimation(
                 startAt = 3,
+                textSize = COUNTDOWN_TEXT_SIZE,
                 onCompleted = onCompleted
             )
         }
@@ -484,31 +609,48 @@ fun LiveTrackingCountDownScreen(
 private fun testUiState(): LiveTrackingUiState = LiveTrackingUiState(
     workoutType = WorkoutTypes.TYPE_RUNNING,
     workoutStatus = LiveWorkoutStatus.PAUSED,
-    speed = Speed(30.14f),
-    distance = Length(15.2f),
+    speed = Speed(30.14),
+    distance = Length(15.2),
     stepsCount = 1200,
-    liveTimeDifference = TimeDifference.now(System.currentTimeMillis() - 1000 * 60 * 60),
+    liveTimeDifference = TimeDifference.now(System.currentTimeMillis() - 10 * 60 * 60),
     pausedTimeDifference = TimeDifference.zero(),
-    locationCoordinates = GeoLocation(0.00, 0.00),
+    locationCoordinates = GeoLocation.empty(),
     countDownFinished = true
 )
 
-//@Preview(name = "Before", group = "LiveTracking")
+//@Preview(name = "Workout Countdown", group = "LiveTracking")
 @Composable
-private fun LiveTrackingBeforeScreenPrev() {
+private fun LiveTrackingCountDownPrev() {
     HarmonyTheme {
-        Surface {
-            LiveTrackingDeciderScreen(uiState = testUiState())
-        }
+        LiveTrackingDeciderScreen(
+            uiState = testUiState().copy(countDownFinished = false),
+            showMapView = false
+        )
     }
 }
 
-@Preview(name = "After", group = "LiveTracking")
+//@LandscapePreview
+//@Preview(name = "Workout Live", group = "LiveTracking")
 @Composable
-private fun LiveTrackingAfterScreenPrev() {
+private fun LiveTrackingLivePrev() {
     HarmonyTheme {
-        Surface {
-            LiveTrackingScreen(uiState = testUiState())
-        }
+        LiveTrackingScreen(
+            uiState = testUiState().copy(workoutStatus = LiveWorkoutStatus.LIVE),
+            showMapView = false
+        )
     }
 }
+
+@Preview(name = "Workout Paused", group = "LiveTracking")
+@LandscapePreview
+@Composable
+private fun LiveTrackingPausedPrev() {
+    HarmonyTheme {
+        LiveTrackingScreen(
+            uiState = testUiState().copy(workoutStatus = LiveWorkoutStatus.PAUSED),
+            showMapView = false
+        )
+    }
+}
+
+private val COUNTDOWN_TEXT_SIZE = 250.sp

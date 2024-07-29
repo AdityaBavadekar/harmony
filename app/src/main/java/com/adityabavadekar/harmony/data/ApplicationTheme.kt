@@ -17,5 +17,7 @@
 package com.adityabavadekar.harmony.data
 
 enum class ApplicationTheme {
-    LIGHT, DARK, SYSTEM_DEFAULT
+    LIGHT,
+    DARK,
+    SYSTEM_DEFAULT
 }

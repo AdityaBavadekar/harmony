@@ -16,10 +16,30 @@
 
 package com.adityabavadekar.harmony.data.model
 
+import com.adityabavadekar.harmony.ui.livetracking.GeoLocation
+
 data class WorkoutLocation(
-    val lat: Float,
-    val long: Float,
-    val altitudeMeter: Float,
+    val lat: Double,
+    val long: Double,
+    val altitudeMeter: Double,
     val startTimestamp: Long,
     val endTimestamp: Long,
-)
+) {
+
+    companion object {
+        fun fromGeoLocation(
+            startTimestamp: Long,
+            endTimestamp: Long,
+            geoLocation: GeoLocation,
+        ): WorkoutLocation {
+            return WorkoutLocation(
+                lat = geoLocation.latitude,
+                long = geoLocation.longitude,
+                altitudeMeter = geoLocation.altitudeMeters ?: 0.0,
+                startTimestamp = startTimestamp,
+                endTimestamp = endTimestamp
+            )
+        }
+    }
+
+}

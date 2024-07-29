@@ -16,78 +16,65 @@
 
 package com.adityabavadekar.harmony.ui.common
 
-enum class MassUnits(override val siConversionFactor: Float, override val symbol: String) :
+enum class MassUnits(override val siConversionFactor: Double, override val symbol: String) :
     SIConvertibleUnits<MassUnits> {
-    KG(1f, "kg"),
-    GRAM(1000f, "g"),
-    STONES(6.35029f, "St."),
-    POUNDS(0.453592f, "lb");
+    KG(1.0, "kg"),
+    GRAM(1000.0, "g"),
+    STONES(6.35029, "St."),
+    POUNDS(0.453592, "lb");
 }
 
-enum class PressureUnits(override val siConversionFactor: Float, override val symbol: String) :
+enum class HeatUnits(override val siConversionFactor: Double, override val symbol: String) :
+    SIConvertibleUnits<HeatUnits> {
+    JOULES(1.0, "J"),
+    CALORIES(4.184, "cal"),
+    BTU(1055.06, "BTU");
+}
+
+enum class PressureUnits(override val siConversionFactor: Double, override val symbol: String) :
     SIConvertibleUnits<PressureUnits> {
-    PASCAL(1f, "Pa"),
-    BAR(100000f, "bar"),
-    ATMOSPHERE(101325f, "atm"),
-    TORR(133.322f, "Torr"),
-    PSI(6894.76f, "psi");
+    PASCAL(1.0, "Pa"),
+    BAR(100000.0, "bar"),
+    ATMOSPHERE(101325.0, "atm"),
+    TORR(133.322, "Torr"),
+    PSI(6894.76, "psi");
 }
 
-
-val Int.kg: Float get() = this * MassUnits.KG.siConversionFactor
-val Int.stones: Float get() = this * MassUnits.STONES.siConversionFactor
-val Int.pounds: Float get() = this * MassUnits.POUNDS.siConversionFactor
-
-enum class SpeedUnits(override val siConversionFactor: Float, override val symbol: String) :
+enum class SpeedUnits(override val siConversionFactor: Double, override val symbol: String) :
     SIConvertibleUnits<SpeedUnits> {
-    METERS_PER_SECOND(1f, "m/s"),
-    KILOMETERS_PER_HOUR(0.277778f, "km/hr"),
-    MILES_PER_HOUR(0.44704f, "miles/hr")
+    METERS_PER_SECOND(1.0, "m/s"),
+    KILOMETERS_PER_HOUR(0.277778, "km/hr"),
+    MILES_PER_HOUR(0.44704, "miles/hr")
 }
 
-enum class LengthUnits(override val siConversionFactor: Float, override val symbol: String) :
+enum class LengthUnits(override val siConversionFactor: Double, override val symbol: String) :
     SIConvertibleUnits<LengthUnits> {
-    METERS(1f, "m"),
-    KILOMETERS(1000f, "km"),
-    CENTIMETERS(0.01f, "cm"),
-    MILLIMETERS(0.001f, "mm"),
-    INCHES(0.0254f, "in."),
-    FEET(0.3048f, "ft"),
-    YARDS(0.9144f, "yd"),
-    MILES(1609.34f, "miles")
+    METERS(1.0, "m"),
+    KILOMETERS(1000.0, "km"),
+    CENTIMETERS(0.01, "cm"),
+    MILLIMETERS(0.001, "mm"),
+    INCHES(0.0254, "in."),
+    FEET(0.3048, "ft"),
+    YARDS(0.9144, "yd"),
+    MILES(1609.34, "miles")
 }
 
-
-val Int.meters: Float get() = this * LengthUnits.METERS.siConversionFactor
-val Int.kilometers: Float get() = this * LengthUnits.KILOMETERS.siConversionFactor
-val Int.centimeters: Float get() = this * LengthUnits.CENTIMETERS.siConversionFactor
-val Int.millimeters: Float get() = this * LengthUnits.MILLIMETERS.siConversionFactor
-val Int.inches: Float get() = this * LengthUnits.INCHES.siConversionFactor
-val Int.feet: Float get() = this * LengthUnits.FEET.siConversionFactor
-val Int.yards: Float get() = this * LengthUnits.YARDS.siConversionFactor
-val Int.miles: Float get() = this * LengthUnits.MILES.siConversionFactor
-
-enum class TimeUnits(override val siConversionFactor: Float, override val symbol: String) :
+enum class TimeUnits(override val siConversionFactor: Double, override val symbol: String) :
     SIConvertibleUnits<TimeUnits> {
-    SECONDS(1f, "SECONDS"),
-    MINUTES(60f, "MINUTES"),
-    HOURS(3600f, "HOURS"),
-    DAYS(86400f, "DAYS")
+    SECONDS(1.0, "s"),
+    MINUTES(60.0, "min"),
+    HOURS(3600.0, "hr"),
+    DAYS(86400.0, "d")
 }
 
-val Int.sec: Float get() = this * TimeUnits.SECONDS.siConversionFactor
-val Int.min: Float get() = this * TimeUnits.MINUTES.siConversionFactor
-val Int.hrs: Float get() = this * TimeUnits.HOURS.siConversionFactor
-val Int.days: Float get() = this * TimeUnits.DAYS.siConversionFactor
-
-enum class VolumeUnits(override val siConversionFactor: Float, override val symbol: String) :
+enum class VolumeUnits(override val siConversionFactor: Double, override val symbol: String) :
     SIConvertibleUnits<VolumeUnits> {
-    CUBIC_METER(1f, "m³"),
-    LITERS(0.001f, "L"),
-    MILLILITER(1e-6f, "mL"),
-    GALLON(0.00378541f, "gal"),
-    CUBIC_INCH(1.63871e-5f, "in³"),
-    CUBIC_FOOT(0.0283168f, "ft³");
+    CUBIC_METER(1.0, "m³"),
+    LITERS(0.001, "L"),
+    MILLILITER(1e-6, "mL"),
+    GALLON(0.00378541, "gal"),
+    CUBIC_INCH(1.63871e-5, "in³"),
+    CUBIC_FOOT(0.0283168, "ft³");
 }
 
 enum class TemperatureUnits(override val symbol: String) : SIConvertibleUnits<TimeUnits> {
@@ -95,42 +82,42 @@ enum class TemperatureUnits(override val symbol: String) : SIConvertibleUnits<Ti
     FAHRENHEIT("F"),
     KELVIN("K");
 
-    override val siConversionFactor: Float
+    override val siConversionFactor: Double
         get() = throw IllegalStateException()
 
-    private fun toKelvin(value: Float): Float {
+    private fun toKelvin(value: Double): Double {
         return when (this) {
-            CELSIUS -> value + 273.15f
+            CELSIUS -> value + 273.15
             FAHRENHEIT -> (value - 32) * 5 / 9
             KELVIN -> value
         }
     }
 
-    private fun fromKelvin(value: Float): Float {
+    private fun fromKelvin(value: Double): Double {
         return when (this) {
-            CELSIUS -> value - 273.15f
+            CELSIUS -> value - 273.15
             FAHRENHEIT -> value * 9 / 5 + 32
             KELVIN -> value
         }
     }
 
-    override fun toSI(value: Float): Float = toKelvin(value)
+    override fun toSI(value: Double): Double = toKelvin(value)
 
-    override fun fromSI(value: Float): Float = fromKelvin(value)
+    override fun fromSI(value: Double): Double = fromKelvin(value)
 
 }
 
 interface SIConvertibleUnits<T> {
-    val siConversionFactor: Float
+    val siConversionFactor: Double
     val symbol: String
     val ordinal: Int
     val name: String
 
-    fun toSI(value: Float): Float {
+    fun toSI(value: Double): Double {
         return value * siConversionFactor
     }
 
-    fun fromSI(value: Float): Float {
+    fun fromSI(value: Double): Double {
         return value / siConversionFactor
     }
 
@@ -140,54 +127,65 @@ interface SIConvertibleUnits<T> {
 
 }
 
-class Length(lengthInMeters: Float) : PhysicalUnit<LengthUnits>() {
+class Length(lengthInMeters: Double) : PhysicalUnit<LengthUnits>() {
+    constructor(lengthInMeters: Float) : this(lengthInMeters.toDouble())
+
     var unit: LengthUnits = LengthUnits.METERS
         private set
-    private var length = lengthInMeters
-    override fun getValue(targetUnit: LengthUnits): Float {
+    private var length: Double = lengthInMeters
+    override fun getValue(targetUnit: LengthUnits): Double {
         return unit.fromSI(getSIValue())
     }
 
-    override fun getSIValue(): Float {
+    override fun getSIValue(): Double {
         return length * unit.siConversionFactor
     }
 }
 
-class Mass(massInKg: Float) : PhysicalUnit<MassUnits>() {
+class Mass(massInKg: Double) : PhysicalUnit<MassUnits>() {
+
+    constructor(massInKg: Float) : this(massInKg.toDouble())
+
     var unit: MassUnits = MassUnits.KG
         private set
-    private var mass = massInKg
-    override fun getValue(targetUnit: MassUnits): Float {
+    private var mass: Double = massInKg
+    override fun getValue(targetUnit: MassUnits): Double {
         return unit.fromSI(getSIValue())
     }
 
-    override fun getSIValue(): Float {
+    override fun getSIValue(): Double {
         return mass * unit.siConversionFactor
     }
 }
 
-class Temperature(temperatureInCelsius: Float) : PhysicalUnit<TemperatureUnits>() {
+class Temperature(temperatureInCelsius: Double) : PhysicalUnit<TemperatureUnits>() {
+
+    constructor(temperatureInCelsius: Float) : this(temperatureInCelsius.toDouble())
+
     var unit: TemperatureUnits = TemperatureUnits.CELSIUS
         private set
-    private var temperature = temperatureInCelsius
-    override fun getValue(targetUnit: TemperatureUnits): Float {
+    private var temperature: Double = temperatureInCelsius
+    override fun getValue(targetUnit: TemperatureUnits): Double {
         return unit.fromSI(getSIValue())
     }
 
-    override fun getSIValue(): Float {
+    override fun getSIValue(): Double {
         return unit.toSI(temperature)
     }
 }
 
-class Speed(speedInMetersSec: Float) : PhysicalUnit<SpeedUnits>() {
+class Speed constructor(speedInMetersSec: Double) : PhysicalUnit<SpeedUnits>() {
+
+    constructor(speedInMetersSec: Float) : this(speedInMetersSec.toDouble())
+
     var unit: SpeedUnits = SpeedUnits.METERS_PER_SECOND
         private set
-    private var speed = speedInMetersSec
-    override fun getValue(targetUnit: SpeedUnits): Float {
+    private var speed: Double = speedInMetersSec
+    override fun getValue(targetUnit: SpeedUnits): Double {
         return unit.fromSI(getSIValue())
     }
 
-    override fun getSIValue(): Float {
+    override fun getSIValue(): Double {
         return speed * unit.siConversionFactor
     }
 }
@@ -196,11 +194,11 @@ class Volume(volumeInLitres: Float) : PhysicalUnit<SpeedUnits>() {
     var unit: VolumeUnits = VolumeUnits.LITERS
         private set
     private var volume = volumeInLitres
-    override fun getValue(targetUnit: SpeedUnits): Float {
+    override fun getValue(targetUnit: SpeedUnits): Double {
         return unit.fromSI(getSIValue())
     }
 
-    override fun getSIValue(): Float {
+    override fun getSIValue(): Double {
         return volume * unit.siConversionFactor
     }
 
@@ -211,17 +209,17 @@ class Pressure(pressureInPascals: Float) : PhysicalUnit<PressureUnits>() {
         private set
     private var pressure = pressureInPascals
 
-    override fun getValue(targetUnit: PressureUnits): Float {
+    override fun getValue(targetUnit: PressureUnits): Double {
         return targetUnit.fromSI(getSIValue())
     }
 
-    override fun getSIValue(): Float {
+    override fun getSIValue(): Double {
         return pressure * unit.siConversionFactor
     }
 }
 
 abstract class PhysicalUnit<T> {
-    abstract fun getValue(targetUnit: T): Float
-    abstract fun getSIValue(): Float
+    abstract fun getValue(targetUnit: T): Double
+    abstract fun getSIValue(): Double
 
 }

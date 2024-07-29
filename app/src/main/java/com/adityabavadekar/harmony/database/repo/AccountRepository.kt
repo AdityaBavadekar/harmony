@@ -16,6 +16,7 @@
 
 package com.adityabavadekar.harmony.database.repo
 
+import androidx.annotation.UiThread
 import com.adityabavadekar.harmony.data.model.UserRecord
 import com.adityabavadekar.harmony.database.roomdao.AccountDao
 
@@ -27,6 +28,7 @@ class AccountRepository(
         return dao.getAccount()
     }
 
+    @UiThread
     suspend fun addAccount(account: UserRecord) {
         dao.addAccount(account)
     }

@@ -51,8 +51,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
 import com.adityabavadekar.harmony.R
+import com.adityabavadekar.harmony.data.model.UserRecord
 import com.adityabavadekar.harmony.ui.common.Gender
+import com.adityabavadekar.harmony.ui.common.Length
 import com.adityabavadekar.harmony.ui.common.LengthUnits
+import com.adityabavadekar.harmony.ui.common.Mass
 import com.adityabavadekar.harmony.ui.common.MassUnits
 import com.adityabavadekar.harmony.ui.common.component.CircularProfileImage
 import com.adityabavadekar.harmony.ui.common.component.CircularProfileImageSize
@@ -65,23 +68,38 @@ import com.adityabavadekar.harmony.ui.common.component.VerticalSpacer
 import com.adityabavadekar.harmony.ui.common.component.clickableRipple
 import com.adityabavadekar.harmony.ui.theme.HarmonyTheme
 import com.adityabavadekar.harmony.utils.ImageAvatar
+import com.adityabavadekar.harmony.utils.capFirstChar
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(modifier: Modifier = Modifier) {
-    var gender = Gender.MALE
+fun ProfileScreen(
+    account: UserRecord? = null,
+) {
     var heightUnit = LengthUnits.CENTIMETERS
     var weightUnit = MassUnits.KG
 
     val height = remember {
-        mutableStateOf(TextFieldValue())
+        mutableStateOf(account?.userFitnessRecord?.height)
     }
+
     val weight = remember {
-        mutableStateOf(TextFieldValue())
+        mutableStateOf(account?.userFitnessRecord?.weight)
     }
+
     val stepsTarget = remember {
-        mutableStateOf(TextFieldValue())
+        mutableStateOf(TextFieldValue(account?.userFitnessRecord?.stepsGoal?.toString() ?: ""))
+    }
+
+    val sleepTarget = remember {
+        mutableStateOf(account?.userFitnessRecord?.bedtimeSleep)
+    }
+
+    val wakeupTarget = remember {
+        mutableStateOf(account?.userFitnessRecord?.bedtimeWakeUp)
     }
 
     Column(Modifier.fillMaxSize()) {
@@ -90,12 +108,6 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            /*Text(
-                text = "Profile",
-                style = MaterialTheme.typography.headlineLarge,
-                modifier = Modifier.padding(28.dp)
-            )*/
-
             LazyColumn(
                 Modifier
                     .fillMaxSize()
@@ -120,13 +132,14 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
                             ) {
                                 CircularProfileImage(
                                     size = CircularProfileImageSize.SMALL,
-                                    iconIdRes = ImageAvatar.getMaleAvatar(2),
+                                    iconIdRes = account?.avatar?.drawableRes
+                                        ?: ImageAvatar.getMaleAvatar(2),
                                     margin = PaddingValues(8.dp)
                                 )
                                 HorizontalSpacer()
                                 Text(
                                     modifier = Modifier.alpha(0.8f),
-                                    text = "User Name",
+                                    text = account?.getName() ?: "Name",
                                     style = MaterialTheme.typography.titleLarge,
                                 )
                             }
@@ -135,12 +148,18 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
                         RowItem(
                             modifier = Modifier.padding(it),
                             labelText = "Gender",
-                            valueText = "Male"
+                            valueText = account?.gender?.name?.capFirstChar() ?: ""
                         )
+                        val dob = account?.birthDate?.let { timeInMillis ->
+                            SimpleDateFormat(
+                                "dd MMMM yyyy",
+                                Locale.getDefault()
+                            ).format(Date(timeInMillis))
+                        }
                         RowItem(
                             modifier = Modifier.padding(it),
                             labelText = "Date of Birth",
-                            valueText = "28 May 2001"
+                            valueText = dob ?: ""
                         )
                     }
 
@@ -173,7 +192,8 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
                             HarmonyTimeInputField(
                                 modifier = Modifier.weight(1f, fill = false),
                                 hint = "Sleep",
-                                onValueChanged = { _: Int, _: Int -> }
+                                initialValue = sleepTarget.value,
+                                onValueChanged = { v -> sleepTarget.value = v }
                             )
 
                             Spacer(modifier = Modifier.width(8.dp))
@@ -181,7 +201,8 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
                             HarmonyTimeInputField(
                                 modifier = Modifier.weight(1f, fill = false),
                                 hint = "Wake up",
-                                onValueChanged = { _: Int, _: Int -> }
+                                initialValue = wakeupTarget.value,
+                                onValueChanged = { v -> wakeupTarget.value = v }
                             )
                         }
                     }
@@ -193,8 +214,8 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
                         Column(Modifier.padding(paddingValues)) {
                             HarmonyPhysicalMeasurementInput(
                                 hint = "Weight",
-                                physicalValue = weight.value,
-                                onPhysicalValueChanged = { weight.value = it },
+                                physicalValue = weight.value?.getSIValue(),
+                                onValueChanged = { weight.value = Mass(it) },
                                 unitValuesCount = MassUnits.entries.size,
                                 defaultUnitIndex = weightUnit.ordinal,
                                 getUnitLabel = { MassUnits.entries[it].shortSymbol() },
@@ -205,8 +226,8 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
 
                             HarmonyPhysicalMeasurementInput(
                                 hint = "Height",
-                                physicalValue = height.value,
-                                onPhysicalValueChanged = { height.value = it },
+                                physicalValue = height.value?.getSIValue(),
+                                onValueChanged = { height.value = Length(it) },
                                 unitValuesCount = LengthUnits.entries.size,
                                 defaultUnitIndex = heightUnit.ordinal,
                                 getUnitLabel = { LengthUnits.entries[it].shortSymbol() },
@@ -215,8 +236,7 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
                         }
                     }
                 }
-
-                item { VerticalSpacer(size = 48.dp) }
+                item { VerticalSpacer(size = 100.dp) }
             }
         }
     }
@@ -226,7 +246,7 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
 fun ProfileScreenCategory(
     labelText: String,
     paddingValues: PaddingValues = PaddingValues(horizontal = 14.dp),
-    content: @Composable ColumnScope.(PaddingValues) -> Unit
+    content: @Composable ColumnScope.(PaddingValues) -> Unit,
 ) {
     Column(
         Modifier
@@ -265,7 +285,7 @@ private fun RowItem(
     modifier: Modifier = Modifier,
     labelText: String,
     valueText: String,
-    @DrawableRes iconRes: Int = R.drawable.baseline_navigate_next_24
+    @DrawableRes iconRes: Int = R.drawable.baseline_navigate_next_24,
 ) {
     Column(
         Modifier

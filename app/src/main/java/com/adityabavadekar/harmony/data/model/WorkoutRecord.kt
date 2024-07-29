@@ -23,45 +23,98 @@ import com.adityabavadekar.harmony.data.WorkoutTypes
 @Entity(tableName = "workouts_table")
 data class WorkoutRecord(
     val type: WorkoutTypes,
-    val title: String,
-    val description: String,
+    val title: String? = null,
+    val description: String? = null,
     val startTimestamp: Long,
-    val endTimestamp: Long,
-    val temperatureCelsius: Float? = null,
-    val distanceMeters: Float,
-    val stepsCount: Int,
+    val endTimestamp: Long = 0L,
+    val temperatureCelsius: Double? = null,
+    val distanceMeters: Double = 0.0,
+    val stepsCount: Int = 0,
     val notes: String? = null,
     val laps: List<WorkoutLap> = listOf(),
+    val pauseDurationSec: Long = 0L,
     val workoutRoute: WorkoutRoute? = null,
-    val totalEnergyBurnedCal: Int? = null,
-    val minSpeedMetersSec: Float? = null,
-    val maxSpeedMetersSec: Float? = null,
-    val avgSpeedMetersSec: Float? = null,
-    val speedsMetersSec: List<Float> = listOf(),
+    val totalEnergyBurnedCal: Double? = null,
+    val minSpeedMetersSec: Double? = null,
+    val maxSpeedMetersSec: Double? = null,
+    val avgSpeedMetersSec: Double? = null,
+    val speedsMetersSec: List<Double> = listOf(),
     val completed: Boolean = false,
-) {
     @PrimaryKey(autoGenerate = true)
-    var id: Int = 0
+    val id: Long = 0
+) {
 
     fun timeDifference() =
         TimeDifference.from(startTimestamp, endTimestamp - laps.sumOf { it.diff() })
 
+    fun updateAfterTrackingFinished(
+        stepsCount: Int,
+        distanceMeters: Double,
+        totalEnergyBurnedCal: Double,
+        workoutRoute: WorkoutRoute,
+        laps: List<WorkoutLap>,
+        speeds: List<Double>,
+        temperatureCelsius: Double? = null
+    ): WorkoutRecord {
+        val finalSpeeds = speedsMetersSec + speeds
+        return this.copy(
+            endTimestamp = System.currentTimeMillis(),
+            temperatureCelsius = temperatureCelsius,
+            distanceMeters = distanceMeters,
+            stepsCount = stepsCount,
+            laps = laps,
+            workoutRoute = workoutRoute,
+            totalEnergyBurnedCal = totalEnergyBurnedCal,
+            minSpeedMetersSec = finalSpeeds.minOrNull(),
+            maxSpeedMetersSec = finalSpeeds.maxOrNull(),
+            avgSpeedMetersSec = finalSpeeds.average(),
+            speedsMetersSec = finalSpeeds,
+            completed = true
+        )
+    }
+
+    fun update(
+        stepsCount: Int,
+        distanceMeters: Double,
+        totalEnergyBurnedCal: Double,
+        workoutRoute: WorkoutRoute,
+        laps: List<WorkoutLap>,
+        speeds: List<Double>,
+        temperatureCelsius: Double? = null
+    ): WorkoutRecord {
+        val finalSpeeds = speedsMetersSec + speeds
+        return this.copy(
+            temperatureCelsius = temperatureCelsius,
+            distanceMeters = distanceMeters,
+            stepsCount = stepsCount,
+            laps = laps,
+            workoutRoute = workoutRoute,
+            totalEnergyBurnedCal = totalEnergyBurnedCal,
+            minSpeedMetersSec = finalSpeeds.minOrNull(),
+            maxSpeedMetersSec = finalSpeeds.maxOrNull(),
+            avgSpeedMetersSec = finalSpeeds.average(),
+            speedsMetersSec = finalSpeeds,
+        )
+    }
+
+
     companion object {
-        fun simple(
+        private fun simple(
             type: WorkoutTypes,
             startTimestamp: Long,
-            endTimestamp: Long,
-            distanceMeters: Float,
-            stepsCount: Int,
-            totalEnergyBurnedCal: Int = 0,
-            avgSpeedMetersSec: Float? = null,
-            maxSpeedMetersSec: Float? = null,
-            minSpeedMetersSec: Float? = null,
+            endTimestamp: Long = 0L,
+            distanceMeters: Double = 0.0,
+            stepsCount: Int = 0,
+            totalEnergyBurnedCal: Double = 0.0,
+            avgSpeedMetersSec: Double? = null,
+            maxSpeedMetersSec: Double? = null,
+            minSpeedMetersSec: Double? = null,
+            completed: Boolean,
         ): WorkoutRecord {
             return WorkoutRecord(
                 type = type,
-                title = "",
-                description = "",
+                title = null,
+                description = null,
                 startTimestamp = startTimestamp,
                 endTimestamp = endTimestamp,
                 temperatureCelsius = null,
@@ -69,13 +122,22 @@ data class WorkoutRecord(
                 stepsCount = stepsCount,
                 notes = null,
                 laps = listOf(),
+                pauseDurationSec = 0L,
                 workoutRoute = null,
                 totalEnergyBurnedCal = totalEnergyBurnedCal,
                 minSpeedMetersSec = minSpeedMetersSec,
                 maxSpeedMetersSec = maxSpeedMetersSec,
                 avgSpeedMetersSec = avgSpeedMetersSec,
                 speedsMetersSec = listOf(),
-                completed = true
+                completed = completed
+            )
+        }
+
+        fun startupRecord(type: WorkoutTypes): WorkoutRecord {
+            return simple(
+                type = type,
+                startTimestamp = System.currentTimeMillis(),
+                completed = false /* Most important */
             )
         }
     }

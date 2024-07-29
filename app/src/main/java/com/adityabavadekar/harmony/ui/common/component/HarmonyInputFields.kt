@@ -16,7 +16,6 @@
 
 package com.adityabavadekar.harmony.ui.common.component
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,7 +32,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.SelectableDates
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldColors
@@ -42,8 +40,10 @@ import androidx.compose.material3.TimePickerState
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -51,11 +51,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.adityabavadekar.harmony.R
-import com.adityabavadekar.harmony.ui.theme.HarmonyTheme
-import java.math.BigDecimal
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -74,7 +71,7 @@ fun HarmonyTextInput(
     clickable: (() -> Unit)? = null,
     editable: Boolean = true,
     enabled: Boolean = true,
-    passwordInput: Boolean = false
+    passwordInput: Boolean = false,
 ) {
     HarmonyTextField(
         disableMinWidth = minWidth,
@@ -163,13 +160,17 @@ fun HarmonyListItemInputField(
 fun HarmonyTimeInputField(
     hint: String,
     modifier: Modifier = Modifier,
-    onValueChanged: (hour: Int, minute: Int) -> Unit = { _, _ -> },
+    onValueChanged: (Long) -> Unit = { },
+    initialValue: Long? = null,
 ) {
     val simpleDateFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
     val textFieldValue = remember { mutableStateOf(TextFieldValue()) }
     val isExpanded = remember { mutableStateOf(false) }
 
     val currentTime = Calendar.getInstance()
+
+    initialValue?.let { currentTime.timeInMillis = initialValue }
+
     val timePickerState = rememberTimePickerState(
         initialHour = currentTime.get(Calendar.HOUR_OF_DAY),
         initialMinute = currentTime.get(Calendar.MINUTE),
@@ -186,7 +187,7 @@ fun HarmonyTimeInputField(
                         cal.set(Calendar.HOUR_OF_DAY, hour)
                         cal.set(Calendar.MINUTE, minute)
                         textFieldValue.value = TextFieldValue(simpleDateFormat.format(cal.time))
-                        onValueChanged(hour, minute)
+                        onValueChanged(cal.timeInMillis)
                     }
                     isExpanded.value = false
                 }
@@ -254,7 +255,7 @@ fun HarmonyClickToLaunchInputField(
         modifier = modifier,
         value = value,
         onValueChanged = onValueChanged,
-        clickable = {onClick()},
+        clickable = { onClick() },
         editable = false,
         enabled = false,
         minWidth = minWidth,
@@ -321,34 +322,44 @@ fun HarmonyDateInputField(
 fun HarmonyPhysicalMeasurementInput(
     modifier: Modifier = Modifier,
     hint: String,
-    physicalValue: TextFieldValue,
-    onPhysicalValueChanged: (TextFieldValue) -> Unit,
+    physicalValue: Double?,
+    onPhysicalValueChanged: (TextFieldValue) -> Unit = {},
+    onValueChanged: (value: Double) -> Unit = {},
     unitValuesCount: Int,
     defaultUnitIndex: Int,
+    maxCount: Int = 600,
     getUnitLabel: (Int) -> String,
-    onUnitSelected: (Int) -> Unit
+    onUnitSelected: (Int) -> Unit,
 ) {
+    var inputDialogIsVisible by remember { mutableStateOf(false) }
+    when {
+        inputDialogIsVisible -> {
+            HarmonyPhysicalMeasurementInputDialog(
+                maxCount = maxCount,
+                physicalValue = physicalValue ?: (maxCount / 2).toDouble(),
+                onDismissRequest = {
+                    inputDialogIsVisible = false
+                    onPhysicalValueChanged(TextFieldValue(it.toString()))
+                    onValueChanged(it)
+                }
+            )
+        }
+    }
+
     Row(modifier.fillMaxWidth()) {
-        HarmonyTextInput(
-            modifier = Modifier.fillMaxWidth().weight(1f),
-            value = physicalValue,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            onValueChanged = onPhysicalValueChanged,
+        HarmonyClickToLaunchInputField(
             hint = hint,
-        )
-//        val textMeasurer = rememberTextMeasurer()
-//        val textLayoutResult: TextLayoutResult =
-//            textMeasurer.measure(
-//                text = AnnotatedString("ZZZZ"),
-//                style = LocalTextStyle.current
-//            )
-//        val charWidth =  textLayoutResult.size.width
+            value = TextFieldValue(physicalValue?.toString() ?: ""),
+            modifier = Modifier.weight(1f),
+            minWidth = true
+        ) {
+            inputDialogIsVisible = true
+        }
 
         HarmonyListItemInputField(
             modifier = Modifier
                 .width(120.dp)
                 .weight(1f)
-//                .width(charWidth.dp + 20.dp)
                 .padding(start = 2.dp),
             minWidth = true,
             hint = "Unit",
@@ -363,41 +374,36 @@ fun HarmonyPhysicalMeasurementInput(
 @Composable
 fun HarmonyPhysicalMeasurementInputDialog(
     modifier: Modifier = Modifier,
-    hint: String,
     maxCount: Int = 600,
-    physicalValue: Float = 10.2f,
-    onPhysicalValueChanged: (Float) -> Unit = {},
-    unitValuesCount: Int,
-    defaultUnitIndex: Int,
-    getUnitLabel: (Int) -> String,
-    onUnitSelected: (Int) -> Unit
+    physicalValue: Double = 10.2,
+    onDismissRequest: (value: Double) -> Unit = {},
 ) {
     val initialIntegerValue = physicalValue.toInt()
-    val initialDecimalValue = (physicalValue.toBigDecimal() - initialIntegerValue.toBigDecimal()).times(
-        BigDecimal(10)
-    ).toInt().toString()
+    val initialDecimalValue = (physicalValue - initialIntegerValue).times(10).toInt().toString()
     val numberPickerState = rememberPickerState()
     val decimalPickerState = rememberPickerState()
 
     numberPickerState.selectedItem = initialIntegerValue.toString()
     decimalPickerState.selectedItem = initialDecimalValue
 
-    PickerDialogBase(onDismissRequest = { cancelled: Boolean ->
-
-    }) {
+    PickerDialogBase(
+        onDismissRequest = { cancelled: Boolean ->
+            if (cancelled) onDismissRequest(physicalValue)
+            else onDismissRequest(numberPickerState.selectedItem.toInt() + 0.1 * decimalPickerState.selectedItem.toInt())
+        }
+    ) {
         Row(
             modifier
                 .fillMaxWidth()
                 .padding(horizontal = 18.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-
             Picker(
                 modifier = Modifier.weight(1f),
                 itemCount = maxCount,
                 getLabel = { (it + 1).toString() },
                 state = numberPickerState,
-                textStyle = MaterialTheme.typography.headlineSmall
+                textStyle = MaterialTheme.typography.headlineSmall,
             )
 
             Text(
@@ -459,7 +465,7 @@ fun DatePickerDialog(
 @Composable
 fun PickerDialogBase(
     onDismissRequest: (cancelled: Boolean) -> Unit,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = { onDismissRequest(true) },
@@ -481,33 +487,4 @@ fun PickerDialogBase(
             content()
         }
     )
-}
-
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview
-@Composable
-private fun TextFieldPrev() {
-    HarmonyTheme {
-        Surface {
-            Column {
-//                HarmonyTextInput("Name here")
-//                Spacer(modifier = Modifier.height(18.dp))
-//                HarmonyTextInput("Name here", value = TextFieldValue("Test")
-                HarmonyPhysicalMeasurementInput(
-                    hint = "Weight",
-                    physicalValue = TextFieldValue("16"),
-                    onPhysicalValueChanged = {},
-                    unitValuesCount = 2,
-                    defaultUnitIndex = 0,
-                    getUnitLabel = { "pound" }
-                ) {
-
-                }
-//                HarmonyTimeInputField(
-//                    "Sleep time"
-//                )
-            }
-        }
-    }
 }

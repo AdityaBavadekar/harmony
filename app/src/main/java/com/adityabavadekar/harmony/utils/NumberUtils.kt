@@ -22,13 +22,15 @@ import java.math.RoundingMode
 @SuppressLint("DefaultLocale")
 class NumberUtils {
     companion object {
-        fun formatNumber(number: Long): String = String.format("%,d", number)
-        fun formatNumber(number: Float): String = String.format("%,.1f", number)
-        fun formatNumber(number: Float, integerFormatting: Boolean): String {
-            return if (!integerFormatting) formatNumber(number)
-            else formatNumber(number.toLong())
-        }
+        fun formatLong(number: Long): String = String.format("%,d", number)
+        fun formatFloat(number: Float): String = String.format("%,.1f", number)
+
+        fun formatDouble(num: Double): String = String.format("%,.2f", num)
+
         fun roundFloat(number: Float, decimalPlaces: Int = 1): Float =
             number.toBigDecimal().setScale(decimalPlaces, RoundingMode.UP).toFloat()
+
+        fun roundDouble(number: Double, decimalPlaces: Int = 2): Double =
+            number.toBigDecimal().setScale(decimalPlaces, RoundingMode.UP).toDouble()
     }
 }

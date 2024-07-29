@@ -16,24 +16,50 @@
 
 package com.adityabavadekar.harmony.ui.settings
 
+import android.app.Application
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.adityabavadekar.harmony.database.repo.AccountRepository
+import com.adityabavadekar.harmony.utils.asHarmonyApp
+import com.adityabavadekar.harmony.utils.withIOContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class SettingsViewModel(initialUiState: SettingsUiState = SettingsUiState()) : ViewModel() {
+class SettingsViewModel(
+    initialUiState: SettingsUiState = SettingsUiState(),
+    private val accountRepository: AccountRepository,
+) : ViewModel() {
     private val _uiState = MutableStateFlow(initialUiState)
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
 
-    fun setAccount(repo: AccountRepository) {
-        viewModelScope.launch {
-            val account = repo.getAccount()
+    private fun initAccount() = viewModelScope.launch {
+        withIOContext {
+            val account = accountRepository.getAccount()
             _uiState.value = _uiState.value.copy(
                 thirdDegreeUserRecord = account.toThirdDegreeUserRecord()
             )
         }
     }
+
+    init {
+        initAccount()
+    }
+
+    class Factory(private val application: Application) : ViewModelProvider.Factory {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            if (modelClass.isAssignableFrom(SettingsViewModel::class.java)) {
+                return SettingsViewModel(
+                    accountRepository = AccountRepository.getInstance(
+                        application.asHarmonyApp().getDatabase().accountDao()
+                    )
+                ) as T
+            }
+            throw IllegalArgumentException("Unknown ViewModel class")
+        }
+    }
+
 }

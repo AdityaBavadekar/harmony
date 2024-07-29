@@ -42,6 +42,9 @@ import com.adityabavadekar.harmony.data.WorkoutTypes
 import com.adityabavadekar.harmony.ui.common.activitybase.PermissionActivity
 import com.adityabavadekar.harmony.ui.livetracking.service.LiveTrackerService
 import com.adityabavadekar.harmony.ui.theme.HarmonyTheme
+import com.adityabavadekar.harmony.utils.UnitPreferences
+import com.adityabavadekar.harmony.utils.preferences.PreferencesKeys
+import com.adityabavadekar.harmony.utils.preferences.preferencesManager
 
 
 class LiveTrackingActivity : PermissionActivity(), LiveTrackingEventsListener, SensorEventListener {
@@ -50,7 +53,6 @@ class LiveTrackingActivity : PermissionActivity(), LiveTrackingEventsListener, S
         LiveTrackingViewModel.Factory(application)
     }
     private lateinit var sensorManager: SensorManager
-    private var initialSteps = 0
 
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,6 +65,9 @@ class LiveTrackingActivity : PermissionActivity(), LiveTrackingEventsListener, S
         val workoutType = WorkoutTypes.entries[workoutTypeOrdinal]
         Log.d(TAG, "onCreate: workoutType=${workoutType.name}")
         viewModel.setWorkoutType(workoutType)
+
+        val weight = preferencesManager.getFloat(PreferencesKeys.USER_WEIGHT, 0f)!!
+        viewModel.setUserWeight(weight.toDouble())
 
         /* Start Steps Sensor first so as we get initial value since last reboot and further calculations become accurate. */
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
@@ -90,10 +95,17 @@ class LiveTrackingActivity : PermissionActivity(), LiveTrackingEventsListener, S
 
         if (stepSensor == null) {
             Log.e(TAG, "STEP SENSOR (`Sensor.TYPE_STEP_COUNTER`) is not present on this device.")
-            throw NotImplementedError("Step Counter Sensor not present.")
+            //throw NotImplementedError("Step Counter Sensor not present.")
+        } else {
+            sensorManager.registerListener(this, stepSensor, SensorManager.SENSOR_DELAY_UI)
         }
 
-        sensorManager.registerListener(this, stepSensor, SensorManager.SENSOR_DELAY_UI)
+        val unitPreferences = UnitPreferences(preferencesManager)
+        val distanceUnit = unitPreferences.distanceUnitPreference()
+        val heatUnit = unitPreferences.heatUnitPreference()
+        val speedUnit = UnitPreferences.getSpeedUnit(distanceUnit)
+
+        viewModel.setUnits(speedUnit = speedUnit, distanceUnit = distanceUnit, heatUnit = heatUnit)
 
         setContent {
             HarmonyTheme {

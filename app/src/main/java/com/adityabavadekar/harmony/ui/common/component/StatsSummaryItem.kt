@@ -16,7 +16,6 @@
 
 package com.adityabavadekar.harmony.ui.common.component
 
-import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box

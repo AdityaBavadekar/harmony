@@ -37,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.adityabavadekar.harmony.ui.theme.HarmonyTheme
@@ -49,6 +50,7 @@ fun CountDownAnimation(
     startAt: Int = 5,
     delayMs: Long = 1000L,
     content: (@Composable (String) -> Unit)? = null,
+    textSize: TextUnit = 98.sp,
     onCompleted: () -> Unit = {}
 ) {
     var textValue by remember { mutableIntStateOf(startAt) }
@@ -77,7 +79,7 @@ fun CountDownAnimation(
                     Row {
                         Text(
                             text = c.toString(),
-                            fontSize = 98.sp,
+                            fontSize = textSize,
                             fontFamily = FontFamily.Monospace,
                             fontWeight = FontWeight.Black,
                             color = MaterialTheme.colorScheme.primary,
@@ -103,6 +105,7 @@ private fun CountDownAnimationPrev() {
                     false -> {
                         CountDownAnimation(Modifier.padding(18.dp)) { hasCountDownFinished = true }
                     }
+
                     true -> {
                         Text("Completed!!!!!!!!!")
                     }

@@ -53,14 +53,18 @@ data class UserRecord(
     }
 
     companion object {
-        fun fromGoogleAccount(account: GoogleSignInAccount): UserRecord {
+        fun fromGoogleAccount(
+            uid: String,
+            account: GoogleSignInAccount,
+            emailVerified: Boolean = false
+        ): UserRecord {
             return UserRecord(
-                uid = account.id!!,
+                uid = uid,
                 created = System.currentTimeMillis(),
                 birthDate = null,
                 gender = null,
                 email = account.email!!,
-                emailVerified = false,
+                emailVerified = emailVerified,
                 firstName = account.givenName ?: account.displayName ?: account.familyName
                 ?: "<NOT-SET>",
                 lastName = account.familyName,

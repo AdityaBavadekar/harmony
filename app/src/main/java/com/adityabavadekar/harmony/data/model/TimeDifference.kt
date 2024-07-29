@@ -16,6 +16,8 @@
 
 package com.adityabavadekar.harmony.data.model
 
+import com.adityabavadekar.harmony.ui.common.TimeUnits
+
 data class TimeDifference(
     val days: Int,
     val hours: Int,
@@ -23,6 +25,23 @@ data class TimeDifference(
     val seconds: Int,
     private val millisDifference: Long,
 ) {
+
+    fun getValue(unit: TimeUnits): Double {
+        val inSeconds = sumInSeconds()
+        return when (unit) {
+            TimeUnits.SECONDS -> inSeconds
+            TimeUnits.MINUTES -> TimeUnits.MINUTES.fromSI(inSeconds)
+            TimeUnits.HOURS -> TimeUnits.HOURS.fromSI(inSeconds)
+            TimeUnits.DAYS -> TimeUnits.DAYS.fromSI(inSeconds)
+        }
+    }
+
+    fun sumInSeconds(): Double {
+        return TimeUnits.DAYS.toSI(days.toDouble()) +
+                TimeUnits.HOURS.toSI(hours.toDouble()) +
+                TimeUnits.MINUTES.toSI(minutes.toDouble()) +
+                seconds
+    }
 
     fun formatForDisplay(): String {
         fun formatInt(v: Int): String {

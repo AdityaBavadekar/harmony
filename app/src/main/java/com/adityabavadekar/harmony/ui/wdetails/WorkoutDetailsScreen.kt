@@ -36,13 +36,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.adityabavadekar.harmony.ui.common.component.HarmonyTextInput
 import com.adityabavadekar.harmony.ui.common.component.HorizontalSpacer
 import com.adityabavadekar.harmony.ui.common.component.VerticalSpacer
 import com.adityabavadekar.harmony.ui.common.icon.HarmonyIcons
@@ -280,36 +278,36 @@ fun WorkoutDetailsScreen(modifier: Modifier = Modifier) {
                 )
             }
 
-            ListItem (
+            ListItem(
                 modifier = Modifier.background(Color.Gray.copy(alpha = ITEM_COLOR_ALPHA)),
                 trailing = {
                     Text(text = "30 kcal", style = MaterialTheme.typography.labelMedium)
                 }
-            ){
+            ) {
                 Text(text = "Energy", style = MaterialTheme.typography.titleMedium)
             }
-            ListItem (
+            ListItem(
                 modifier = Modifier.background(Color.Gray.copy(alpha = ITEM_COLOR_ALPHA)),
                 trailing = {
                     Text(text = "30 m/s", style = MaterialTheme.typography.labelMedium)
                 }
-            ){
+            ) {
                 Text(text = "Avg. Speed", style = MaterialTheme.typography.titleMedium)
             }
-            ListItem (
+            ListItem(
                 modifier = Modifier.background(Color.Gray.copy(alpha = ITEM_COLOR_ALPHA)),
                 trailing = {
                     Text(text = "30 kcal", style = MaterialTheme.typography.labelMedium)
                 }
-            ){
+            ) {
                 Text(text = "Laps", style = MaterialTheme.typography.titleMedium)
             }
-            ListItem (
+            ListItem(
                 modifier = Modifier.background(Color.Gray.copy(alpha = ITEM_COLOR_ALPHA)),
                 trailing = {
                     Text(text = "45 m/s", style = MaterialTheme.typography.labelMedium)
                 }
-            ){
+            ) {
                 Text(text = "Max Speed", style = MaterialTheme.typography.titleMedium)
             }
             //WorkoutNoteItem()

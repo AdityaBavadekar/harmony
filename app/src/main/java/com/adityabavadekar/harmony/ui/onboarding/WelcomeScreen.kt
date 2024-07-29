@@ -65,11 +65,12 @@ import kotlinx.coroutines.launch
 @Composable
 fun WelcomeScreen(
     onCompleted: () -> Unit = {},
-    onPageChanged: (pageIndex:Int) -> Unit = {},
-    currentCarouselPageIndex : Int = 0
+    onPageChanged: (pageIndex: Int) -> Unit = {},
+    currentCarouselPageIndex: Int = 0
 ) {
     val pages = getCarouselPagesList()
-    val pagerState = rememberPagerState(initialPage = currentCarouselPageIndex) { return@rememberPagerState pages.size }
+    val pagerState =
+        rememberPagerState(initialPage = currentCarouselPageIndex) { return@rememberPagerState pages.size }
 
     @Composable
     fun getContentAtIndex(pageIndex: Int) {
@@ -117,7 +118,7 @@ fun PagerScrollIndicators(
     pagerState: PagerState,
     modifier: Modifier = Modifier,
     onCompleted: () -> Unit,
-    onPageChanged: (pageIndex:Int) -> Unit = {},
+    onPageChanged: (pageIndex: Int) -> Unit = {},
 ) {
     val pageCount = pagerState.pageCount
     val coroutineScope = rememberCoroutineScope()

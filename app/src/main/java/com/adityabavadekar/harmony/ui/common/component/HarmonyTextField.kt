@@ -379,7 +379,7 @@ private fun HTPrev() {
                         Text(text = "Label text")
                     }
                 )
-                Row (Modifier.fillMaxWidth()){
+                Row(Modifier.fillMaxWidth()) {
                     HarmonyTextField(
                         value = textFieldValue,
                         modifier = Modifier.weight(1f),
@@ -397,7 +397,7 @@ private fun HTPrev() {
                         }
                     )
                 }
-                Row (Modifier.fillMaxWidth()){
+                Row(Modifier.fillMaxWidth()) {
                     HarmonyTextField(
                         value = textFieldValue,
                         modifier = Modifier.weight(1f),

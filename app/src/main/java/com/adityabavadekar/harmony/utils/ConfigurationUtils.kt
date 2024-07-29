@@ -17,19 +17,19 @@
 package com.adityabavadekar.harmony.utils
 
 import android.content.res.Configuration
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalConfiguration
 
-/**
- * Multi-preview annotation that represents light and dark themes. Add this annotation to a
- * composable to render the both themes.
- */
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO, name = "Light theme")
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, name = "Dark theme")
-annotation class ThemePreviews
-
-
-@Preview(
-    showSystemUi = true,
-    device = "spec:width=411dp,height=891dp,dpi=420,isRound=false,chinSize=0dp,orientation=landscape"
-)
-annotation class LandscapePreview
+class ConfigurationUtils {
+    companion object {
+        /**
+         * Landscape is an orientation where the screen width is greater than the screen height and
+         * depending on platform convention locking the screen to landscape can represent
+         * landscape-primary, landscape-secondary or both.
+         * */
+        @Composable
+        fun isLandscape(configuration: Configuration = LocalConfiguration.current): Boolean {
+            return configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        }
+    }
+}

@@ -53,7 +53,7 @@ fun initialiseMapView(applicationContext: Context) {
 @Composable
 fun ComposeMapView(
     modifier: Modifier = Modifier,
-    point: GeoLocation = GeoLocation(0.00, 0.00),
+    point: GeoLocation = GeoLocation.empty(),
     disableTouchControls: Boolean = false,
     initialize: Boolean = true,
     mapViewState: MapView = rememberMapViewWithLifecycle(),

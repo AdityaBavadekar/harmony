@@ -23,10 +23,14 @@ import com.adityabavadekar.harmony.ui.common.Mass
  * Stores Fitness related measurements of the user (eg: Weight, Height)
  * */
 data class UserFitnessRecord(
-    val stepsGoal:Int,
-    val height:Length,
-    val weight:Mass,
-    val bedtimeSleep:Long,
-    val bedtimeWakeUp:Long,
-    val mostUsedWorkoutTypes: MostUsedWorkoutTypes
-)
+    val stepsGoal: Int = DEFAULT_STEP_GOAL,
+    val height: Length? = null,
+    val weight: Mass? = null,
+    val bedtimeSleep: Long? = null,
+    val bedtimeWakeUp: Long? = null,
+    val mostUsedWorkoutTypes: MostUsedWorkoutTypes = MostUsedWorkoutTypes(),
+) {
+    companion object {
+        private const val DEFAULT_STEP_GOAL = 1500
+    }
+}

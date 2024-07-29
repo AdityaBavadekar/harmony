@@ -17,12 +17,18 @@
 package com.adityabavadekar.harmony.ui.signin
 
 import com.adityabavadekar.harmony.ui.common.Gender
+import com.adityabavadekar.harmony.ui.common.LengthUnits
+import com.adityabavadekar.harmony.ui.common.MassUnits
 
 data class SignInUiState(
-    val email:String?,
-    val name:String?,
-    val gender: Gender?,
-    val weight:Float?,
-    val height:Float?,
-    val dateOfBirth:Long?,
+    val email: String? = null,
+    val name: String? = null,
+    val gender: Gender? = Gender.MALE,
+    val weight: Double? = null,
+    val weightUnit: MassUnits = MassUnits.KG,
+    val height: Double? = null,
+    val heightUnit: LengthUnits = LengthUnits.CENTIMETERS,
+    val dateOfBirth: Long? = null,
+    val isLoggedIn: Boolean = false,
+    val currentScreenType: SigninActivity.SigninScreenType = SigninActivity.SigninScreenType.GOOGLE_SIGNIN,
 )

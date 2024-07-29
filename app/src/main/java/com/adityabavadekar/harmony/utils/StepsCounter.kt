@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-package com.adityabavadekar.harmony.database.converter
+package com.adityabavadekar.harmony.utils
 
-import androidx.room.TypeConverter
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+import android.util.Log
 
-class FloatListTypeConverter {
+class StepsCounter {
 
-    @TypeConverter
-    fun fromFloatList(list: List<Float>): String {
-        return Gson().toJson(list)
+    private var initialCount: Int = 0
+    private var recordedSteps: Int = 0
+
+    fun record(stepsSinceBoot: Int) {
+        if (initialCount == 0) initialCount = stepsSinceBoot
+        val newSteps = stepsSinceBoot - initialCount
+        Log.i("STEP", "recorded: $recordedSteps")
+        initialCount += newSteps
+        recordedSteps += newSteps
     }
 
-    @TypeConverter
-    fun toFloatList(jsonString: String): List<Float> {
-        val type = object : TypeToken<List<Float>>() {}.type
-        return Gson().fromJson(jsonString, type)
-    }
+    fun stepsCount() = recordedSteps
 
 }

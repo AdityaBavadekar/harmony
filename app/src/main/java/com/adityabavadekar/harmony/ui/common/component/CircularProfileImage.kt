@@ -41,7 +41,9 @@ import com.adityabavadekar.harmony.R
 import com.adityabavadekar.harmony.ui.theme.HarmonyTheme
 
 enum class CircularProfileImageSize(val size: Dp) {
-    SMALL(60.dp), MEDIUM(144.dp), LARGE(180.dp)
+    SMALL(60.dp),
+    MEDIUM(144.dp),
+    LARGE(180.dp)
 }
 
 @Composable

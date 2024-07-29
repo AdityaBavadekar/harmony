@@ -17,13 +17,14 @@
 package com.adityabavadekar.harmony.data.model
 
 import com.adityabavadekar.harmony.data.WorkoutTypes
+import com.adityabavadekar.harmony.data.WorkoutTypes.TYPE_UNKNOWN
 
 /**
  * Stores 4 workout types that are used multiple by the user
  */
 data class MostUsedWorkoutTypes(
-    val mostUsed1: WorkoutTypes,
-    val mostUsed2: WorkoutTypes,
-    val mostUsed3: WorkoutTypes,
-    val mostUsed4: WorkoutTypes,
+    val mostUsed1: WorkoutTypes = TYPE_UNKNOWN,
+    val mostUsed2: WorkoutTypes = TYPE_UNKNOWN,
+    val mostUsed3: WorkoutTypes = TYPE_UNKNOWN,
+    val mostUsed4: WorkoutTypes = TYPE_UNKNOWN,
 )

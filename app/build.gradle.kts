@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 /*
  * Copyright 2024 Aditya Bavadekar
  *
@@ -18,7 +21,16 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.google.devtools.ksp)
+    alias(libs.plugins.google.gms.google.services)
 }
+
+
+val secProperties = Properties()
+val secPropertiesFile = rootProject.file("sec.properties")
+if (secPropertiesFile.exists()) {
+    secProperties.load(FileInputStream(secPropertiesFile))
+}
+
 
 android {
     namespace = "com.adityabavadekar.harmony"
@@ -41,8 +53,8 @@ android {
         release {
             isMinifyEnabled = false
             proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                    getDefaultProguardFile("proguard-android-optimize.txt"),
+                    "proguard-rules.pro"
             )
         }
         debug {
@@ -59,6 +71,7 @@ android {
     buildFeatures {
         compose = true
         viewBinding = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
@@ -87,7 +100,13 @@ dependencies {
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
 
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
+
     runtimeOnly(libs.kotlinx.coroutines.play.services)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.android)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -112,5 +131,4 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
     implementation(libs.google.code.gson)
-
 }

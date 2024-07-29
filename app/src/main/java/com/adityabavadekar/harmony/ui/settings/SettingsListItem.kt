@@ -28,7 +28,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material3.Checkbox
@@ -57,7 +56,6 @@ import com.adityabavadekar.harmony.ui.common.component.clickableRipple
 import com.adityabavadekar.harmony.ui.common.icon.HarmonyIcons
 import com.adityabavadekar.harmony.ui.theme.HarmonyTheme
 import com.adityabavadekar.harmony.utils.ThemePreviews
-import org.jetbrains.annotations.Debug.Renderer
 
 internal fun LazyListScope.settingsGroupItem(
     @StringRes textRes: Int,

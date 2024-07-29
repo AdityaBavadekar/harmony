@@ -24,6 +24,7 @@ import com.adityabavadekar.harmony.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 fun Application.asHarmonyApp(): HarmonyApplication {
     return this as HarmonyApplication
@@ -44,3 +45,8 @@ fun runIOThread(job: CoroutineScope.() -> Unit) = CoroutineScope(Dispatchers.IO)
 
 fun runMainThread(job: CoroutineScope.() -> Unit) =
     CoroutineScope(Dispatchers.Main).launch { job() }
+
+suspend fun <T> CoroutineScope.withIOContext(block: suspend CoroutineScope.() -> T) =
+    withContext(Dispatchers.IO, block = block)
+
+fun String.capFirstChar() = this.replaceFirstChar { it.uppercaseChar() }

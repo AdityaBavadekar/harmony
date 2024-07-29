@@ -17,30 +17,35 @@
 package com.adityabavadekar.harmony.database.repo
 
 import com.adityabavadekar.harmony.data.model.WorkoutRecord
-import com.adityabavadekar.harmony.database.repobase.BaseWorkoutsRepository
+import com.adityabavadekar.harmony.data.model.WorkoutSummaryRecord
 import com.adityabavadekar.harmony.database.roomdao.WorkoutsDao
+import kotlinx.coroutines.flow.Flow
 
 class WorkoutsRepository(
     private val dao: WorkoutsDao,
-) : BaseWorkoutsRepository {
-    override fun getAll(): List<WorkoutRecord> {
+) {
+    fun getAll(): List<WorkoutRecord> {
         return dao.getAll()
     }
 
-    override fun getWorkoutRecord(recordId: Int): WorkoutRecord? {
+    fun getAllSummaryRecords(): Flow<List<WorkoutSummaryRecord>> {
+        return dao.getAllSummaryRecords()
+    }
+
+    fun getWorkoutRecord(recordId: Int): WorkoutRecord? {
         return dao.getWorkoutRecord(recordId)
     }
 
-    override fun getIncompleteWorkoutRecord(): WorkoutRecord? {
+    fun getIncompleteWorkoutRecord(): WorkoutRecord? {
         return dao.getIncompleteWorkoutRecord()
     }
 
-    override suspend fun insertWorkoutRecord(record: WorkoutRecord) {
-        dao.insertWorkoutRecord(record)
+    suspend fun insertWorkoutRecord(record: WorkoutRecord): Long {
+        return dao.insertWorkoutRecord(record)
     }
 
-    override suspend fun updateWorkoutRecord(record: WorkoutRecord) {
-        dao.updateWorkoutRecord(record)
+    suspend fun updateWorkoutRecord(record: WorkoutRecord) {
+        return dao.updateWorkoutRecord(record)
     }
 
     companion object {

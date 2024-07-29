@@ -18,8 +18,12 @@ package com.adityabavadekar.harmony.ui.livetracking
 
 import com.adityabavadekar.harmony.data.WorkoutTypes
 import com.adityabavadekar.harmony.data.model.TimeDifference
+import com.adityabavadekar.harmony.ui.common.HeatUnits
 import com.adityabavadekar.harmony.ui.common.Length
+import com.adityabavadekar.harmony.ui.common.LengthUnits
 import com.adityabavadekar.harmony.ui.common.Speed
+import com.adityabavadekar.harmony.ui.common.SpeedUnits
+import com.adityabavadekar.harmony.utils.UnitPreferences
 
 data class LiveTrackingUiState(
     val workoutType: WorkoutTypes,
@@ -31,9 +35,13 @@ data class LiveTrackingUiState(
     val pausedTimeDifference: TimeDifference,
     val locationCoordinates: GeoLocation,
     val countDownFinished: Boolean,
+    val speedUnit: SpeedUnits = UnitPreferences.getSpeedUnit(UnitPreferences.DEFAULT_DISTANCE_UNIT),
+    val distanceUnit: LengthUnits = UnitPreferences.DEFAULT_DISTANCE_UNIT,
+    val heatUnit: HeatUnits = UnitPreferences.DEFAULT_HEAT_UNIT,
 ) {
     companion object {
         fun nullState(): LiveTrackingUiState {
+
             return LiveTrackingUiState(
                 workoutType = WorkoutTypes.TYPE_UNKNOWN,
                 workoutStatus = LiveWorkoutStatus.NOT_STARTED,
@@ -42,7 +50,7 @@ data class LiveTrackingUiState(
                 stepsCount = 0,
                 liveTimeDifference = TimeDifference.zero(),
                 pausedTimeDifference = TimeDifference.zero(),
-                locationCoordinates = GeoLocation(0.00, 0.00),
+                locationCoordinates = GeoLocation.empty(),
                 countDownFinished = false
             )
         }

@@ -18,17 +18,18 @@ package com.adityabavadekar.harmony.ui.livetracking
 
 import android.location.Location
 import com.adityabavadekar.harmony.ui.common.Speed
-import com.adityabavadekar.harmony.utils.NumberUtils
 import org.osmdroid.api.IGeoPoint
 import org.osmdroid.util.GeoPoint
+import kotlin.math.pow
 
 class GeoLocation(
     private val lat: Double,
     private val lon: Double,
-    private val altitudeMeters: Double? = null,
-    private var speedMs: Float? = null,
+    val altitudeMeters: Double? = null,
+    private var speedMs: Double? = null,
     val accuracy: Float = 1f,
     private val horizontalDisplacement: Float? = null,
+    val timestamp: Long,
 ) : IGeoPoint {
     @Deprecated("Deprecated in Java")
     override fun getLatitudeE6(): Int {
@@ -64,7 +65,7 @@ class GeoLocation(
         return speedMs != null
     }
 
-    fun speedOrNull(): Float? {
+    fun speedOrNull(): Double? {
         return speedMs
     }
 
@@ -76,19 +77,22 @@ class GeoLocation(
 
     companion object {
         fun from(location: Location): GeoLocation {
-
-            var speed = 0f
-            var altitude = 0.00
-            if (location.hasSpeed()) speed = NumberUtils.roundFloat(location.speed, 4)
-            if (location.hasAltitude()) altitude = location.altitude
-
             return GeoLocation(
                 lat = location.latitude,
                 lon = location.longitude,
-                altitudeMeters = altitude,
-                speedMs = speed,
-                accuracy = if (location.hasAccuracy()) location.accuracy else 0f,
-                horizontalDisplacement = if (location.hasBearing()) location.bearing else null
+                altitudeMeters = if (location.hasAltitude()) location.altitude else 0.0,
+                speedMs = if (location.hasSpeed()) location.speed.toDouble() else 0.0,
+                accuracy = if (location.hasAccuracy()) location.accuracy else 0.0f,
+                horizontalDisplacement = if (location.hasBearing()) location.bearing else null,
+                timestamp = (location.elapsedRealtimeNanos / 10.0.pow(6.0)).toLong()
+            )
+        }
+
+        fun empty(): GeoLocation {
+            return GeoLocation(
+                lat = 0.0,
+                lon = 0.0,
+                timestamp = System.currentTimeMillis()
             )
         }
     }

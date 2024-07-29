@@ -21,32 +21,34 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import com.adityabavadekar.harmony.R
-import com.adityabavadekar.harmony.database.repo.AccountRepository
 import com.adityabavadekar.harmony.ui.LauncherActivity
 import com.adityabavadekar.harmony.ui.common.activitybase.GoogleSigninActivity
 import com.adityabavadekar.harmony.ui.theme.HarmonyTheme
-import com.adityabavadekar.harmony.utils.asHarmonyApp
 import com.adityabavadekar.harmony.utils.showErrorDialog
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 
 class SettingsActivity : GoogleSigninActivity() {
 
-    private val viewModel by viewModels<SettingsViewModel>()
+    private val viewModel by viewModels<SettingsViewModel> {
+        SettingsViewModel.Factory(application)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val accountRepo =
-            AccountRepository(application.asHarmonyApp().getDatabase().accountDao())
-        viewModel.setAccount(accountRepo)
-
         setContent {
+            val uiState by viewModel.uiState.collectAsState()
             HarmonyTheme {
                 SettingsScreen(
-                    viewModel,
+                    uiState = uiState,
                     onLogoutClicked = {
-
+                        signOutGoogle()
+                    },
+                    onShouldNavigateBack = {
+                        finish()
                     }
                 )
             }
@@ -67,5 +69,9 @@ class SettingsActivity : GoogleSigninActivity() {
             title = getString(R.string.something_went_wrong),
             message = getString(R.string.google_signout_failed_message)
         )
+    }
+
+    companion object {
+        private const val TAG = "[SettingsActivity]"
     }
 }

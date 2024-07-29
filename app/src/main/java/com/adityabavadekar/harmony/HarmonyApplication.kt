@@ -24,6 +24,8 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import com.adityabavadekar.harmony.database.HarmonyRoomDatabase
+import com.adityabavadekar.harmony.database.repo.AccountRepository
+import com.adityabavadekar.harmony.database.repo.WorkoutsRepository
 import com.adityabavadekar.harmony.ui.livetracking.service.LiveTrackerService
 
 class HarmonyApplication : Application() {
@@ -44,6 +46,15 @@ class HarmonyApplication : Application() {
     }
 
     fun getDatabase() = database
+
+    fun getAccountRepository(): AccountRepository {
+        return AccountRepository.getInstance(database.accountDao())
+    }
+
+    fun getWorkoutRepository(): WorkoutsRepository {
+        return WorkoutsRepository.getInstance(database.workoutsDao())
+    }
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun createNotificationChannels() {

@@ -20,8 +20,11 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Update
+import androidx.room.RewriteQueriesToDropUnusedColumns
+import androidx.room.Upsert
 import com.adityabavadekar.harmony.data.model.WorkoutRecord
+import com.adityabavadekar.harmony.data.model.WorkoutSummaryRecord
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface WorkoutsDao {
@@ -29,15 +32,19 @@ interface WorkoutsDao {
     @Query("SELECT * FROM workouts_table ORDER BY startTimestamp DESC")
     fun getAll(): List<WorkoutRecord>
 
-    @Query("SELECT * FROM workouts_table WHERE id=:recordId LIMIT 1")
-    fun getWorkoutRecord(recordId:Int) : WorkoutRecord?
+    @RewriteQueriesToDropUnusedColumns
+    @Query("SELECT * FROM workouts_table ORDER BY startTimestamp DESC")
+    fun getAllSummaryRecords(): Flow<List<WorkoutSummaryRecord>>
 
-    @Query("SELECT * FROM workouts_table WHERE completed = 1 LIMIT 1")
-    fun getIncompleteWorkoutRecord() : WorkoutRecord?
+    @Query("SELECT * FROM workouts_table WHERE id=:recordId LIMIT 1")
+    fun getWorkoutRecord(recordId: Int): WorkoutRecord?
+
+    @Query("SELECT * FROM workouts_table WHERE completed = '0' ORDER BY startTimestamp DESC LIMIT 1")
+    fun getIncompleteWorkoutRecord(): WorkoutRecord?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertWorkoutRecord(record: WorkoutRecord)
+    suspend fun insertWorkoutRecord(record: WorkoutRecord): Long
 
-    @Update
+    @Upsert
     suspend fun updateWorkoutRecord(record: WorkoutRecord)
 }

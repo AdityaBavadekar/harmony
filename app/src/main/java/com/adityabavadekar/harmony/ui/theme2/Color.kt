@@ -1,4 +1,5 @@
 package com.adityabavadekar.harmony.ui.theme2
+
 import androidx.compose.ui.graphics.Color
 
 val primaryLight = Color(0xFF415F91)

@@ -22,16 +22,24 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.CreationExtras
 import com.adityabavadekar.harmony.data.WorkoutTypes
 import com.adityabavadekar.harmony.data.model.TimeDifference
 import com.adityabavadekar.harmony.data.model.WorkoutLap
 import com.adityabavadekar.harmony.data.model.WorkoutLocation
 import com.adityabavadekar.harmony.data.model.WorkoutRecord
-import com.adityabavadekar.harmony.data.model.WorkoutRoute
+import com.adityabavadekar.harmony.database.repo.AccountRepository
 import com.adityabavadekar.harmony.database.repo.WorkoutsRepository
+import com.adityabavadekar.harmony.ui.common.HeatUnits
 import com.adityabavadekar.harmony.ui.common.Length
+import com.adityabavadekar.harmony.ui.common.LengthUnits
+import com.adityabavadekar.harmony.ui.common.Speed
+import com.adityabavadekar.harmony.ui.common.SpeedUnits
+import com.adityabavadekar.harmony.utils.CaloriesCalculator
+import com.adityabavadekar.harmony.utils.StepsCounter
+import com.adityabavadekar.harmony.utils.WorkoutPauseDetector
+import com.adityabavadekar.harmony.utils.WorkoutRouteManager
 import com.adityabavadekar.harmony.utils.asHarmonyApp
+import com.adityabavadekar.harmony.utils.withIOContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -40,6 +48,7 @@ import kotlinx.coroutines.launch
 
 class LiveTrackingViewModel(
     private val repository: WorkoutsRepository,
+    private val accountRepository: AccountRepository,
 ) : ViewModel() {
 
     private var _permissionsGranted = MutableStateFlow(false)
@@ -48,57 +57,68 @@ class LiveTrackingViewModel(
     private var startTimestamp: Long = 0L
     private var pauses = mutableListOf<WorkoutLap>()
     private var lastPauseTimestamp: Long? = null
-    private var forcePause: Boolean = false
-    private var pauseDetectorCounter = 0
-    private var initialSteps: Int = 0
-    private val workoutLocations: MutableList<WorkoutLocation> = mutableListOf()
+    private var forcePausedByUser: Boolean = false
+    private val workoutPauseDetector: WorkoutPauseDetector = WorkoutPauseDetector()
+    private val workoutRouteManager: WorkoutRouteManager = WorkoutRouteManager()
+    private val stepsCounter: StepsCounter = StepsCounter()
+    private val speeds: MutableList<Double> = mutableListOf()
+    private var userWeight: Double = 0.0
 
-    private var _uiState = MutableStateFlow<LiveTrackingUiState>(LiveTrackingUiState.nullState())
+    private var _uiState = MutableStateFlow(LiveTrackingUiState.nullState())
     val uiState: StateFlow<LiveTrackingUiState> = _uiState.asStateFlow()
 
     fun onLocationUpdated(location: Location) {
         val geoLocation = GeoLocation.from(location)
-        var isPaused = false
-
-        if (geoLocation.hasSpeed() && !forcePause) {
-            if (geoLocation.requireSpeed.getSIValue() <= PAUSED_SPEED_THRESHOLD) {
-                pauseDetectorCounter++
-                if (pauseDetectorCounter >= PAUSED_SPEED_COUNTER_THRESHOLD) {
-                    Log.w(TAG, "onLocationUpdated: DETECTED STALE (PAUSED) STATE")
-                    isPaused = true
-                }
-            } else pauseDetectorCounter = 0
-        }
 
         updateUiState { prevValue ->
-            var workoutStatus = prevValue.workoutStatus
-            if (isPaused) workoutStatus = LiveWorkoutStatus.PAUSED
-            else {
-                if (workoutStatus.isPaused() && !forcePause) {
-                    // Activity was detected even though workout is paused.
+            val previousWorkoutStatus = prevValue.workoutStatus
+            if (!previousWorkoutStatus.isTrackable()) return@updateUiState prevValue
+
+            var newWorkoutStatus: LiveWorkoutStatus = previousWorkoutStatus
+
+            val isPauseDetected = workoutPauseDetector.isPaused(
+                geoLocation.speedOrNull(),
+                forcePausedByUser
+            )
+            if (isPauseDetected) {
+                // Pause is detected, update the Workout Status to Paused
+                newWorkoutStatus = LiveWorkoutStatus.PAUSED
+            } else {
+                // Pause is NOT detected
+                // If Workout is not paused by the user but the previous workout status is equal to Paused
+                // then change the status to Live as Pause is "NOT" detected.
+                if (previousWorkoutStatus.isPaused() && !forcePausedByUser) {
+                    // Activity was detected even though workout is auto paused.
                     // Thus, change workout status to Live
-                    workoutStatus = LiveWorkoutStatus.LIVE
+                    newWorkoutStatus = LiveWorkoutStatus.LIVE
                 }
             }
 
+            val speed: Speed? =
+                if (newWorkoutStatus.isLive() && geoLocation.hasSpeed()) geoLocation.requireSpeed else null
+
+            speed?.let { addNewSpeed(it) }
+
+            workoutRouteManager.addLocation(
+                WorkoutLocation.fromGeoLocation(
+                    startTimestamp = prevValue.locationCoordinates.timestamp,
+                    endTimestamp = System.currentTimeMillis(),
+                    geoLocation = prevValue.locationCoordinates,
+                )
+            )
+
             prevValue.copy(
-                locationCoordinates = if (workoutStatus.isLive()) geoLocation else prevValue.locationCoordinates,
-                speed = if (workoutStatus.isLive() && geoLocation.hasSpeed()) geoLocation.requireSpeed else prevValue.speed,
-                workoutStatus = workoutStatus
+                locationCoordinates = geoLocation,
+                speed = speed ?: prevValue.speed,
+                workoutStatus = newWorkoutStatus
             )
         }
     }
 
     fun updateStepsCount(stepsSinceReboot: Int) {
-        if (initialSteps == 0) initialSteps = stepsSinceReboot
-        val newSteps = stepsSinceReboot - initialSteps
-        initialSteps += newSteps
-        Log.d(
-            TAG,
-            "updateStepsCount: newSteps=$newSteps stepsSinceReboot=$stepsSinceReboot initialSteps=$initialSteps"
-        )
+        stepsCounter.record(stepsSinceReboot)
         updateUiState {
-            it.copy(stepsCount = it.stepsCount + newSteps)
+            it.copy(stepsCount = stepsCounter.stepsCount())
         }
     }
 
@@ -115,7 +135,15 @@ class LiveTrackingViewModel(
             )
         }
 
+        var databaseUpdateCounter = 0
         viewModelScope.launch {
+
+            withIOContext {
+                val recordId =
+                    repository.insertWorkoutRecord(WorkoutRecord.startupRecord(type = _uiState.value.workoutType))
+                Log.i(TAG, "onCountDownFinished: [[[RECORD ID =$recordId]]]")
+            }
+
             Log.d(TAG, "onCountDownFinished::while:TRUE [INITIALLY] ${_uiState.value}")
 
             while (_uiState.value.workoutStatus.isTrackable()) {
@@ -127,13 +155,13 @@ class LiveTrackingViewModel(
                 updateUiState { prevValue ->
                     if (prevValue.workoutStatus.isLive()) {
                         updatePauses()
-
                         return@updateUiState prevValue.copy(
                             liveTimeDifference = TimeDifference.now(
                                 startTimestamp,
                                 ignorablePauses = pauses
                             ),
-                            distance = Length(prevValue.distance.getSIValue() + 2f)
+                            /* TODO: Calories burnt */
+                            distance = Length(workoutRouteManager.getDistanceTraversed())
                         )
                     }
 
@@ -142,6 +170,38 @@ class LiveTrackingViewModel(
                     }
                     return@updateUiState null
                 }
+
+                databaseUpdateCounter++
+
+                if (databaseUpdateCounter >= 5) {
+                    //Update database after every 5 sec
+                    /**
+                     * DATA:
+                     * - pauses
+                     * - route
+                     * - speeds
+                     * - distance
+                     * - steps
+                     * */
+                    withIOContext {
+                        val record = repository.getIncompleteWorkoutRecord()
+                        if (record != null) {
+                            repository.updateWorkoutRecord(
+                                record.update(
+                                    laps = pauses,
+                                    workoutRoute = workoutRouteManager.route(),
+                                    speeds = speeds,
+                                    distanceMeters = workoutRouteManager.getDistanceTraversed(),
+                                    stepsCount = stepsCounter.stepsCount(),
+                                    totalEnergyBurnedCal = getCalBurned()
+                                )
+                            )
+                            speeds.clear()
+                        }
+                        databaseUpdateCounter = 0
+                    }
+                }
+
 
                 delay(UPDATE_INTERVAL_MILLIS)
             }
@@ -160,53 +220,64 @@ class LiveTrackingViewModel(
         }
     }
 
+    private fun addNewSpeed(speed: Speed) {
+        speeds.add(speed.getSIValue())
+    }
+
     fun pause() {
-        forcePause = true
+        forcePausedByUser = true
         updateUiState {
             it.copy(workoutStatus = LiveWorkoutStatus.PAUSED)
         }
     }
 
     fun resume() {
-        forcePause = false
-        pauseDetectorCounter = 0
+        forcePausedByUser = false
+        workoutPauseDetector.clear()
         updateUiState {
             it.copy(workoutStatus = LiveWorkoutStatus.LIVE)
         }
     }
 
     fun complete() {
-        forcePause = false
+        forcePausedByUser = false
         updateUiState {
             it.copy(workoutStatus = LiveWorkoutStatus.FINISHED)
         }
         updatePauses()
         viewModelScope.launch {
-            repository.insertWorkoutRecord(createWorkoutRecord())
-            Log.d(TAG, "complete: Workout Record Added")
+            withIOContext {
+                val record = repository.getIncompleteWorkoutRecord()
+                if (record != null) {
+                    Log.d(TAG, "updating incomplete record: \n$record")
+                    val updatedRecord = finalWorkoutRecord(record)
+                    repository.updateWorkoutRecord(updatedRecord)
+                    Log.d(TAG, "complete: Workout Record Added $updatedRecord")
+                } else {
+                    Log.e(TAG, "complete: record was null!!", NullPointerException())
+                }
+            }
         }
     }
 
-    private fun createWorkoutRecord(): WorkoutRecord {
-        val currentUiState = _uiState.value
-        return WorkoutRecord(
-            type = currentUiState.workoutType,
-            title = "",
-            description = "",
-            startTimestamp = startTimestamp,
-            endTimestamp = System.currentTimeMillis(),
-            temperatureCelsius = null,
-            distanceMeters = currentUiState.distance.getSIValue(),
-            stepsCount = currentUiState.stepsCount,
-            notes = null,
+    private fun finalWorkoutRecord(initialRecord: WorkoutRecord): WorkoutRecord {
+        return initialRecord.updateAfterTrackingFinished(
+            stepsCount = stepsCounter.stepsCount(),
+            distanceMeters = workoutRouteManager.getDistanceTraversed(),
+            totalEnergyBurnedCal = getCalBurned(),
+            workoutRoute = workoutRouteManager.route(),
             laps = pauses,
-            workoutRoute = null,
-            totalEnergyBurnedCal = 0,
-            minSpeedMetersSec = null,
-            maxSpeedMetersSec = null,
-            avgSpeedMetersSec = null,
-            speedsMetersSec = listOf(currentUiState.speed.getSIValue()),
-            completed = true
+            speeds = speeds,
+            temperatureCelsius = null
+        )
+    }
+
+    private fun getCalBurned(): Double {
+        val currentState = _uiState.value
+        return CaloriesCalculator.calculateCaloriesBurned(
+            currentState.workoutType,
+            currentState.liveTimeDifference.sumInSeconds(),
+            userWeight /* TODO */
         )
     }
 
@@ -220,12 +291,32 @@ class LiveTrackingViewModel(
         _permissionsGranted.value = true
     }
 
+    fun setUserWeight(value: Double) {
+        userWeight = value
+    }
+
+    fun setUnits(speedUnit: SpeedUnits, distanceUnit: LengthUnits, heatUnit: HeatUnits) {
+        updateUiState { prevValue ->
+            prevValue.copy(
+                speedUnit = speedUnit,
+                distanceUnit = distanceUnit,
+                heatUnit = heatUnit
+            )
+        }
+    }
+
+    init {
+        viewModelScope.launch {
+            withIOContext {
+                val account = accountRepository.getAccount()
+                account.userFitnessRecord?.weight?.let { userWeight = it.getSIValue().toDouble() }
+            }
+        }
+    }
+
     companion object {
         private const val TAG = "[LiveTrackingViewModel]"
         private const val UPDATE_INTERVAL_MILLIS = 500L // 0.5sec
-        private const val PAUSED_SPEED_THRESHOLD = 2f // m/s
-        private const val PAUSED_SPEED_COUNTER_THRESHOLD = 15 // m/s
-
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -233,8 +324,10 @@ class LiveTrackingViewModel(
         private val application: Application,
     ) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            val db = application.asHarmonyApp().getDatabase()
-            return LiveTrackingViewModel(WorkoutsRepository.getInstance(db.workoutsDao())) as T
+            return LiveTrackingViewModel(
+                repository = application.asHarmonyApp().getWorkoutRepository(),
+                accountRepository = application.asHarmonyApp().getAccountRepository()
+            ) as T
         }
     }
 
