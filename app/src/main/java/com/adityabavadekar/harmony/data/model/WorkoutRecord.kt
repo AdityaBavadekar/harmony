@@ -19,6 +19,9 @@ package com.adityabavadekar.harmony.data.model
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.adityabavadekar.harmony.data.WorkoutTypes
+import com.adityabavadekar.harmony.ui.common.Heat
+import com.adityabavadekar.harmony.ui.common.Length
+import com.adityabavadekar.harmony.ui.common.Speed
 
 @Entity(tableName = "workouts_table")
 data class WorkoutRecord(
@@ -32,9 +35,9 @@ data class WorkoutRecord(
     val stepsCount: Int = 0,
     val notes: String? = null,
     val laps: List<WorkoutLap> = listOf(),
-    val pauseDurationSec: Long = 0L,
+    val pauseDurationMillis: Long = 0L,
     val workoutRoute: WorkoutRoute? = null,
-    val totalEnergyBurnedCal: Double? = null,
+    val totalEnergyBurnedJoules: Double = 0.0,
     val minSpeedMetersSec: Double? = null,
     val maxSpeedMetersSec: Double? = null,
     val avgSpeedMetersSec: Double? = null,
@@ -44,8 +47,17 @@ data class WorkoutRecord(
     val id: Long = 0
 ) {
 
-    fun timeDifference() =
-        TimeDifference.from(startTimestamp, endTimestamp - laps.sumOf { it.diff() })
+    fun totalTimeDifference() =
+        TimeDifference.from(startTimestamp, endTimestamp + pauseDurationMillis)
+
+    fun pausedTimeDifference() =
+        TimeDifference.from(pauseDurationMillis * 1000)
+
+    fun distance() = Length(distanceMeters)
+    fun energyBurned() = Heat(totalEnergyBurnedJoules)
+    fun avgSpeed() = Speed(avgSpeedMetersSec ?: 0.0)
+    fun maxSpeed() = Speed(maxSpeedMetersSec ?: 0.0)
+    fun minSpeed() = Speed(minSpeedMetersSec ?: 0.0)
 
     fun updateAfterTrackingFinished(
         stepsCount: Int,
@@ -63,8 +75,9 @@ data class WorkoutRecord(
             distanceMeters = distanceMeters,
             stepsCount = stepsCount,
             laps = laps,
+            pauseDurationMillis = laps.sumOf { it.diff() },
             workoutRoute = workoutRoute,
-            totalEnergyBurnedCal = totalEnergyBurnedCal,
+            totalEnergyBurnedJoules = totalEnergyBurnedCal,
             minSpeedMetersSec = finalSpeeds.minOrNull(),
             maxSpeedMetersSec = finalSpeeds.maxOrNull(),
             avgSpeedMetersSec = finalSpeeds.average(),
@@ -88,8 +101,9 @@ data class WorkoutRecord(
             distanceMeters = distanceMeters,
             stepsCount = stepsCount,
             laps = laps,
+            pauseDurationMillis = laps.sumOf { it.diff() },
             workoutRoute = workoutRoute,
-            totalEnergyBurnedCal = totalEnergyBurnedCal,
+            totalEnergyBurnedJoules = totalEnergyBurnedCal,
             minSpeedMetersSec = finalSpeeds.minOrNull(),
             maxSpeedMetersSec = finalSpeeds.maxOrNull(),
             avgSpeedMetersSec = finalSpeeds.average(),
@@ -97,9 +111,8 @@ data class WorkoutRecord(
         )
     }
 
-
     companion object {
-        private fun simple(
+        fun simple(
             type: WorkoutTypes,
             startTimestamp: Long,
             endTimestamp: Long = 0L,
@@ -122,9 +135,9 @@ data class WorkoutRecord(
                 stepsCount = stepsCount,
                 notes = null,
                 laps = listOf(),
-                pauseDurationSec = 0L,
+                pauseDurationMillis = 0L,
                 workoutRoute = null,
-                totalEnergyBurnedCal = totalEnergyBurnedCal,
+                totalEnergyBurnedJoules = totalEnergyBurnedCal,
                 minSpeedMetersSec = minSpeedMetersSec,
                 maxSpeedMetersSec = maxSpeedMetersSec,
                 avgSpeedMetersSec = avgSpeedMetersSec,

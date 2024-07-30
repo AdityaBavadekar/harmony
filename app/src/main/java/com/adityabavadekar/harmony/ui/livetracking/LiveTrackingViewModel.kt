@@ -66,9 +66,13 @@ class LiveTrackingViewModel(
 
     private var _uiState = MutableStateFlow(LiveTrackingUiState.nullState())
     val uiState: StateFlow<LiveTrackingUiState> = _uiState.asStateFlow()
+    var recordId: Long? = null
+        private set
 
     fun onLocationUpdated(location: Location) {
         val geoLocation = GeoLocation.from(location)
+
+        if (geoLocation.isNullLocation()) return
 
         updateUiState { prevValue ->
             val previousWorkoutStatus = prevValue.workoutStatus
@@ -99,13 +103,15 @@ class LiveTrackingViewModel(
 
             speed?.let { addNewSpeed(it) }
 
-            workoutRouteManager.addLocation(
-                WorkoutLocation.fromGeoLocation(
-                    startTimestamp = prevValue.locationCoordinates.timestamp,
-                    endTimestamp = System.currentTimeMillis(),
-                    geoLocation = prevValue.locationCoordinates,
+            if (!prevValue.locationCoordinates.isNullLocation()) {
+                workoutRouteManager.addLocation(
+                    WorkoutLocation.fromGeoLocation(
+                        startTimestamp = prevValue.locationCoordinates.timestamp,
+                        endTimestamp = System.currentTimeMillis(),
+                        geoLocation = prevValue.locationCoordinates,
+                    )
                 )
-            )
+            }
 
             prevValue.copy(
                 locationCoordinates = geoLocation,
@@ -141,12 +147,16 @@ class LiveTrackingViewModel(
             withIOContext {
                 val recordId =
                     repository.insertWorkoutRecord(WorkoutRecord.startupRecord(type = _uiState.value.workoutType))
+                this@LiveTrackingViewModel.recordId = recordId
                 Log.i(TAG, "onCountDownFinished: [[[RECORD ID =$recordId]]]")
             }
 
             Log.d(TAG, "onCountDownFinished::while:TRUE [INITIALLY] ${_uiState.value}")
 
             while (_uiState.value.workoutStatus.isTrackable()) {
+
+                val distanceTravelled = workoutRouteManager.getDistanceTraversed()
+                val totalEnergyBurnedCal = getCalBurned()
 
                 /*
                 * Update data only if workout is live and Skip if workout is Paused.
@@ -161,7 +171,8 @@ class LiveTrackingViewModel(
                                 ignorablePauses = pauses
                             ),
                             /* TODO: Calories burnt */
-                            distance = Length(workoutRouteManager.getDistanceTraversed())
+                            distance = Length(distanceTravelled),
+                            caloriesBurned = totalEnergyBurnedCal
                         )
                     }
 
@@ -191,9 +202,9 @@ class LiveTrackingViewModel(
                                     laps = pauses,
                                     workoutRoute = workoutRouteManager.route(),
                                     speeds = speeds,
-                                    distanceMeters = workoutRouteManager.getDistanceTraversed(),
+                                    distanceMeters = distanceTravelled,
                                     stepsCount = stepsCounter.stepsCount(),
-                                    totalEnergyBurnedCal = getCalBurned()
+                                    totalEnergyBurnedCal = totalEnergyBurnedCal
                                 )
                             )
                             speeds.clear()
@@ -274,11 +285,20 @@ class LiveTrackingViewModel(
 
     private fun getCalBurned(): Double {
         val currentState = _uiState.value
-        return CaloriesCalculator.calculateCaloriesBurned(
+        val c = CaloriesCalculator.calculateCaloriesBurned(
             currentState.workoutType,
             currentState.liveTimeDifference.sumInSeconds(),
-            userWeight /* TODO */
+            distanceInMeters = currentState.distance.getSIValue(),
+            weightKg = userWeight /* TODO */
         )
+        Log.d(
+            TAG,
+            "getCalBurned: At " +
+                    "${currentState.liveTimeDifference.sumInSeconds()} sec, " +
+                    "${currentState.distance.getSIValue()} m, " +
+                    "*** cal=$c"
+        )
+        return c
     }
 
     fun setWorkoutType(type: WorkoutTypes) {

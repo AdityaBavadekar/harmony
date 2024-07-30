@@ -17,6 +17,7 @@
 package com.adityabavadekar.harmony.utils
 
 import android.util.Log
+import com.adityabavadekar.harmony.ui.common.SpeedUnits
 
 class WorkoutPauseDetector {
 
@@ -46,12 +47,12 @@ class WorkoutPauseDetector {
 
     companion object {
         private const val TAG = "[WorkoutPauseDetector]"
-        private const val PAUSED_SPEED_THRESHOLD = 0.02
+        private val PAUSED_SPEED_THRESHOLD = SpeedUnits.KILOMETERS_PER_HOUR.toSI(0.07)
 
         /**
-         * Pause will be detected if the Pause Counter was incremented by one unit PAUSED_COUNTER_THRESHOLD times.
+         * Pause will be detected if the Pause Counter was incremented PAUSED_COUNTER_THRESHOLD times.
          * */
-        private const val PAUSED_COUNTER_THRESHOLD = 15
+        private const val PAUSED_COUNTER_THRESHOLD = 10
     }
 
 }

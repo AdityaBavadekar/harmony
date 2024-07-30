@@ -32,7 +32,7 @@ class WorkoutsRepository(
         return dao.getAllSummaryRecords()
     }
 
-    fun getWorkoutRecord(recordId: Int): WorkoutRecord? {
+    fun getWorkoutRecord(recordId: Long): WorkoutRecord? {
         return dao.getWorkoutRecord(recordId)
     }
 

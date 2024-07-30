@@ -17,6 +17,7 @@
 package com.adityabavadekar.harmony.utils
 
 import com.adityabavadekar.harmony.data.WorkoutTypes
+import com.adityabavadekar.harmony.ui.common.HeatUnits
 
 class CaloriesCalculator {
     companion object {
@@ -29,12 +30,26 @@ class CaloriesCalculator {
          * @param weightKg The weight of the person in kilograms.
          * @return The number of calories burned.
          */
-        fun calculateCaloriesBurned(
+        fun calculateCaloriesBurnedMET(
             workoutType: WorkoutTypes,
             durationSeconds: Double,
             weightKg: Double,
         ): Double {
-            return durationSeconds * workoutType.metValue * 3.5 * weightKg / 60 * 200
+            return durationSeconds * workoutType.metValue * weightKg / 60 * 200
+        }
+
+        /**
+         * Calculates the calories burned.
+         *
+         * @return The number of calories burned.
+         */
+        fun calculateCaloriesBurned(
+            workoutType: WorkoutTypes,
+            durationSeconds: Double,
+            distanceInMeters: Double,
+            weightKg: Double,
+        ): Double {
+            return HeatUnits.CALORIES.fromSI((9.8 * distanceInMeters) / durationSeconds)
         }
     }
 }

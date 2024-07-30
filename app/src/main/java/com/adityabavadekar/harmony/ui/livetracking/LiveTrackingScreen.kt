@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -185,7 +186,6 @@ fun LiveTrackingBottomButtons(
 
     Row(
         modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         @Composable
         fun StartButton() {
@@ -513,6 +513,10 @@ fun LiveTrackingScreen(
                         ),
                     verticalArrangement = if (!isLandscape) Arrangement.Center else Arrangement.SpaceEvenly,
                 ) {
+                    Text(
+                        text = uiState.heatUnit.toSI(uiState.caloriesBurned)
+                            .toString() + " " + uiState.heatUnit.shortSymbol()
+                    )
                     LiveTrackingActivityLabel(
                         activityLabel = stringResource(id = uiState.workoutType.nameRes),
                         status = uiState.workoutStatus
@@ -561,13 +565,19 @@ fun LiveTrackingScreen(
             Modifier.fillMaxSize(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            telemetryContent(modifier = Modifier.weight(1f))
-            mapContent(modifier = Modifier.weight(1f))
+            telemetryContent(modifier = Modifier
+                .weight(1f)
+                .navigationBarsPadding())
+            mapContent(modifier = Modifier
+                .weight(1f)
+                .navigationBarsPadding())
         }
     } else {
         Column(Modifier.fillMaxSize()) {
-            mapContent(modifier = Modifier.weight(1f))
-            telemetryContent()
+            mapContent(modifier = Modifier
+                .weight(1f)
+                .navigationBarsPadding())
+            telemetryContent(modifier = Modifier.navigationBarsPadding())
         }
     }
 }

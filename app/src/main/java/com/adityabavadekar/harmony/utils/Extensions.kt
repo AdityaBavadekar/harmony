@@ -50,3 +50,5 @@ suspend fun <T> CoroutineScope.withIOContext(block: suspend CoroutineScope.() ->
     withContext(Dispatchers.IO, block = block)
 
 fun String.capFirstChar() = this.replaceFirstChar { it.uppercaseChar() }
+
+fun Double.formatToString() = NumberUtils.formatDouble(this)

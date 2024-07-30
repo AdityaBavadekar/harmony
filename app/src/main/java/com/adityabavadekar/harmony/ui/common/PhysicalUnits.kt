@@ -16,6 +16,8 @@
 
 package com.adityabavadekar.harmony.ui.common
 
+import com.adityabavadekar.harmony.utils.formatToString
+
 enum class MassUnits(override val siConversionFactor: Double, override val symbol: String) :
     SIConvertibleUnits<MassUnits> {
     KG(1.0, "kg"),
@@ -133,6 +135,7 @@ class Length(lengthInMeters: Double) : PhysicalUnit<LengthUnits>() {
     var unit: LengthUnits = LengthUnits.METERS
         private set
     private var length: Double = lengthInMeters
+
     override fun getValue(targetUnit: LengthUnits): Double {
         return unit.fromSI(getSIValue())
     }
@@ -190,6 +193,23 @@ class Speed constructor(speedInMetersSec: Double) : PhysicalUnit<SpeedUnits>() {
     }
 }
 
+class Heat constructor(heatInJoules: Double) : PhysicalUnit<HeatUnits>() {
+
+    constructor(heatInJoules: Float) : this(heatInJoules.toDouble())
+
+    var unit: HeatUnits = HeatUnits.JOULES
+        private set
+    private var heat: Double = heatInJoules
+
+    override fun getValue(targetUnit: HeatUnits): Double {
+        return targetUnit.fromSI(getSIValue())
+    }
+
+    override fun getSIValue(): Double {
+        return heat * unit.siConversionFactor
+    }
+}
+
 class Volume(volumeInLitres: Float) : PhysicalUnit<SpeedUnits>() {
     var unit: VolumeUnits = VolumeUnits.LITERS
         private set
@@ -222,4 +242,6 @@ abstract class PhysicalUnit<T> {
     abstract fun getValue(targetUnit: T): Double
     abstract fun getSIValue(): Double
 
+    fun stringRepresentation(unit: SIConvertibleUnits<T>) =
+        unit.fromSI(getSIValue()).formatToString()
 }

@@ -97,6 +97,40 @@ class UnitPreferences(private val preferencesManager: PreferencesManager) {
         "integer value (${value}) for Unit Preference is not out of enum bounds"
     )
 
+    fun getPhysicalUnitPreferences(): PhysicalUnitPreferences {
+        return PhysicalUnitPreferences(
+            weightUnitPreference(),
+            heatUnitPreference(),
+            heightUnitPreference(),
+            temperatureUnitPreference(),
+            distanceUnitPreference(),
+            waterIntakeUnitPreference()
+        )
+    }
+
+    data class PhysicalUnitPreferences(
+        val weightUnit: MassUnits,
+        val heatUnit: HeatUnits,
+        val heightUnit: LengthUnits,
+        val temperatureUnit: TemperatureUnits,
+        val distanceUnit: LengthUnits,
+        val volumeUnit: VolumeUnits,
+    ) {
+        fun speedUnit() = UnitPreferences.getSpeedUnit(distanceUnit)
+
+        companion object {
+            fun defaults(): PhysicalUnitPreferences {
+                return PhysicalUnitPreferences(
+                    DEFAULT_WEIGHT_UNIT,
+                    DEFAULT_HEAT_UNIT,
+                    DEFAULT_HEIGHT_UNIT,
+                    DEFAULT_TEMPERATURE_UNIT,
+                    DEFAULT_DISTANCE_UNIT,
+                    DEFAULT_VOLUME_UNIT
+                )
+            }
+        }
+    }
 
     companion object {
         val DEFAULT_WEIGHT_UNIT = MassUnits.KG

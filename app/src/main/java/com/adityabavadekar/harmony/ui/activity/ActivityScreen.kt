@@ -51,13 +51,15 @@ import com.adityabavadekar.harmony.data.model.WorkoutSummaryRecord
 import com.adityabavadekar.harmony.ui.common.component.HorizontalSpacer
 import com.adityabavadekar.harmony.ui.common.component.clickableRipple
 import com.adityabavadekar.harmony.ui.theme.HarmonyTheme
+import com.adityabavadekar.harmony.utils.NumberUtils
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
 @Composable
 fun ActivityScreen(
-    workoutsData: List<WorkoutSummaryRecord> = listOf()
+    workoutsData: List<WorkoutSummaryRecord> = listOf(),
+    onClick: (id: Long) -> Unit = {}
 ) {
 
     Column(Modifier.fillMaxSize()) {
@@ -69,7 +71,7 @@ fun ActivityScreen(
             LazyColumn {
                 workoutsData.forEach { record ->
                     item {
-                        ActivityItem(record = record)
+                        ActivityItem(record = record, onClick = onClick)
                     }
                 }
             }
@@ -80,6 +82,7 @@ fun ActivityScreen(
 @Composable
 fun ActivityItem(
     record: WorkoutSummaryRecord,
+    onClick: (id: Long) -> Unit = {}
 ) {
     val colorsList = if (isSystemInDarkTheme()) {
         listOf(
@@ -98,7 +101,7 @@ fun ActivityItem(
     Column(
         Modifier
             .fillMaxWidth()
-            .clickableRipple()
+            .clickableRipple(onClick = { onClick(record.id) })
     ) {
         Row(
             Modifier.padding(horizontal = 18.dp, vertical = 18.dp),
@@ -164,8 +167,10 @@ fun ActivityItem(
 
                 Spacer(modifier = Modifier.height(8.dp))
                 Row {
+                    val energyBurned =
+                        record.totalEnergyBurnedCal?.let { NumberUtils.formatDouble(it) } ?: 0.0
                     NutItem(
-                        text = "${record.totalEnergyBurnedCal ?: 0} cal",
+                        text = "$energyBurned cal",
                         color = colorsList[0],
                         shape = RoundedCornerShape(
                             topStart = 8.dp,
@@ -179,8 +184,9 @@ fun ActivityItem(
                         trailingIconContentDescription = "Steps count",
                         shape = RoundedCornerShape(0.dp)
                     )
+                    val distanceCovered = NumberUtils.formatDouble(record.distanceMeters)
                     NutItem(
-                        text = "${record.distanceMeters} m",
+                        text = "$distanceCovered m",
                         color = colorsList[2],
                         shape = RoundedCornerShape(
                             topEnd = 8.dp,
@@ -238,7 +244,7 @@ private fun ActivityScreenPrev() {
             endTimestamp = System.currentTimeMillis() + 1000 * 60,
             distanceMeters = 20000.0,
             stepsCount = 452,
-            pauseDurationSec = 1000,
+            pauseDurationMillis = 1000,
             totalEnergyBurnedCal = 128.0
         )
     )

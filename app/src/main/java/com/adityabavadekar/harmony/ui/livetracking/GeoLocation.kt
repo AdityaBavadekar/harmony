@@ -30,6 +30,7 @@ class GeoLocation(
     val accuracy: Float = 1f,
     private val horizontalDisplacement: Float? = null,
     val timestamp: Long,
+    private val isNull: Boolean = false
 ) : IGeoPoint {
     @Deprecated("Deprecated in Java")
     override fun getLatitudeE6(): Int {
@@ -75,6 +76,8 @@ class GeoLocation(
     val requireHorizontalDisplacement: Float
         get() = horizontalDisplacement!!
 
+    fun isNullLocation() = isNull
+
     companion object {
         fun from(location: Location): GeoLocation {
             return GeoLocation(
@@ -92,7 +95,8 @@ class GeoLocation(
             return GeoLocation(
                 lat = 0.0,
                 lon = 0.0,
-                timestamp = System.currentTimeMillis()
+                timestamp = System.currentTimeMillis(),
+                isNull = true
             )
         }
     }

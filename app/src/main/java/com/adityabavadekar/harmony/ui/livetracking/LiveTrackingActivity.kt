@@ -35,6 +35,7 @@ import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.runtime.collectAsState
 import androidx.core.content.ContextCompat
@@ -42,6 +43,7 @@ import com.adityabavadekar.harmony.data.WorkoutTypes
 import com.adityabavadekar.harmony.ui.common.activitybase.PermissionActivity
 import com.adityabavadekar.harmony.ui.livetracking.service.LiveTrackerService
 import com.adityabavadekar.harmony.ui.theme.HarmonyTheme
+import com.adityabavadekar.harmony.ui.wdetails.WorkoutDetailActivity
 import com.adityabavadekar.harmony.utils.UnitPreferences
 import com.adityabavadekar.harmony.utils.preferences.PreferencesKeys
 import com.adityabavadekar.harmony.utils.preferences.preferencesManager
@@ -57,6 +59,7 @@ class LiveTrackingActivity : PermissionActivity(), LiveTrackingEventsListener, S
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
 
         val workoutTypeOrdinal = intent.getIntExtra(EXTRA_WORKOUT_TYPE_ORDINAL, -1)
         if (workoutTypeOrdinal == -1) {
@@ -174,6 +177,14 @@ class LiveTrackingActivity : PermissionActivity(), LiveTrackingEventsListener, S
         viewModel.complete()
         stopLocationService()
         unregisterReceiver(locationUpdatesReceiver)
+        viewModel.recordId?.let { id ->
+            Intent(this, WorkoutDetailActivity::class.java).apply {
+                putExtra(WorkoutDetailActivity.INTENT_EXTRA_LONG_ID, id)
+                putExtra(WorkoutDetailActivity.INTENT_EXTRA_IS_NEW, true)
+                startActivity(this)
+            }
+        }
+        finish()
     }
 
     override fun onDestroy() {

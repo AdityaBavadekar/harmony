@@ -31,6 +31,7 @@ data class LiveTrackingUiState(
     val speed: Speed,
     val distance: Length,
     val stepsCount: Int,
+    val caloriesBurned: Double = 0.0,
     val liveTimeDifference: TimeDifference,
     val pausedTimeDifference: TimeDifference,
     val locationCoordinates: GeoLocation,

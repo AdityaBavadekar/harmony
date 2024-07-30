@@ -28,7 +28,7 @@ import com.adityabavadekar.harmony.ui.common.Length
     "SELECT workouts_table.id, workouts_table.type, workouts_table.title, " +
             "workouts_table.startTimestamp, workouts_table.endTimestamp, " +
             "workouts_table.distanceMeters, workouts_table.stepsCount, " +
-            "workouts_table.totalEnergyBurnedCal, workouts_table.pauseDurationSec " +
+            "workouts_table.totalEnergyBurnedJoules, workouts_table.pauseDurationMillis " +
             "FROM workouts_table"
 )
 data class WorkoutSummaryRecord(
@@ -39,12 +39,12 @@ data class WorkoutSummaryRecord(
     val endTimestamp: Long = 0L,
     val distanceMeters: Double = 0.0,
     val stepsCount: Int = 0,
-    val pauseDurationSec: Long = 0L,
+    val pauseDurationMillis: Long = 0L,
     val totalEnergyBurnedCal: Double? = null,
 ) {
 
     fun timeDifference() =
-        TimeDifference.from(startTimestamp, endTimestamp + pauseDurationSec * 1000)
+        TimeDifference.from(startTimestamp, endTimestamp + pauseDurationMillis)
 
     fun getDisplayDistance() {
         Length(lengthInMeters = distanceMeters)

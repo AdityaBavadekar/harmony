@@ -25,10 +25,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.adityabavadekar.harmony.ui.livetracking.LiveTrackingActivity
 import com.adityabavadekar.harmony.ui.settings.SettingsActivity
 import com.adityabavadekar.harmony.ui.theme.HarmonyTheme
+import com.adityabavadekar.harmony.ui.wdetails.WorkoutDetailActivity
 
 class MainActivity : ComponentActivity() {
 
-    private val viewModel : MainActivityViewModel by viewModels {
+    private val viewModel: MainActivityViewModel by viewModels {
         MainActivityViewModel.Factory(application)
     }
 
@@ -53,6 +54,12 @@ class MainActivity : ComponentActivity() {
                     },
                     workoutsData = viewModel.workouts.collectAsStateWithLifecycle(),
                     accountData = viewModel.account.collectAsStateWithLifecycle(),
+                    onActivityItemClicked = { id ->
+                        Intent(this, WorkoutDetailActivity::class.java).apply {
+                            putExtra(WorkoutDetailActivity.INTENT_EXTRA_LONG_ID, id)
+                            startActivity(this)
+                        }
+                    }
                 )
             }
         }

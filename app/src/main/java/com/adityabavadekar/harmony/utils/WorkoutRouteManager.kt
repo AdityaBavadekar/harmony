@@ -23,22 +23,25 @@ import com.adityabavadekar.harmony.data.model.WorkoutRoute
 
 class WorkoutRouteManager {
     private val locations: MutableList<WorkoutLocation> = mutableListOf()
+    private var distanceCovered: Double = 0.0
 
     fun addLocation(location: WorkoutLocation) {
+        if (locations.isNotEmpty()) {
+            distanceCovered += getDistanceTraversed(locations.last(), location)
+        }
         locations.add(location)
     }
 
-    fun getDistanceTraversed(): Double {
-        if (locations.size < 2) return 0.0
-        val startLoc = locations.first()
-        val endLoc = locations.last()
+    fun getDistanceTraversed(): Double = distanceCovered
+
+    private fun getDistanceTraversed(startLoc: WorkoutLocation, endLoc: WorkoutLocation): Double {
         /* Creates a new array of the specified size,
          * with all elements ((initialized to ZERO)). */
         val resultsArray = FloatArray(1)
         Location.distanceBetween(startLoc.lat, startLoc.long, endLoc.lat, endLoc.long, resultsArray)
         Log.i(
             "getDistanceTraversed",
-            "getDistanceTraversed: (meters) [${resultsArray.joinToString()}]"
+            "getDistanceTraversed: (meters) [${resultsArray.joinToString()}] [Between (${startLoc.lat},${startLoc.long}) and (${endLoc.lat},${endLoc.long})]"
         )
         return resultsArray[0].toDouble()
     }

@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-package com.adityabavadekar.harmony.data.model
+package com.adityabavadekar.harmony.utils
 
-data class WorkoutLap(
-    val startTimestamp: Long,
-    val endTimestamp: Long,
-) {
-    fun diff() = endTimestamp - startTimestamp
-    fun timeDifference() = TimeDifference.from(diff())
+sealed class UiState<out T> {
+    data object Loading : UiState<Nothing>()
+    data class Success<out T>(val data: T) : UiState<T>()
+    data class Error(val exception: Throwable) : UiState<Nothing>()
 }

@@ -19,6 +19,7 @@ package com.adityabavadekar.harmony.ui.common.component
 import android.annotation.SuppressLint
 import android.content.Context
 import android.preference.PreferenceManager
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -32,6 +33,7 @@ import com.adityabavadekar.harmony.ui.theme.HarmonyTheme
 import org.osmdroid.config.Configuration
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.CopyrightOverlay
+import org.osmdroid.views.overlay.TilesOverlay
 
 
 fun initialiseMapView(applicationContext: Context) {
@@ -57,7 +59,8 @@ fun ComposeMapView(
     disableTouchControls: Boolean = false,
     initialize: Boolean = true,
     mapViewState: MapView = rememberMapViewWithLifecycle(),
-    onLoad: ((map: MapView) -> Unit)? = null,
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    onLoad: ((map: MapView) -> Unit)? = null
 ) {
     val context = LocalContext.current
 
@@ -67,6 +70,8 @@ fun ComposeMapView(
         { mapViewState },
         modifier
     ) { mapView ->
+
+        /* OpenStreet map Copyright Text */
         val copyrightOverlay = CopyrightOverlay(context)
         mapView.overlays.clear()
         mapView.overlays.add(0, copyrightOverlay)
@@ -74,18 +79,14 @@ fun ComposeMapView(
         if (disableTouchControls) {
             mapView.setOnTouchListener { _, _ -> true }
         }
-//        val myLocationNewOverlay = MyLocationNewOverlay(mapView)
-//        val startMarker = Marker(mapView)
-//        startMarker.icon = mapView.resources.getDrawable(R.drawable.location_pin)
-//        startMarker.position = point
-//        startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-//        mapView.overlays.add(1, startMarker)
-//        mapView.overlays.add(myLocationNewOverlay)
+        if (darkTheme) {
+            mapView.overlayManager.tilesOverlay.setColorFilter(TilesOverlay.INVERT_COLORS)
+        }
+
         val overlay = LocationPinOverlay(mapView, location = point)
         mapView.overlays.add(1, overlay)
         mapView.controller.setCenter(point.geoPoint)
         mapView.controller.animateTo(point.geoPoint, 19.00, 200)
-
         onLoad?.invoke(mapView)
     }
 }

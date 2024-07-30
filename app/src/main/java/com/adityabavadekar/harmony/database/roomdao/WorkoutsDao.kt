@@ -37,7 +37,7 @@ interface WorkoutsDao {
     fun getAllSummaryRecords(): Flow<List<WorkoutSummaryRecord>>
 
     @Query("SELECT * FROM workouts_table WHERE id=:recordId LIMIT 1")
-    fun getWorkoutRecord(recordId: Int): WorkoutRecord?
+    fun getWorkoutRecord(recordId: Long): WorkoutRecord?
 
     @Query("SELECT * FROM workouts_table WHERE completed = '0' ORDER BY startTimestamp DESC LIMIT 1")
     fun getIncompleteWorkoutRecord(): WorkoutRecord?

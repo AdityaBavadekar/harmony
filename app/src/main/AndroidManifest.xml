@@ -31,6 +31,17 @@
 
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
 
+    <uses-feature
+        android:name="android.hardware.sensor.stepcounter"
+        android:required="false" />
+
+    <uses-feature
+        android:name="android.hardware.location"
+        android:required="false" />
+
+    <uses-feature
+        android:name="android.hardware.sensor.compass"
+        android:required="false" />
 
     <application
         android:name=".HarmonyApplication"
@@ -71,6 +82,11 @@
 
         <activity
             android:name=".ui.livetracking.LiveTrackingActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Harmony" />
+
+        <activity
+            android:name=".ui.wdetails.WorkoutDetailActivity"
             android:exported="false"
             android:theme="@style/Theme.Harmony" />
 

@@ -57,10 +57,10 @@ data class TimeDifference(
             }
             //"H:mm:ss"
             return "${formatInt(hours)}:" + formattedString
-        } else {
-            //"H:mm:ss"
-            return "${formatInt(days)}:" + formattedString
         }
+
+        //"d:H:mm:ss"
+        return "${formatInt(days)}:${formatInt(hours)}:" + formattedString
     }
 
     companion object {
@@ -75,7 +75,7 @@ data class TimeDifference(
         }
 
         fun from(startMillis: Long, endMillis: Long): TimeDifference {
-            if (startMillis > endMillis) throw IllegalStateException("`startMillis` > `endMillis`")
+            if (startMillis > endMillis) throw IllegalStateException("`startMillis` > `endMillis` (${startMillis} > ${endMillis})")
             return from(endMillis - startMillis)
         }
 

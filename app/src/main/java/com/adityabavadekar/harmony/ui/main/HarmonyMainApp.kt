@@ -70,7 +70,8 @@ private fun MainNavHost(
     startDestination: String = HOME_ROUTE,
     onAddNewClicked: (WorkoutTypes) -> Unit = {},
     workoutsData: State<List<WorkoutSummaryRecord>>,
-    accountData: State<UserRecord?>
+    accountData: State<UserRecord?>,
+    onActivityItemClicked: (id:Long) -> Unit
 ) {
     val navHostController = mainAppState.navController
     NavHost(
@@ -91,7 +92,7 @@ private fun MainNavHost(
                 navDeepLink { uriPattern = ACTIVITY_DEEP_LINK_URI_PATTERN }
             )
         ) {
-            ActivityScreen(workoutsData = workoutsData.value)
+            ActivityScreen(workoutsData = workoutsData.value, onClick = onActivityItemClicked)
         }
         composable(
             route = PROFILE_ROUTE,
@@ -116,6 +117,7 @@ fun HarmonyMainApp(
     onAddNewClicked: (WorkoutTypes) -> Unit = {},
     workoutsData: State<List<WorkoutSummaryRecord>> = mutableStateOf(listOf()),
     accountData: State<UserRecord?> = mutableStateOf(null),
+    onActivityItemClicked: (id:Long) -> Unit = {}
 ) {
     HarmonyBackground {
         Scaffold(
@@ -163,7 +165,8 @@ fun HarmonyMainApp(
                         mainAppState = mainAppState,
                         onAddNewClicked = onAddNewClicked,
                         workoutsData = workoutsData,
-                        accountData = accountData
+                        accountData = accountData,
+                        onActivityItemClicked = onActivityItemClicked
                     )
                 }
             }

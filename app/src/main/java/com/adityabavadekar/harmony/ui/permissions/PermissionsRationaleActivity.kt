@@ -14,12 +14,18 @@
  * limitations under the License.
  */
 
-package com.adityabavadekar.harmony.data.model
+package com.adityabavadekar.harmony.ui.permissions
 
-data class WorkoutLap(
-    val startTimestamp: Long,
-    val endTimestamp: Long,
-) {
-    fun diff() = endTimestamp - startTimestamp
-    fun timeDifference() = TimeDifference.from(diff())
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+
+class PermissionsRationaleActivity : ComponentActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+    }
+
 }
