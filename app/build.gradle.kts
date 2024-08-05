@@ -22,6 +22,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.google.devtools.ksp)
     alias(libs.plugins.google.gms.google.services)
+    id("kotlin-parcelize")
 }
 
 
@@ -31,6 +32,9 @@ if (secPropertiesFile.exists()) {
     secProperties.load(FileInputStream(secPropertiesFile))
 }
 
+fun wrap(s: String): String {
+    return "\"" + s + "\""
+}
 
 android {
     namespace = "com.adityabavadekar.harmony"
@@ -47,14 +51,24 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        if (secPropertiesFile.exists()) {
+            buildConfigField(
+                "String",
+                "WEATHER_API_KEY",
+                wrap(secProperties.getProperty("weather_api_key"))
+            )
+        } else {
+            buildConfigField("String", "WEATHER_API_KEY", wrap("<apikey>"))
+        }
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
             proguardFiles(
-                    getDefaultProguardFile("proguard-android-optimize.txt"),
-                    "proguard-rules.pro"
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
             )
         }
         debug {
@@ -109,6 +123,7 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
 
     testImplementation(libs.junit)
+    testImplementation(libs.jetbrains.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
@@ -131,4 +146,8 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
     implementation(libs.google.code.gson)
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+
+
 }

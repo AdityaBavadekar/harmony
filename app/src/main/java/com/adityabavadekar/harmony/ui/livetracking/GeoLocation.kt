@@ -17,11 +17,15 @@
 package com.adityabavadekar.harmony.ui.livetracking
 
 import android.location.Location
+import android.os.Parcel
+import android.os.Parcelable
 import com.adityabavadekar.harmony.ui.common.Speed
+import kotlinx.parcelize.Parcelize
 import org.osmdroid.api.IGeoPoint
 import org.osmdroid.util.GeoPoint
 import kotlin.math.pow
 
+@Parcelize
 class GeoLocation(
     private val lat: Double,
     private val lon: Double,
@@ -31,7 +35,7 @@ class GeoLocation(
     private val horizontalDisplacement: Float? = null,
     val timestamp: Long,
     private val isNull: Boolean = false
-) : IGeoPoint {
+) : IGeoPoint, Parcelable {
     @Deprecated("Deprecated in Java")
     override fun getLatitudeE6(): Int {
         return lat.toInt()
@@ -75,6 +79,18 @@ class GeoLocation(
 
     val requireHorizontalDisplacement: Float
         get() = horizontalDisplacement!!
+
+    constructor(parcel: Parcel) : this(
+        parcel.readDouble(),
+        parcel.readDouble(),
+        parcel.readValue(Double::class.java.classLoader) as? Double,
+        parcel.readValue(Double::class.java.classLoader) as? Double,
+        parcel.readFloat(),
+        parcel.readValue(Float::class.java.classLoader) as? Float,
+        parcel.readLong(),
+        parcel.readByte() != 0.toByte()
+    ) {
+    }
 
     fun isNullLocation() = isNull
 

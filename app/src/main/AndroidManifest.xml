@@ -43,6 +43,12 @@
         android:name="android.hardware.sensor.compass"
         android:required="false" />
 
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.TTS_SERVICE" />
+        </intent>
+    </queries>
+
     <application
         android:name=".HarmonyApplication"
         android:allowBackup="true"
@@ -80,8 +86,19 @@
             android:exported="false"
             android:theme="@style/Theme.Harmony" />
 
+
+        <activity
+            android:name=".ui.common.PseudoFrontActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Harmony" />
+
         <activity
             android:name=".ui.livetracking.LiveTrackingActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Harmony" />
+
+        <activity
+            android:name=".ui.livetracking.LiveTrackingActivityV2"
             android:exported="false"
             android:theme="@style/Theme.Harmony" />
 
@@ -90,8 +107,16 @@
             android:exported="false"
             android:theme="@style/Theme.Harmony" />
 
+        <activity
+            android:name=".ui.permissions.PermissionsRationaleActivity"
+            android:theme="@style/Theme.Transparent" />
+
         <service
             android:name=".ui.livetracking.service.LiveTrackerService"
+            android:foregroundServiceType="location" />
+
+        <service
+            android:name=".ui.livetracking.service.LiveTrackerForegroundService"
             android:foregroundServiceType="location" />
 
     </application>

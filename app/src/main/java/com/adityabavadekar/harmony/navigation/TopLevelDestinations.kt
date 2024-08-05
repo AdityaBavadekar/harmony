@@ -33,6 +33,7 @@ enum class TopLevelDestination(
         unselectedIcon = HarmonyIcons.Analytics,
         iconTextId = R.string.home_icon_description,
         titleTextId = R.string.home,
+        centeredTitle = true
     ),
     ACTIVITY(
         selectedIcon = HarmonyIcons.Analytics,

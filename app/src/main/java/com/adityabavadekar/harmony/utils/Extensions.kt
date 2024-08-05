@@ -19,6 +19,7 @@ package com.adityabavadekar.harmony.utils
 import android.app.AlertDialog
 import android.app.Application
 import android.content.Context
+import androidx.compose.runtime.Composable
 import com.adityabavadekar.harmony.HarmonyApplication
 import com.adityabavadekar.harmony.R
 import kotlinx.coroutines.CoroutineScope
@@ -52,3 +53,6 @@ suspend fun <T> CoroutineScope.withIOContext(block: suspend CoroutineScope.() ->
 fun String.capFirstChar() = this.replaceFirstChar { it.uppercaseChar() }
 
 fun Double.formatToString() = NumberUtils.formatDouble(this)
+
+@Composable
+fun isLandscape() = ConfigurationUtils.isLandscape()

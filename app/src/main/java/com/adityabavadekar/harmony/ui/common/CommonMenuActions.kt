@@ -30,4 +30,13 @@ object CommonMenuActions {
             type = MenuActionType.DROP_DOWN
         )
     }
+
+    fun search(): MenuAction {
+        return MenuAction(
+            icon = HarmonyIcons.Search,
+            iconContentDescription = R.string.search,
+            text = R.string.search,
+            type = MenuActionType.ICON
+        )
+    }
 }

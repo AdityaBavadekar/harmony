@@ -16,6 +16,7 @@
 
 package com.adityabavadekar.harmony.utils
 
+import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
@@ -69,6 +70,13 @@ class PermissionUtils {
                 ) == PackageManager.PERMISSION_GRANTED
             }
             return allGranted
+        }
+
+        fun isLocationPermissionGranted(context: Context): Boolean {
+            return isGranted(Manifest.permission.ACCESS_FINE_LOCATION, context) || isGranted(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                context
+            )
         }
 
     }

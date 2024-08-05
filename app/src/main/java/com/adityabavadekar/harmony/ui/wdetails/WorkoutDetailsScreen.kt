@@ -44,7 +44,6 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.adityabavadekar.harmony.data.WorkoutTypes
 import com.adityabavadekar.harmony.data.model.TimeDifference
@@ -52,12 +51,16 @@ import com.adityabavadekar.harmony.data.model.WorkoutLap
 import com.adityabavadekar.harmony.data.model.WorkoutRecord
 import com.adityabavadekar.harmony.ui.common.LengthUnits
 import com.adityabavadekar.harmony.ui.common.component.ComposeMapView
+import com.adityabavadekar.harmony.ui.common.component.DefaultColumnChart
 import com.adityabavadekar.harmony.ui.common.component.HorizontalSpacer
 import com.adityabavadekar.harmony.ui.common.component.VerticalSpacer
 import com.adityabavadekar.harmony.ui.common.icon.HarmonyIcons
 import com.adityabavadekar.harmony.ui.theme.HarmonyTheme
 import com.adityabavadekar.harmony.utils.NumberUtils
+import com.adityabavadekar.harmony.utils.ThemePreviews
 import com.adityabavadekar.harmony.utils.UnitPreferences
+import com.patrykandpatrick.vico.core.cartesian.data.CartesianChartModel
+import com.patrykandpatrick.vico.core.cartesian.data.ColumnCartesianLayerModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -179,7 +182,7 @@ fun WorkoutStepsItem(modifier: Modifier = Modifier, stepsCount: Int) {
     WorkoutListItem(
         modifier = modifier,
         labelText = "Steps",
-        largeNumberText = NumberUtils.formatFloat(stepsCount.toFloat()),
+        largeNumberText = NumberUtils.formatInt(stepsCount),
         fillWidth = true,
         largeNumberTextStyle = MaterialTheme.typography.headlineLarge,
         largeNumberUnitStyle = MaterialTheme.typography.labelSmall,
@@ -188,7 +191,10 @@ fun WorkoutStepsItem(modifier: Modifier = Modifier, stepsCount: Int) {
 }
 
 @OptIn(ExperimentalMaterialApi::class)
-fun LazyListScope.workoutNoteItem(modifier: Modifier = Modifier) {
+fun LazyListScope.workoutNoteItem(
+    notes: String?,
+    modifier: Modifier = Modifier
+) {
     item {
         Column(
             modifier.padding(18.dp),
@@ -201,17 +207,20 @@ fun LazyListScope.workoutNoteItem(modifier: Modifier = Modifier) {
                     Modifier
                         .fillMaxWidth()
                         .padding(8.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
                 ) {
                     ListItem(
                         trailing = {
                             Icon(imageVector = HarmonyIcons.ArrowNext, contentDescription = null)
                         },
                         secondaryText = {
-                            Text(
-                                modifier = Modifier.alpha(0.7f),
-                                text = "Trip to my school after years"
-                            )
+                            if (notes != null) {
+                                Text(
+                                    modifier = Modifier.alpha(0.7f),
+                                    text = notes
+                                )
+                            }
                         }
                     ) {
                         Text(
@@ -219,6 +228,44 @@ fun LazyListScope.workoutNoteItem(modifier: Modifier = Modifier) {
                             style = MaterialTheme.typography.titleMedium
                         )
                     }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+fun LazyListScope.workoutChartItem(
+    title: String,
+    dataX: List<Double>,
+    modifier: Modifier = Modifier
+) {
+    val dataYAxis = List(dataX.size) { index -> index + 1 }
+    val model = CartesianChartModel(
+        ColumnCartesianLayerModel.build { series(dataX, dataYAxis) }
+    )
+    item {
+        Column(
+            modifier.padding(18.dp),
+        ) {
+            Surface(
+                shape = RoundedCornerShape(8.dp),
+                color = Color.LightGray.copy(alpha = ITEM_COLOR_ALPHA)
+            ) {
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    VerticalSpacer()
+                    DefaultColumnChart(model = model)
                 }
             }
         }
@@ -342,7 +389,7 @@ fun LazyListScope.workoutSimpleListItem(
 ) {
     item {
         ListItem(
-            modifier = Modifier.background(Color.Gray.copy(alpha = ITEM_COLOR_ALPHA)),
+            modifier = Modifier.background(Color.Magenta.copy(alpha = ITEM_COLOR_ALPHA)),
             trailing = {
                 Row {
                     Text(text = value, style = MaterialTheme.typography.labelMedium)
@@ -455,12 +502,14 @@ fun WorkoutDetailsScreen(
                 unit = physicalUnitPreferences.speedUnit().shortSymbol()
             )
             workoutLapsItem(laps = workoutRecord.laps)
-            workoutNoteItem()
+            workoutNoteItem(workoutRecord.notes)
+
+            workoutChartItem("Speed", workoutRecord.speedsMetersSec)
         }
     }
 }
 
-private const val ITEM_COLOR_ALPHA = 0.3f
+private const val ITEM_COLOR_ALPHA = 1f
 
 private fun testWorkoutRecord(): WorkoutRecord {
     val x = 142634929L
@@ -477,6 +526,23 @@ private fun testWorkoutRecord(): WorkoutRecord {
         stepsCount = 432,
         laps = laps,
         pauseDurationMillis = laps.sumOf { it.diff() },
+        speedsMetersSec = listOf(
+            0.0,
+            16.0,
+            40.0,
+            35.0,
+            12.0,
+            18.0,
+            12.0,
+            16.0,
+            20.0,
+            0.0,
+            19.0,
+            16.0,
+            16.0,
+            35.0,
+            16.0,
+        ),
         totalEnergyBurnedJoules = 300.0,
         avgSpeedMetersSec = 16.0,
         maxSpeedMetersSec = 40.0,
@@ -487,14 +553,18 @@ private fun testWorkoutRecord(): WorkoutRecord {
 
 private val MAP_VIEW_HEIGHT = 300.dp
 
-@Preview
+@ThemePreviews
 @Composable
 private fun WorkoutDetailScreenPrev() {
+    val workoutRecord = testWorkoutRecord()
     HarmonyTheme {
-        WorkoutDetailsScreen(
-            workoutRecord = testWorkoutRecord(),
+        /*WorkoutDetailsScreen(
+            workoutRecord = workoutRecord,
             physicalUnitPreferences = UnitPreferences.PhysicalUnitPreferences.defaults(),
             showMap = false
-        )
+        )*/
+        LazyColumn {
+            workoutChartItem("Speed", workoutRecord.speedsMetersSec)
+        }
     }
 }

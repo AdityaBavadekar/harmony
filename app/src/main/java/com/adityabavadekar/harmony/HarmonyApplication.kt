@@ -70,7 +70,7 @@ class HarmonyApplication : Application() {
     }
 
     companion object {
-        const val TAG = "[HarmonyApplication]"
+        private const val TAG = "[HarmonyApplication]"
     }
 
 }

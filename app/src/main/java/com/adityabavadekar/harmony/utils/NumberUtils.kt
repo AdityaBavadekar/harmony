@@ -23,6 +23,7 @@ import java.math.RoundingMode
 class NumberUtils {
     companion object {
         fun formatLong(number: Long): String = String.format("%,d", number)
+        fun formatInt(number: Int): String = String.format("%,d", number)
         fun formatFloat(number: Float): String = String.format("%,.1f", number)
 
         fun formatDouble(num: Double): String = String.format("%,.2f", num)

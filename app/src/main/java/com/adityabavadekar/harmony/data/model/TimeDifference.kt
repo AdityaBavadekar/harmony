@@ -63,6 +63,30 @@ data class TimeDifference(
         return "${formatInt(days)}:${formatInt(hours)}:" + formattedString
     }
 
+    fun formatForDisplayDescriptive(
+        addSeconds: Boolean = true
+    ): String {
+        var text = ""
+
+        if (days != 0) text += "${days}d "
+        if (hours != 0) text += "${hours}h "
+        if (minutes != 0) text += "${minutes}min"
+        if (addSeconds) text += " ${seconds}sec"
+
+        return text
+    }
+
+    operator fun plus(other: TimeDifference): TimeDifference {
+        return TimeDifference(
+            days = days + other.days,
+            hours = hours + other.hours,
+            minutes = minutes + other.minutes,
+            seconds = seconds + other.seconds,
+            millisDifference = millisDifference + other.millisDifference,
+        )
+    }
+
+
     companion object {
         fun zero(): TimeDifference {
             return TimeDifference(

@@ -18,6 +18,7 @@ package com.adityabavadekar.harmony.ui.common.icon
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.DirectionsRun
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.rounded.Logout
 import androidx.compose.material.icons.filled.MoreVert
@@ -26,9 +27,13 @@ import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Analytics
 import androidx.compose.material.icons.rounded.ArrowDropDown
+import androidx.compose.material.icons.rounded.Brightness6
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Fitbit
+import androidx.compose.material.icons.rounded.LocationOn
+import androidx.compose.material.icons.rounded.MyLocation
+import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
@@ -38,16 +43,27 @@ import androidx.compose.material.icons.rounded.WaterDrop
 import com.adityabavadekar.harmony.R
 
 object HarmonyIcons {
+
     val ExerciseWalking = R.drawable.walking
     val ExerciseRunning = R.drawable.running
     val ExerciseCycling = R.drawable.cycling
     val ExerciseDumbel = R.drawable.dumbel
 
+    /**
+     * Source: https://iconscout.com/illustration/time-stopwatch-11407783
+     * */
+    val StrikingStopWatch = R.drawable.stopwatch
+
+    val LocationPin = Icons.Rounded.LocationOn
+    val MyLocation = Icons.Rounded.MyLocation
+    val Notification = Icons.Rounded.Notifications
+    val Run = Icons.AutoMirrored.Rounded.DirectionsRun
     val VisibilityOff = Icons.Rounded.VisibilityOff
     val AccountCircle = Icons.Rounded.AccountCircle
     val Analytics = Icons.Rounded.Analytics
     val ArrowDropDown = Icons.Rounded.ArrowDropDown
     val WaterDrop = Icons.Rounded.WaterDrop
+    val ThemeIndicator = Icons.Rounded.Brightness6
     val VisibilityOn = Icons.Rounded.Visibility
     val Steps = R.drawable.steps
     val ViewActivity = Icons.Outlined.ViewAgenda
@@ -62,4 +78,15 @@ object HarmonyIcons {
     val Settings = Icons.Rounded.Settings
     val Fitbit = Icons.Rounded.Fitbit
     val SignOut = Icons.AutoMirrored.Rounded.Logout
+
 }
+
+/*
+@Preview
+@Composable
+private fun IconPreview() {
+    Surface {
+        Icon(imageVector = Run, contentDescription = null)
+    }
+}
+*/

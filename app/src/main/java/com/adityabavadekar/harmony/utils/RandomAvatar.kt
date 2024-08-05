@@ -70,6 +70,9 @@ class ImageAvatar {
         private val O_AVATARS =
             AvatarType.entries.filter { it.gender == Gender.OTHER }.map { it.drawableRes }
 
+        /**
+         * File name without '.png' or any extension.
+         * */
         fun write(context: Context, fileName: String, bitmap: Bitmap): Boolean {
             val file = File(context.dataDir, "${fileName}.png")
             try {

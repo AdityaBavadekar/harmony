@@ -16,6 +16,8 @@
 
 package com.adityabavadekar.harmony.ui.main
 
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -50,6 +52,7 @@ import com.adityabavadekar.harmony.ui.common.component.HarmonyBottomNavigationIt
 import com.adityabavadekar.harmony.ui.common.component.HarmonyNavigationBar
 import com.adityabavadekar.harmony.ui.common.component.HarmonyTopAppBar
 import com.adityabavadekar.harmony.ui.home.HomeScreen
+import com.adityabavadekar.harmony.ui.home.HomeScreenUiState
 import com.adityabavadekar.harmony.ui.profile.ProfileScreen
 
 const val HOME_ROUTE: String = "home_route"
@@ -71,7 +74,8 @@ private fun MainNavHost(
     onAddNewClicked: (WorkoutTypes) -> Unit = {},
     workoutsData: State<List<WorkoutSummaryRecord>>,
     accountData: State<UserRecord?>,
-    onActivityItemClicked: (id:Long) -> Unit
+    homeScreenUiState: State<HomeScreenUiState>,
+    onActivityItemClicked: (id: Long, isOngoing: Boolean) -> Unit
 ) {
     val navHostController = mainAppState.navController
     NavHost(
@@ -82,15 +86,30 @@ private fun MainNavHost(
             route = HOME_ROUTE,
             deepLinks = listOf(
                 navDeepLink { uriPattern = HOME_DEEP_LINK_URI_PATTERN }
-            )
+            ),
+            enterTransition = {
+                slideInHorizontally()
+            },
+            exitTransition = {
+                slideOutHorizontally()
+            }
         ) {
-            HomeScreen(onAddNewClicked = onAddNewClicked)
+            HomeScreen(
+                onAddNewClicked = onAddNewClicked,
+                homeScreenUiState = homeScreenUiState.value
+            )
         }
         composable(
             route = ACTIVITY_ROUTE,
             deepLinks = listOf(
                 navDeepLink { uriPattern = ACTIVITY_DEEP_LINK_URI_PATTERN }
-            )
+            ),
+            enterTransition = {
+                slideInHorizontally()
+            },
+            exitTransition = {
+                slideOutHorizontally()
+            }
         ) {
             ActivityScreen(workoutsData = workoutsData.value, onClick = onActivityItemClicked)
         }
@@ -98,7 +117,13 @@ private fun MainNavHost(
             route = PROFILE_ROUTE,
             deepLinks = listOf(
                 navDeepLink { uriPattern = PROFILE_DEEP_LINK_URI_PATTERN }
-            )
+            ),
+            enterTransition = {
+                slideInHorizontally()
+            },
+            exitTransition = {
+                slideOutHorizontally()
+            }
         ) {
             ProfileScreen(account = accountData.value)
         }
@@ -117,7 +142,8 @@ fun HarmonyMainApp(
     onAddNewClicked: (WorkoutTypes) -> Unit = {},
     workoutsData: State<List<WorkoutSummaryRecord>> = mutableStateOf(listOf()),
     accountData: State<UserRecord?> = mutableStateOf(null),
-    onActivityItemClicked: (id:Long) -> Unit = {}
+    homeScreenUiState: State<HomeScreenUiState> = mutableStateOf(HomeScreenUiState()),
+    onActivityItemClicked: (id: Long, isOngoing: Boolean) -> Unit = { _, _ -> }
 ) {
     HarmonyBackground {
         Scaffold(
@@ -166,7 +192,8 @@ fun HarmonyMainApp(
                         onAddNewClicked = onAddNewClicked,
                         workoutsData = workoutsData,
                         accountData = accountData,
-                        onActivityItemClicked = onActivityItemClicked
+                        onActivityItemClicked = onActivityItemClicked,
+                        homeScreenUiState = homeScreenUiState
                     )
                 }
             }

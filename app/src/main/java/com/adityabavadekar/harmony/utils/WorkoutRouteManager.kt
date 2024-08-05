@@ -17,7 +17,6 @@
 package com.adityabavadekar.harmony.utils
 
 import android.location.Location
-import android.util.Log
 import com.adityabavadekar.harmony.data.model.WorkoutLocation
 import com.adityabavadekar.harmony.data.model.WorkoutRoute
 
@@ -25,24 +24,33 @@ class WorkoutRouteManager {
     private val locations: MutableList<WorkoutLocation> = mutableListOf()
     private var distanceCovered: Double = 0.0
 
-    fun addLocation(location: WorkoutLocation) {
-        if (locations.isNotEmpty()) {
-            distanceCovered += getDistanceTraversed(locations.last(), location)
-        }
+    /**
+     * @return Newly travelled distance in Meters (not same as total distance)
+     * */
+    fun addLocation(
+        location: WorkoutLocation,
+        calculateDistance: Boolean = true
+    ): Double {
+        val newDistanceMeters: Double
+        if (locations.isNotEmpty() && calculateDistance) {
+            newDistanceMeters = getDistanceTraversed(locations.last(), location)
+            distanceCovered += newDistanceMeters
+        } else newDistanceMeters = 0.0
+
         locations.add(location)
+        return newDistanceMeters
     }
 
     fun getDistanceTraversed(): Double = distanceCovered
 
+    /**
+     * Calculates distance travelled in Meters
+     * */
     private fun getDistanceTraversed(startLoc: WorkoutLocation, endLoc: WorkoutLocation): Double {
         /* Creates a new array of the specified size,
          * with all elements ((initialized to ZERO)). */
         val resultsArray = FloatArray(1)
         Location.distanceBetween(startLoc.lat, startLoc.long, endLoc.lat, endLoc.long, resultsArray)
-        Log.i(
-            "getDistanceTraversed",
-            "getDistanceTraversed: (meters) [${resultsArray.joinToString()}] [Between (${startLoc.lat},${startLoc.long}) and (${endLoc.lat},${endLoc.long})]"
-        )
         return resultsArray[0].toDouble()
     }
 

@@ -22,7 +22,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.adityabavadekar.harmony.ui.livetracking.LiveTrackingActivity
+import com.adityabavadekar.harmony.data.WorkoutTypes
+import com.adityabavadekar.harmony.ui.common.PseudoFrontActivity
+import com.adityabavadekar.harmony.ui.livetracking.LiveTrackingActivityV2
 import com.adityabavadekar.harmony.ui.settings.SettingsActivity
 import com.adityabavadekar.harmony.ui.theme.HarmonyTheme
 import com.adityabavadekar.harmony.ui.wdetails.WorkoutDetailActivity
@@ -43,21 +45,26 @@ class MainActivity : ComponentActivity() {
                         startActivity(Intent(this, SettingsActivity::class.java))
                     },
                     onAddNewClicked = { type ->
-                        //TODO
-                        Intent(this, LiveTrackingActivity::class.java).also {
-                            it.putExtra(
-                                LiveTrackingActivity.EXTRA_WORKOUT_TYPE_ORDINAL,
-                                type.ordinal
-                            )
-                            startActivity(it)
+                        if (type == WorkoutTypes.TYPE_UNKNOWN || type == WorkoutTypes.TYPE_OTHER) {
+                            PseudoFrontActivity.newSelectWorkoutIntent(this)
+                        } else {
+                            LiveTrackingActivityV2.newIntent(this, type)
                         }
                     },
                     workoutsData = viewModel.workouts.collectAsStateWithLifecycle(),
                     accountData = viewModel.account.collectAsStateWithLifecycle(),
-                    onActivityItemClicked = { id ->
-                        Intent(this, WorkoutDetailActivity::class.java).apply {
-                            putExtra(WorkoutDetailActivity.INTENT_EXTRA_LONG_ID, id)
-                            startActivity(this)
+                    homeScreenUiState = viewModel.homeScreenUiState.collectAsStateWithLifecycle(),
+                    onActivityItemClicked = { id, isOngoing ->
+                        if (!isOngoing) {
+                            Intent(this, WorkoutDetailActivity::class.java).apply {
+                                putExtra(WorkoutDetailActivity.INTENT_EXTRA_LONG_ID, id)
+                                startActivity(this)
+                            }
+                        } else {
+                            Intent(this, LiveTrackingActivityV2::class.java).apply {
+                                putExtra(WorkoutDetailActivity.INTENT_EXTRA_LONG_ID, id)
+                                startActivity(this)
+                            }
                         }
                     }
                 )

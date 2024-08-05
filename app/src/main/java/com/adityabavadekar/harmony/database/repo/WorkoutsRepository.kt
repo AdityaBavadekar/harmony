@@ -48,6 +48,10 @@ class WorkoutsRepository(
         return dao.updateWorkoutRecord(record)
     }
 
+    fun listenToRecord(recordId: Long): Flow<WorkoutRecord?> {
+        return dao.listenToWorkoutRecord(recordId)
+    }
+
     companion object {
         private var instance: WorkoutsRepository? = null
 

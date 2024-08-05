@@ -25,6 +25,7 @@ osmdroidAndroid = "6.1.18"
 playServicesAuth = "21.2.0"
 playServicesLocation = "21.3.0"
 androidxRoom = "2.6.1"
+retrofit = "2.11.0"
 snapper = "0.3.0"
 volley = "1.2.1"
 vico = "2.0.0-alpha.24"
@@ -51,6 +52,7 @@ androidx-credentials = { group = "androidx.credentials", name = "credentials", v
 androidx-credentials-play-services-auth = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref = "credentialsPlayServicesAuth" }
 
 # OFFICIAL BUT NOT ANDROIDX
+jetbrains-kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesCore" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesCore" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
 play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "playServicesAuth" }
@@ -82,6 +84,8 @@ lottie-compose = { module = "com.airbnb.android:lottie-compose", version.ref = "
 numberpicker = { module = "com.chargemap.compose:numberpicker", version.ref = "numberpicker" }
 osmdroid-android = { module = "org.osmdroid:osmdroid-android", version.ref = "osmdroidAndroid" }
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
+retrofit = { group = "com.squareup.retrofit2", name="retrofit", version.ref = "retrofit" }
+retrofit-converter-gson = { group = "com.squareup.retrofit2", name="converter-gson", version.ref = "retrofit" }
 snapper = { module = "dev.chrisbanes.snapper:snapper", version.ref = "snapper" }
 volley = { module = "com.android.volley:volley", version.ref = "volley" }
 vico-compose-m3 = { group = "com.patrykandpatrick.vico", name = "compose-m3", version.ref = "vico" }

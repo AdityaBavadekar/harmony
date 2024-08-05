@@ -28,7 +28,8 @@ import com.adityabavadekar.harmony.ui.common.Length
     "SELECT workouts_table.id, workouts_table.type, workouts_table.title, " +
             "workouts_table.startTimestamp, workouts_table.endTimestamp, " +
             "workouts_table.distanceMeters, workouts_table.stepsCount, " +
-            "workouts_table.totalEnergyBurnedJoules, workouts_table.pauseDurationMillis " +
+            "workouts_table.totalEnergyBurnedJoules, workouts_table.pauseDurationMillis, " +
+            "workouts_table.completed " +
             "FROM workouts_table"
 )
 data class WorkoutSummaryRecord(
@@ -40,11 +41,17 @@ data class WorkoutSummaryRecord(
     val distanceMeters: Double = 0.0,
     val stepsCount: Int = 0,
     val pauseDurationMillis: Long = 0L,
-    val totalEnergyBurnedCal: Double? = null,
+    val totalEnergyBurnedJoules: Double? = null,
+    val completed: Boolean = true,
 ) {
 
-    fun timeDifference() =
-        TimeDifference.from(startTimestamp, endTimestamp + pauseDurationMillis)
+    fun timeDifference(): TimeDifference {
+        return if (completed) {
+            TimeDifference.from(startTimestamp, endTimestamp + pauseDurationMillis)
+        } else {
+            TimeDifference.from(startTimestamp, System.currentTimeMillis() + pauseDurationMillis)
+        }
+    }
 
     fun getDisplayDistance() {
         Length(lengthInMeters = distanceMeters)

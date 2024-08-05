@@ -136,7 +136,7 @@ class UnitPreferences(private val preferencesManager: PreferencesManager) {
         val DEFAULT_WEIGHT_UNIT = MassUnits.KG
         val DEFAULT_HEAT_UNIT = HeatUnits.CALORIES
         val DEFAULT_HEIGHT_UNIT = LengthUnits.CENTIMETERS
-        val DEFAULT_TEMPERATURE_UNIT = TemperatureUnits.CELSIUS
+        val DEFAULT_TEMPERATURE_UNIT = TemperatureUnits.KELVIN
         val DEFAULT_DISTANCE_UNIT = LengthUnits.KILOMETERS
         val DEFAULT_VOLUME_UNIT = VolumeUnits.MILLILITER
 

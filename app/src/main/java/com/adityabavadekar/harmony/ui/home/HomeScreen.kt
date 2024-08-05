@@ -32,11 +32,12 @@ import com.adityabavadekar.harmony.ui.common.icon.HarmonyIcons
 @Preview
 @Composable
 fun HomeScreen(
-    onAddNewClicked: (WorkoutTypes) -> Unit = {}
+    onAddNewClicked: (WorkoutTypes) -> Unit = {},
+    homeScreenUiState: HomeScreenUiState = HomeScreenUiState()
 ) {
     Scaffold(
         floatingActionButton = {
-            FloatingActionButton(onClick = { }) {
+            FloatingActionButton(onClick = { onAddNewClicked(WorkoutTypes.TYPE_UNKNOWN) }) {
                 Icon(imageVector = HarmonyIcons.Add, contentDescription = null)
             }
         }
@@ -47,7 +48,8 @@ fun HomeScreen(
                 .padding(it)
         ) {
             StatsSummaryScreen(
-                onAddNewClicked = onAddNewClicked
+                onAddNewClicked = onAddNewClicked,
+                homeScreenUiState = homeScreenUiState
             )
         }
     }

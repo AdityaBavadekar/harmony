@@ -20,9 +20,13 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Modifier
 import com.adityabavadekar.harmony.ui.common.LengthUnits
 import com.adityabavadekar.harmony.ui.common.MassUnits
 import com.adityabavadekar.harmony.ui.common.activitybase.GoogleSigninActivity
@@ -64,12 +68,15 @@ class SigninActivity : GoogleSigninActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        enableEdgeToEdge()
         setContent {
             HarmonyTheme {
                 val uiState = viewModel.uiState.collectAsState().value
 
-                Surface {
+                Surface(
+                    Modifier
+                        .systemBarsPadding()
+                        .navigationBarsPadding()) {
                     when (uiState.currentScreenType) {
                         SigninScreenType.GOOGLE_SIGNIN -> {
                             GoogleSignInScreen(

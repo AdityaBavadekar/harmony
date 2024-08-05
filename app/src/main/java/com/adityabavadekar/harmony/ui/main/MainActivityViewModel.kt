@@ -20,10 +20,12 @@ import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.adityabavadekar.harmony.data.model.TimeDifference
 import com.adityabavadekar.harmony.data.model.UserRecord
 import com.adityabavadekar.harmony.data.model.WorkoutSummaryRecord
 import com.adityabavadekar.harmony.database.repo.AccountRepository
 import com.adityabavadekar.harmony.database.repo.WorkoutsRepository
+import com.adityabavadekar.harmony.ui.home.HomeScreenUiState
 import com.adityabavadekar.harmony.utils.asHarmonyApp
 import com.adityabavadekar.harmony.utils.withIOContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -43,18 +45,42 @@ class MainActivityViewModel(
     private var _account: MutableStateFlow<UserRecord?> = MutableStateFlow(null)
     val account: StateFlow<UserRecord?> = _account.asStateFlow()
 
+    private var _homeScreenUiState: MutableStateFlow<HomeScreenUiState> =
+        MutableStateFlow(HomeScreenUiState())
+    val homeScreenUiState: StateFlow<HomeScreenUiState> = _homeScreenUiState.asStateFlow()
+
     private fun loadWorkouts() = viewModelScope.launch {
         withIOContext {
             workoutRepository.getAllSummaryRecords().collect {
                 _workouts.value = it
+                recalculateStats(it)
             }
         }
+    }
+
+    private fun recalculateStats(workoutSummaryRecords: List<WorkoutSummaryRecord>) {
+        var totalStepCount = 0
+        var totalEnergyCount = 0.0
+        var totalWorkoutDuration = TimeDifference.zero()
+        for (record in workoutSummaryRecords) {
+            totalStepCount += record.stepsCount
+            record.totalEnergyBurnedJoules?.let { totalEnergyCount += it }
+            totalWorkoutDuration += record.timeDifference()
+        }
+        _homeScreenUiState.value = _homeScreenUiState.value.copy(
+            stepCountForTheDay = totalStepCount,
+            energyBurnedForTheDay = totalEnergyCount,
+            totalWorkoutDurationForDay = totalWorkoutDuration
+        )
     }
 
     private fun loadAccount() = viewModelScope.launch {
         withIOContext {
             accountRepository.getAccount().let {
                 _account.value = it
+                _homeScreenUiState.value = _homeScreenUiState.value.copy(
+                    stepCountGoal = it.userFitnessRecord?.stepsGoal,
+                )
             }
         }
     }

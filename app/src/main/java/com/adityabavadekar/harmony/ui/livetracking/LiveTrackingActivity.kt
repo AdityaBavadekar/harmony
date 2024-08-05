@@ -18,7 +18,6 @@ package com.adityabavadekar.harmony.ui.livetracking
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -28,28 +27,28 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.location.Location
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.runtime.collectAsState
 import androidx.core.content.ContextCompat
 import com.adityabavadekar.harmony.data.WorkoutTypes
-import com.adityabavadekar.harmony.ui.common.activitybase.PermissionActivity
+import com.adityabavadekar.harmony.ui.common.activitybase.PermissionActivityV2
 import com.adityabavadekar.harmony.ui.livetracking.service.LiveTrackerService
 import com.adityabavadekar.harmony.ui.theme.HarmonyTheme
 import com.adityabavadekar.harmony.ui.wdetails.WorkoutDetailActivity
+import com.adityabavadekar.harmony.utils.ImageAvatar
 import com.adityabavadekar.harmony.utils.UnitPreferences
 import com.adityabavadekar.harmony.utils.preferences.PreferencesKeys
 import com.adityabavadekar.harmony.utils.preferences.preferencesManager
+import com.adityabavadekar.harmony.utils.rememberComposeCaptureState
 
 
-class LiveTrackingActivity : PermissionActivity(), LiveTrackingEventsListener, SensorEventListener {
+class LiveTrackingActivity : PermissionActivityV2(), LiveTrackingEventsListener,
+    SensorEventListener {
 
     private val viewModel: LiveTrackingViewModel by viewModels<LiveTrackingViewModel> {
         LiveTrackingViewModel.Factory(application)
@@ -89,8 +88,27 @@ class LiveTrackingActivity : PermissionActivity(), LiveTrackingEventsListener, S
                 IntentFilter(LiveTrackerService.LOC_UPDATE_INTENT_ACTION)
             )
         }
-
-        requestPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+/*
+        requestPermission(Manifest.permission.ACCESS_FINE_LOCATION) {
+            doOnGranted {
+                Log.d(TAG, "onGranted: ACCESS_FINE_LOCATION")
+                viewModel.allPermissionsGranted()
+            }
+            doOnDenied {
+                Log.d(TAG, "onDenied: ACCESS_FINE_LOCATION")
+                Toast.makeText(
+                    this@LiveTrackingActivity,
+                    "Location permission is required to show live location",
+                    Toast.LENGTH_SHORT
+                ).show()
+                finish()
+                false
+            }
+            doOnShouldShowPermissionUI {
+                PermissionsRationaleActivity.startLocationPermissionRationale(applicationContext)
+                false
+            }
+        }*/
         //TODO:Ask Notification Permission
 
         startLocationService()
@@ -111,14 +129,28 @@ class LiveTrackingActivity : PermissionActivity(), LiveTrackingEventsListener, S
         viewModel.setUnits(speedUnit = speedUnit, distanceUnit = distanceUnit, heatUnit = heatUnit)
 
         setContent {
+            val captureState = rememberComposeCaptureState()
+
+            viewModel.setCaptureWorker { name ->
+                captureState.capture()
+                captureState.bitmap?.let {
+                    ImageAvatar.write(
+                        applicationContext,
+                        name,
+                        it
+                    )
+                }
+            }
             HarmonyTheme {
                 if (viewModel.permissionsGranted.collectAsState().value) {
                     LiveTrackingDeciderScreen(
                         uiState = viewModel.uiState.collectAsState().value,
-                        listener = this@LiveTrackingActivity
+                        listener = this@LiveTrackingActivity,
+                        captureState = captureState
                     )
                 }
             }
+
         }
     }
 
@@ -214,20 +246,6 @@ class LiveTrackingActivity : PermissionActivity(), LiveTrackingEventsListener, S
         Log.d(TAG, "STEP_SENSOR [onAccuracyChanged]: newAccuracy=${accuracy}")
     }
 
-    override fun onGranted(permission: String) {
-        Log.d(TAG, "onGranted: $permission")
-        viewModel.allPermissionsGranted()
-    }
-
-    override fun onDenied(permission: String) {
-        Log.d(TAG, "onDenied: $permission")
-        Toast.makeText(
-            this,
-            "Location permission is required to show live location",
-            Toast.LENGTH_SHORT
-        ).show()
-        finish()
-    }
 
     private fun requestRequiredPermissions() {
         requestPermission(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -235,32 +253,6 @@ class LiveTrackingActivity : PermissionActivity(), LiveTrackingEventsListener, S
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             requestPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
         }
-    }
-
-    override fun onShouldShowPermissionUI(permission: String) {
-        AlertDialog.Builder(this)
-            .setTitle("Allow Location permission")
-            .setMessage("Please allow the Location access to the Harmony. Location is required to show current live location while in a workout (like Running)")
-            .setPositiveButton("Ok") { dialog, _ ->
-                dialog.dismiss()
-                startActivity(
-                    Intent(
-                        Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                        Uri.fromParts("package", packageName, null)
-                    ).apply {
-                        addCategory(Intent.CATEGORY_DEFAULT)
-                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-                        addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
-                    }
-                )
-                requestRequiredPermissions()
-            }
-            .setOnCancelListener {
-                onDenied(permission)
-            }
-            .create()
-            .show()
     }
 
     companion object {

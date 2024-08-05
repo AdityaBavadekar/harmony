@@ -39,6 +39,9 @@ interface WorkoutsDao {
     @Query("SELECT * FROM workouts_table WHERE id=:recordId LIMIT 1")
     fun getWorkoutRecord(recordId: Long): WorkoutRecord?
 
+    @Query("SELECT * FROM workouts_table WHERE id=:recordId LIMIT 1")
+    fun listenToWorkoutRecord(recordId: Long): Flow<WorkoutRecord?>
+
     @Query("SELECT * FROM workouts_table WHERE completed = '0' ORDER BY startTimestamp DESC LIMIT 1")
     fun getIncompleteWorkoutRecord(): WorkoutRecord?
 

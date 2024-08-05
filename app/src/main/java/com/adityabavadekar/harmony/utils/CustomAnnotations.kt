@@ -33,3 +33,16 @@ annotation class ThemePreviews
     device = "spec:width=411dp,height=891dp,dpi=420,isRound=false,chinSize=0dp,orientation=landscape"
 )
 annotation class LandscapePreview
+
+@RequiresOptIn(message = "This is experimental.")
+@Target(
+    allowedTargets = [
+        AnnotationTarget.CLASS,
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.PROPERTY,
+        AnnotationTarget.FIELD,
+        AnnotationTarget.PROPERTY_GETTER
+    ]
+)
+@Retention(value = AnnotationRetention.BINARY)
+annotation class ExperimentalUseWithCaution

@@ -26,7 +26,7 @@ class SleepUtils {
 
     companion object {
 
-        fun getSleepType(sleepHours: Int, ageInMonths: Int): SleepType {
+        fun getSleepType(sleepHours: Int, ageInMonths: Int?): SleepType {
             val sleepInfo = getSleepInfoForAge(ageInMonths)
             if (sleepHours <= sleepInfo.lowerThreshold) return SleepType.INSUFFICIENT
             if (sleepInfo.goodRange.contains(sleepHours)) return SleepType.RECOMMENDED
@@ -39,8 +39,14 @@ class SleepUtils {
             val upperThreshold: Int
         )
 
-        fun getSleepInfoForAge(ageInMonths: Int): SleepInfo {
+        fun getSleepInfoForAge(ageInMonths: Int?): SleepInfo {
             return when {
+                ageInMonths == null -> SleepInfo(
+                    goodRange = 7..9,
+                    lowerThreshold = 6,
+                    upperThreshold = 10
+                )
+
                 ageInMonths <= 3 -> SleepInfo(
                     goodRange = 14..17,
                     lowerThreshold = 11,

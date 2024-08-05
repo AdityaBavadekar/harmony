@@ -16,21 +16,18 @@
 
 package com.adityabavadekar.harmony.ui.activity
 
-import androidx.annotation.DrawableRes
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -39,217 +36,224 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.adityabavadekar.harmony.R
 import com.adityabavadekar.harmony.data.WorkoutTypes
 import com.adityabavadekar.harmony.data.model.WorkoutSummaryRecord
 import com.adityabavadekar.harmony.ui.common.component.HorizontalSpacer
+import com.adityabavadekar.harmony.ui.common.component.VerticalSpacer
 import com.adityabavadekar.harmony.ui.common.component.clickableRipple
+import com.adityabavadekar.harmony.ui.common.icon.HarmonyIcons
 import com.adityabavadekar.harmony.ui.theme.HarmonyTheme
+import com.adityabavadekar.harmony.utils.ColorUtils
+import com.adityabavadekar.harmony.utils.DateFormattingUtils
 import com.adityabavadekar.harmony.utils.NumberUtils
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import com.adityabavadekar.harmony.utils.ThemePreviews
 
 @Composable
 fun ActivityScreen(
     workoutsData: List<WorkoutSummaryRecord> = listOf(),
-    onClick: (id: Long) -> Unit = {}
+    onClick: (id: Long, isOngoing: Boolean) -> Unit = { _, _ -> }
 ) {
-
-    Column(Modifier.fillMaxSize()) {
+    Surface {
         Column(
-            Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            LazyColumn {
-                workoutsData.forEach { record ->
-                    item {
-                        ActivityItem(record = record, onClick = onClick)
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun ActivityItem(
-    record: WorkoutSummaryRecord,
-    onClick: (id: Long) -> Unit = {}
-) {
-    val colorsList = if (isSystemInDarkTheme()) {
-        listOf(
-            Color(0xFF4A4A4A),
-            Color(0xFF3C3C3C),
-            Color(0xFF2A2A2A)
-        )
-    } else {
-        listOf(
-            Color(0xFFD8EFD3),
-            Color(0xFFFEFFD2),
-            Color(0xFFE7D4B5),
-        )
-    }
-
-    Column(
-        Modifier
-            .fillMaxWidth()
-            .clickableRipple(onClick = { onClick(record.id) })
-    ) {
-        Row(
-            Modifier.padding(horizontal = 18.dp, vertical = 18.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            Surface(
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme.primary
-            ) {
-                Box(Modifier.padding(8.dp)) {
-                    Icon(
-                        painter = painterResource(id = record.type.drawableRes),
+            if (workoutsData.isEmpty()) {
+                Column(
+                    Modifier
+                        .padding(28.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painter = painterResource(id = HarmonyIcons.StrikingStopWatch),
                         contentDescription = null
                     )
-                }
-            }
-            HorizontalSpacer(size = 18.dp)
-            Column(
-                Modifier
-                    .weight(1f),
-                verticalArrangement = Arrangement.Center
-            ) {
+                    VerticalSpacer()
+                    Text(
+                        modifier = Modifier.alpha(0.7f),
+                        text = "Your workout history is empty. Add a workout and it will show up here.",
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.headlineMedium
+                    )
 
+                }
+
+            } else {
                 Column(
-                    modifier = Modifier.align(Alignment.End),
-                    horizontalAlignment = Alignment.End,
+                    Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
                 ) {
-                    Row(Modifier.fillMaxWidth()) {
-                        Text(
-                            modifier = Modifier
-                                .weight(1f)
-                                .alpha(0.9f),
-                            text = stringResource(id = record.type.nameRes),
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.W400
-                        )
-                        HorizontalSpacer()
-                        Row(Modifier.padding(top = 4.dp)) {
-                            Text(
-                                modifier = Modifier.alpha(0.7f),
-                                text = SimpleDateFormat(
-                                    "dd MMM yyyy",
-                                    Locale.getDefault()
-                                ).format(Date(record.startTimestamp)),
-                                style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
-                            )
-                            Text(
-                                modifier = Modifier
-                                    .alpha(0.7f)
-                                    .padding(horizontal = 2.dp),
-                                text = "•",
-                                style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
-                            )
-                            Text(
-                                modifier = Modifier.alpha(0.7f),
-                                text = record.timeDifference().formatForDisplay(),
-                                style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
-                            )
+                    LazyColumn {
+                        workoutsData.forEach { record ->
+                            item {
+                                ActivityItem(record = record, onClick = onClick)
+                            }
                         }
                     }
                 }
-
-
-                Spacer(modifier = Modifier.height(8.dp))
-                Row {
-                    val energyBurned =
-                        record.totalEnergyBurnedCal?.let { NumberUtils.formatDouble(it) } ?: 0.0
-                    NutItem(
-                        text = "$energyBurned cal",
-                        color = colorsList[0],
-                        shape = RoundedCornerShape(
-                            topStart = 8.dp,
-                            bottomStart = 8.dp
-                        )
-                    )
-                    NutItem(
-                        text = "${record.stepsCount}",
-                        color = colorsList[1],
-                        trailingIcon = R.drawable.steps,
-                        trailingIconContentDescription = "Steps count",
-                        shape = RoundedCornerShape(0.dp)
-                    )
-                    val distanceCovered = NumberUtils.formatDouble(record.distanceMeters)
-                    NutItem(
-                        text = "$distanceCovered m",
-                        color = colorsList[2],
-                        shape = RoundedCornerShape(
-                            topEnd = 8.dp,
-                            bottomEnd = 8.dp
-                        )
-                    )
-                }
             }
         }
     }
 }
 
 @Composable
-fun NutItem(
-    text: String,
-    shape: RoundedCornerShape = RoundedCornerShape(8.dp),
-    @DrawableRes trailingIcon: Int? = null,
-    trailingIconContentDescription: String? = null,
-    textColor: Color = MaterialTheme.colorScheme.onSurface,
-    color: Color = MaterialTheme.colorScheme.primary,
+private fun ActivityItem(
+    record: WorkoutSummaryRecord,
+    onClick: (id: Long, isOngoing: Boolean) -> Unit = { _, _ -> }
 ) {
-    val textStyle = MaterialTheme.typography.bodyMedium.copy(color = textColor)
-    Surface(
-        color = color,
-        shape = shape
-    ) {
-        Box(Modifier.padding(8.dp)) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(text = text, style = textStyle)
-                HorizontalSpacer(size = 4.dp)
-                trailingIcon?.let {
-                    Icon(
-                        painter = painterResource(id = it),
-                        contentDescription = trailingIconContentDescription,
-                        modifier = Modifier.size(textStyle.fontSize.value.dp)
-                    )
-                }
+    val distanceCovered = NumberUtils.formatDouble(record.distanceMeters)
+    val energyBurned =
+        record.totalEnergyBurnedJoules?.let { NumberUtils.formatDouble(it) } ?: 0.0
+
+    val stepCount = NumberUtils.formatInt(record.stepsCount)
+
+    @Composable
+    fun workoutIconItem() {
+        Surface(
+            modifier = Modifier.padding(end = 18.dp),
+            shape = CircleShape,
+            color = MaterialTheme.colorScheme.primary
+        ) {
+            Box(Modifier.padding(8.dp)) {
+                Icon(
+                    painter = painterResource(id = record.type.drawableRes),
+                    contentDescription = null
+                )
             }
         }
     }
+
+    @Composable
+    fun workoutTypeNameItem(modifier: Modifier) {
+        Text(
+            modifier = modifier
+                .alpha(0.9f),
+            text = stringResource(id = record.type.nameRes),
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.W400
+        )
+    }
+    Column {
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .then(
+                    if (!record.completed) {
+                        Modifier.background(ColorUtils.getActiveWorkoutListItemColor())
+                    } else Modifier
+                )
+                .clickableRipple(onClick = { onClick(record.id, !record.completed) })
+        ) {
+            Row(
+                Modifier
+                    .padding(horizontal = 18.dp, vertical = 16.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                workoutIconItem()
+                Column(
+                    Modifier
+                        .weight(1f),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    if (!record.completed) {
+                        Text(
+                            text = "Ongoing",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        VerticalSpacer()
+                    }
+                    Column(
+                        modifier = Modifier.align(Alignment.End),
+                    ) {
+                        Row(
+                            Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            workoutTypeNameItem(Modifier.weight(1f))
+                            HorizontalSpacer()
+                            Row(Modifier.padding(top = 4.dp)) {
+                                Text(
+                                    modifier = Modifier.alpha(0.7f),
+                                    text = DateFormattingUtils.formatWorkoutSummaryDate(record.startTimestamp),
+                                    style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
+                                )
+                            }
+                        }
+
+                        Row(
+                            Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                modifier = Modifier.alpha(0.6f),
+                                text = "$distanceCovered km",
+                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium),
+                            )
+                            if (record.completed) {
+                                Text(
+                                    modifier = Modifier.alpha(0.7f),
+                                    text = record.timeDifference()
+                                        .formatForDisplayDescriptive(addSeconds = false),
+                                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium),
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        Divider(Modifier.alpha(0.4f).padding(horizontal = 18.dp))
+    }
+
 }
 
-@Preview(showBackground = true)
+@ThemePreviews
 @Composable
 private fun ActivityScreenPrev() {
 
     val testData = listOf(
         WorkoutSummaryRecord(
             id = 0,
-            type = WorkoutTypes.TYPE_YOGA,
+            type = WorkoutTypes.TYPE_CYCLING,
             title = null,
             startTimestamp = System.currentTimeMillis(),
-            endTimestamp = System.currentTimeMillis() + 1000 * 60,
+            endTimestamp = System.currentTimeMillis() + 1000 * 60 * 60 + (1000 * 60 * 23),
             distanceMeters = 20000.0,
             stepsCount = 452,
             pauseDurationMillis = 1000,
-            totalEnergyBurnedCal = 128.0
+            totalEnergyBurnedJoules = 128.0
         )
     )
 
     HarmonyTheme {
-        ActivityScreen(workoutsData = testData)
+        Surface {
+            Column {
+                ActivityItem(record = testData[0])
+                ActivityItem(record = testData[0])
+                ActivityItem(record = testData[0].copy(completed = false))
+                ActivityItem(record = testData[0])
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun EmptySatePreview() {
+    HarmonyTheme {
+        Surface {
+            ActivityScreen()
+        }
     }
 }

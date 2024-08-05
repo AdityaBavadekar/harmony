@@ -161,13 +161,13 @@ class Mass(massInKg: Double) : PhysicalUnit<MassUnits>() {
     }
 }
 
-class Temperature(temperatureInCelsius: Double) : PhysicalUnit<TemperatureUnits>() {
+class Temperature(temperatureInKelvin: Double) : PhysicalUnit<TemperatureUnits>() {
 
-    constructor(temperatureInCelsius: Float) : this(temperatureInCelsius.toDouble())
+    constructor(temperatureInKelvin: Float) : this(temperatureInKelvin.toDouble())
 
-    var unit: TemperatureUnits = TemperatureUnits.CELSIUS
+    var unit: TemperatureUnits = TemperatureUnits.KELVIN
         private set
-    private var temperature: Double = temperatureInCelsius
+    private var temperature: Double = temperatureInKelvin
     override fun getValue(targetUnit: TemperatureUnits): Double {
         return unit.fromSI(getSIValue())
     }

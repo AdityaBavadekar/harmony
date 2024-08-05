@@ -37,6 +37,7 @@ enum class WorkoutTypes(
     val category: List<WorkoutCategories>,
     val nameRes: Int = R.string.workout_type,
     val metValue: Double = MetValues.UNITY_VALUE,
+    val trackingConfig: TrackingConfig = TrackingConfig.showAll(),
     @DrawableRes val drawableRes: Int = R.drawable.other_excercises
 ) {
     // All Workouts together come under "ALL" Category 
@@ -48,52 +49,62 @@ enum class WorkoutTypes(
     TYPE_TREADMILL_RUNNING(
         listOf(WorkoutCategories.AEROBIC, WorkoutCategories.GYM),
         R.string.treadmill_running,
-        MetValues.TREADMILL_RUNNING
+        MetValues.TREADMILL_RUNNING,
+        TrackingConfig.builder().noMap().build()
     ),
     TYPE_PUSH_UPS(
         listOf(WorkoutCategories.AEROBIC, WorkoutCategories.GYM),
         R.string.push_ups,
-        MetValues.PUSH_UPS
+        MetValues.PUSH_UPS,
+        TrackingConfig.sedentary()
     ),
     TYPE_PULL_UPS(
         listOf(WorkoutCategories.AEROBIC, WorkoutCategories.GYM),
         R.string.pull_ups,
-        MetValues.PULL_UPS
+        MetValues.PULL_UPS,
+        TrackingConfig.sedentary()
     ),
     TYPE_CRUNCHES(
         listOf(WorkoutCategories.AEROBIC, WorkoutCategories.GYM),
         R.string.crunches,
-        MetValues.CRUNCHES
+        MetValues.CRUNCHES,
+        TrackingConfig.sedentary()
     ),
     TYPE_PLANKS(
         listOf(WorkoutCategories.AEROBIC, WorkoutCategories.GYM),
         R.string.planks,
-        MetValues.PLANKS
+        MetValues.PLANKS,
+        TrackingConfig.sedentary()
     ),
     TYPE_SIT_UPS(
         listOf(WorkoutCategories.AEROBIC, WorkoutCategories.GYM),
         R.string.sit_ups,
-        MetValues.SIT_UPS
+        MetValues.SIT_UPS,
+        TrackingConfig.sedentary()
     ),
     TYPE_LUNGES(
         listOf(WorkoutCategories.AEROBIC, WorkoutCategories.GYM),
         R.string.lunges,
-        MetValues.LUNGES
+        MetValues.LUNGES,
+        TrackingConfig.sedentary()
     ),
     TYPE_SQUATS(
         listOf(WorkoutCategories.AEROBIC, WorkoutCategories.GYM),
         R.string.squats,
-        MetValues.SQUATS
+        MetValues.SQUATS,
+        TrackingConfig.sedentary()
     ),
     TYPE_JUMPING_ROPE(
         listOf(WorkoutCategories.AEROBIC, WorkoutCategories.GYM),
         R.string.jumping_rope,
-        MetValues.JUMPING_ROPE
+        MetValues.JUMPING_ROPE,
+        TrackingConfig.noMap()
     ),
     TYPE_JUMPING_JACK(
         listOf(WorkoutCategories.AEROBIC, WorkoutCategories.GYM),
         R.string.jumping_jack,
-        MetValues.JUMPING_JACK
+        MetValues.JUMPING_JACK,
+        TrackingConfig.sedentary()
     ),
     TYPE_BENCH_PRESS(
         listOf(WorkoutCategories.AEROBIC, WorkoutCategories.GYM),
@@ -323,24 +334,28 @@ enum class WorkoutTypes(
         listOf(WorkoutCategories.AEROBIC),
         R.string.walking,
         MetValues.WALKING,
+        TrackingConfig.showAll(),
         R.drawable.walking
     ),
     TYPE_RUNNING(
         listOf(WorkoutCategories.AEROBIC),
         R.string.running,
         MetValues.RUNNING,
+        TrackingConfig.showAll(),
         R.drawable.running
     ),
     TYPE_CYCLING(
         listOf(WorkoutCategories.AEROBIC),
         R.string.cycling,
         MetValues.CYCLING,
+        TrackingConfig.showAll(),
         R.drawable.cycling
     ),
     TYPE_STRETCHING(
         listOf(WorkoutCategories.STRETCHING),
         R.string.stretching,
-        MetValues.STRETCHING
+        MetValues.STRETCHING,
+        TrackingConfig.sedentary()
     ),
 
     /* Yoga Exercises */

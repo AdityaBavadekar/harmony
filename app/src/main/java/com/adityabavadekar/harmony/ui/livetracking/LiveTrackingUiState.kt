@@ -36,6 +36,7 @@ data class LiveTrackingUiState(
     val pausedTimeDifference: TimeDifference,
     val locationCoordinates: GeoLocation,
     val countDownFinished: Boolean,
+    val showLoading:Boolean = false,
     val speedUnit: SpeedUnits = UnitPreferences.getSpeedUnit(UnitPreferences.DEFAULT_DISTANCE_UNIT),
     val distanceUnit: LengthUnits = UnitPreferences.DEFAULT_DISTANCE_UNIT,
     val heatUnit: HeatUnits = UnitPreferences.DEFAULT_HEAT_UNIT,

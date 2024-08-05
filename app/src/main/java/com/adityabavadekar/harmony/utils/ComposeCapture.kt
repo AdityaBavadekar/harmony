@@ -42,6 +42,10 @@ class ComposeCaptureState {
     val bitmapState = mutableStateOf<Bitmap?>(null)
 
     internal var callback: (() -> Unit)? = null
+
+    /**
+     * Screenshot will be stored in [bitmap]
+     * */
     fun capture() {
         callback?.invoke()
     }

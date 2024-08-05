@@ -17,27 +17,36 @@
 package com.adityabavadekar.harmony.ui.common.component
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.material.AppBarDefaults
 import androidx.compose.material.TopAppBar
-import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material.contentColorFor
+import androidx.compose.material.primarySurface
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.adityabavadekar.harmony.R
 import com.adityabavadekar.harmony.ui.common.CommonMenuActions
@@ -69,22 +78,33 @@ fun HarmonyTopAppBar(
     onActionIconClicked: (index: Int) -> Unit,
     centeredTitle: Boolean = false,
     textStyle: TextStyle = MaterialTheme.typography.titleLarge,
+    elevated: Boolean = false
 ) {
     val titleContent = @Composable {
         Text(
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = if (centeredTitle) TextAlign.Center else TextAlign.Start,
             text = stringResource(id = titleRes),
             style = textStyle
         )
     }
-    val navigationIconContent = @Composable {
+    val navigationIconContent: (@Composable () -> Unit)? =
         if (navigationIcon != null) {
-            IconButton(
-                onClick = onNavigationIconClicked,
-                content = navigationIcon
-            )
-        }
-    }
+            @Composable {
+                IconButton(
+                    onClick = onNavigationIconClicked,
+                    content = navigationIcon
+                )
+            }
+        } else null
+
     val actionsContent = @Composable {
+        if (actionIcons.isEmpty()) {
+            Box(Modifier.clickable(false) {}) {
+                IconButton(enabled = false, onClick = {}, interactionSource = null) {
+                }
+            }
+        }
         actionIcons.filter { it.type == MenuActionType.ICON }
             .forEachIndexed { index, action ->
                 IconButton(onClick = { onActionIconClicked(index) }) {
@@ -126,31 +146,85 @@ fun HarmonyTopAppBar(
     }
     val backgroundColor = MaterialTheme.colorScheme.surface
     val contentColor = MaterialTheme.colorScheme.onSurface
-    val elevation = 4.dp
+    val elevation = if (elevated) AppBarDefaults.TopAppBarElevation else 0.dp
 
-    if (!centeredTitle) {
-        TopAppBar(
-            modifier = modifier.heightIn(min = topAppBarMinHeight),
-            title = titleContent,
-            navigationIcon = navigationIconContent,
-            actions = { actionsContent() },
-            backgroundColor = backgroundColor,
-            contentColor = contentColor,
-            elevation = elevation
-        )
-    } else {
-        CenterAlignedTopAppBar(
-            title = titleContent,
-            navigationIcon = navigationIconContent,
-            actions = { actionsContent() },
-            colors = TopAppBarDefaults.topAppBarColors().copy(
-                containerColor = backgroundColor,
-                navigationIconContentColor = contentColor,
-                actionIconContentColor = contentColor,
-            ),
+    HarmonyBaseTopAppBar(
+        modifier = modifier.heightIn(min = topAppBarMinHeight),
+        title = titleContent,
+        navigationIcon = navigationIconContent,
+        actions = { actionsContent() },
+        backgroundColor = backgroundColor,
+        contentColor = contentColor,
+        elevation = elevation
+    )
+}
+
+@Preview
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HarmonySearchInputTopAppBar(
+    modifier: Modifier = Modifier,
+    onBackClicked: () -> Unit = {},
+    onSearchTextChanged: (String) -> Unit = {},
+    elevated: Boolean = false
+) {
+    var searchText by remember { mutableStateOf("") }
+    val titleContent = @Composable {
+        SearchBarDefaults.InputField(
+            query = searchText,
+            onQueryChange = {
+                searchText = it
+                onSearchTextChanged(it)
+            },
+            onSearch = { },
+            expanded = true,
+            onExpandedChange = { expanded -> if (!expanded) onBackClicked() },
+            placeholder = { Text("Search here") },
         )
     }
 
+    val navigationIconContent: (@Composable () -> Unit) =
+        @Composable {
+            IconButton(
+                onClick = onBackClicked,
+            ) {
+                Icon(imageVector = HarmonyIcons.ArrowBack, contentDescription = null)
+            }
+        }
+
+    val backgroundColor = MaterialTheme.colorScheme.surface
+    val contentColor = MaterialTheme.colorScheme.onSurface
+    val elevation = if (elevated) AppBarDefaults.TopAppBarElevation else 0.dp
+
+    HarmonyBaseTopAppBar(
+        modifier = modifier.heightIn(min = topAppBarMinHeight),
+        title = titleContent,
+        navigationIcon = navigationIconContent,
+        backgroundColor = backgroundColor,
+        contentColor = contentColor,
+        elevation = elevation
+    )
+}
+
+@Composable
+fun HarmonyBaseTopAppBar(
+    title: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    navigationIcon: @Composable (() -> Unit)? = null,
+    actions: @Composable RowScope.() -> Unit = {},
+    backgroundColor: Color = androidx.compose.material.MaterialTheme.colors.primarySurface,
+    contentColor: Color = contentColorFor(backgroundColor),
+    elevation: Dp = AppBarDefaults.TopAppBarElevation
+) {
+    TopAppBar(
+        modifier = modifier.heightIn(min = topAppBarMinHeight),
+        title = title,
+        navigationIcon = navigationIcon,
+        actions = actions,
+        backgroundColor = backgroundColor,
+        contentColor = contentColor,
+        elevation = elevation
+    )
 }
 
 @Preview(group = "Top App Bar")
@@ -248,6 +322,7 @@ private fun HarmonyTopAppBarTextOnlyPrev() {
         HarmonyTopAppBar(
             titleRes = R.string.home,
             actionIcons = emptyList(),
+            navigationIcon = null,
             onNavigationIconClicked = {},
             onActionIconClicked = {}
         )

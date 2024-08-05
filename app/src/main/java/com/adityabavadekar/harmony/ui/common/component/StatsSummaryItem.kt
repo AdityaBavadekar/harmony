@@ -47,6 +47,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -55,8 +56,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.adityabavadekar.harmony.R
 import com.adityabavadekar.harmony.data.WorkoutTypes
+import com.adityabavadekar.harmony.data.model.TimeDifference
+import com.adityabavadekar.harmony.ui.common.TimeUnits
+import com.adityabavadekar.harmony.ui.home.HomeScreenUiState
 import com.adityabavadekar.harmony.ui.theme.HarmonyTheme
 import com.adityabavadekar.harmony.utils.ColorUtils
+import com.adityabavadekar.harmony.utils.NumberUtils
 import com.adityabavadekar.harmony.utils.SleepUtils
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberBottomAxis
@@ -112,8 +117,12 @@ fun CircularStatsItem(
 @Composable
 fun StatsChartItem(
     modifier: Modifier = Modifier,
-    displayStatNumber: Int,
-    displayStatUnit: String? = null,
+    startAngle: Float = DiskChartPositions.TOP,
+    endAngle: Float = DiskChartPositions.TOP,
+    diskChartStatNumber: Int,
+    diskChartStatUnit: String? = null,
+    totalEnergyBurned: Double? = null,
+    totalWorkoutDuration: Double? = null
 ) {
     val centerChartSize = 150.dp
     Box(
@@ -130,12 +139,14 @@ fun StatsChartItem(
             RingChart(
                 Modifier
                     .padding(28.dp),
+                startAngle = startAngle,
+                endAngle = endAngle,
                 size = centerChartSize,
                 strokeWidth = 30f
             ) {
                 Text(
                     modifier = Modifier.alpha(0.7f),
-                    text = if (displayStatUnit == null) "$displayStatNumber" else "$displayStatNumber $displayStatUnit",
+                    text = if (diskChartStatUnit == null) "$diskChartStatNumber" else "$diskChartStatNumber $diskChartStatUnit",
                     style = MaterialTheme.typography.displaySmall,
                     fontFamily = FontFamily.SansSerif,
                     fontWeight = FontWeight.Bold
@@ -145,13 +156,14 @@ fun StatsChartItem(
 
         CircularStatsItem(
             modifier = Modifier.align(Alignment.BottomStart),
-            largeText = "20",
+            largeText = (totalEnergyBurned?.let { NumberUtils.formatDouble(it) } ?: 0.0).toString(),
             smallText = "Cal",
             backgroundColor = getStatsItemSurfaceColor()
         )
         CircularStatsItem(
             modifier = Modifier.align(Alignment.BottomEnd),
-            largeText = "1.15",
+            largeText = (totalWorkoutDuration?.let { NumberUtils.formatDouble(it) }
+                ?: 0.0).toString(),
             smallText = "hrs",
             backgroundColor = getStatsItemSurfaceColor()
         )
@@ -295,7 +307,10 @@ fun WeightTarget(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun StepsCount(modifier: Modifier = Modifier) {
+fun StepsCount(
+    stepCountForTheDay: Int? = null,
+    stepCountGoal: Int? = null,
+) {
     HomeScreenListItem {
         Row(
             Modifier.fillMaxWidth(),
@@ -303,18 +318,18 @@ fun StepsCount(modifier: Modifier = Modifier) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column {
-                Label(text = "Steps goal")
+                Label(text = stringResource(R.string.steps_goal))
                 Column {
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "400",
+                            text = NumberUtils.formatInt(stepCountForTheDay ?: 0),
                             style = MaterialTheme.typography.headlineLarge,
                             fontWeight = FontWeight.Bold
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = "/9,000 steps")
+                        Text(text = "/${stepCountGoal ?: 0} " + stringResource(id = R.string.steps))
                     }
                 }
             }
@@ -392,16 +407,11 @@ fun QuickNewWorkoutAccess(
 }
 
 @Composable
-fun WaterIntakeCount(modifier: Modifier = Modifier) {
-    val hydrationUses = listOf(
-        "Keeps skin healthy",
-        "Aids digestion",
-        "Regulates body temperature",
-        "Flushes out toxins",
-        "Boosts energy",
-        "Supports weight loss",
-        "Improves concentration"
-    )
+fun WaterIntakeCount(
+    waterIntakeForTheDay: Int? = null,
+    waterIntakeGoal: Int? = null
+) {
+    val hydrationUses = stringArrayResource(id = R.array.drinking_water_benefits)
 
     HomeScreenListItem {
         Column {
@@ -416,19 +426,19 @@ fun WaterIntakeCount(modifier: Modifier = Modifier) {
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "4",
+                            text = (waterIntakeForTheDay ?: 0.0).toString(),
                             style = MaterialTheme.typography.headlineLarge,
                             fontWeight = FontWeight.Bold
                         )
                         HorizontalSpacer()
-                        Text(text = "/15 litres")
+                        Text(text = "/${waterIntakeGoal ?: 0} litres")
                     }
                 }
                 Box {
                     Icon(
                         modifier = Modifier.size(48.dp),
                         painter = painterResource(id = R.drawable.water_drop),
-                        contentDescription = "Water Drop",
+                        contentDescription = stringResource(R.string.water_drop),
                         tint = Color.Blue
                     )
                 }
@@ -439,7 +449,10 @@ fun WaterIntakeCount(modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .alpha(0.7f)
                     .padding(top = 8.dp),
-                text = "Did you know? Drinking water ${hydrationUses.random()}",
+                text = stringResource(
+                    id = R.string.did_you_know_drinking_water_formatted,
+                    hydrationUses.random()
+                ),
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.Medium
             )
@@ -448,20 +461,23 @@ fun WaterIntakeCount(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun SleepTargetCount(modifier: Modifier = Modifier) {
+fun SleepTargetCount(
+    sleepDuration: TimeDifference,
+    ageInMonths: Int? = null
+) {
 
-    val sleepHours = 20
-    val ageInMonths = 15
+    val sleepHours = sleepDuration.getValue(TimeUnits.HOURS).toInt()
     var sleepInfoBannerBackgroundColor = MaterialTheme.colorScheme.primary
     var sleepInfoBannerTextColor = MaterialTheme.colorScheme.surface
-    var sleepInfoBannerText = ""
+    val sleepInfoBannerText: String
     val requiredSleepRange = SleepUtils.getSleepInfoForAge(ageInMonths).goodRange
 
     when (SleepUtils.getSleepType(sleepHours, ageInMonths)) {
         SleepUtils.SleepType.RECOMMENDED -> {
             sleepInfoBannerBackgroundColor = MaterialTheme.colorScheme.primary
             sleepInfoBannerTextColor = MaterialTheme.colorScheme.surface
-            sleepInfoBannerText = "Great job! Adequate sleep boosts your health."
+            sleepInfoBannerText =
+                stringResource(R.string.great_job_adequate_sleep_boosts_your_health)
         }
 
         SleepUtils.SleepType.INSUFFICIENT -> {
@@ -469,23 +485,20 @@ fun SleepTargetCount(modifier: Modifier = Modifier) {
                 MaterialTheme.colorScheme.errorContainer.copy(alpha = 1f)
             sleepInfoBannerTextColor = MaterialTheme.colorScheme.error
             sleepInfoBannerText =
-                "You are getting less sleep than recommended.\nConsider aiming for " +
-                        "${requiredSleepRange.first}" +
-                        "-" +
-                        "${requiredSleepRange.last}" +
-                        " hours of sleep for better health."
+                stringResource(
+                    R.string.you_are_getting_less_sleep_than_recommeneded_formatted,
+                    requiredSleepRange.first, requiredSleepRange.last
+                )
         }
 
         SleepUtils.SleepType.OVERSLEEPING -> {
             sleepInfoBannerBackgroundColor = ColorUtils.getWarningColor().copy(alpha = 0.3f)
             sleepInfoBannerTextColor = MaterialTheme.colorScheme.onSurface
             sleepInfoBannerText =
-                "Excessive sleep can impact productivity and energy.\n" +
-                        "Consult a healthcare professional if needed.\n" +
-                        "${requiredSleepRange.first}" +
-                        "-" +
-                        "${requiredSleepRange.last}" +
-                        " hours of sleep is ideal for your age."
+                stringResource(
+                    R.string.excessive_sleep_can_impact_productivity_and_energy,
+                    requiredSleepRange.first, requiredSleepRange.last
+                )
         }
     }
 
@@ -501,12 +514,12 @@ fun SleepTargetCount(modifier: Modifier = Modifier) {
                     bottom = 8.dp
                 )
         ) {
-            Label(text = "Sleep routine")
+            Label(text = stringResource(R.string.sleep_routine))
             Column {
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = "Avg sleep duration: ")
+                    Text(text = stringResource(R.string.avg_sleep_duration))
                     HorizontalSpacer()
                     Text(
                         text = "$sleepHours hrs",
@@ -585,7 +598,8 @@ private fun LazyListScope.statsItem(
 
 @Composable
 fun StatsSummaryScreen(
-    onAddNewClicked: (WorkoutTypes) -> Unit = {}
+    onAddNewClicked: (WorkoutTypes) -> Unit = {},
+    homeScreenUiState: HomeScreenUiState
 ) {
     Column(
         Modifier
@@ -595,10 +609,27 @@ fun StatsSummaryScreen(
         LazyColumn {
 
             statsItem {
-                StatsChartItem(displayStatNumber = 8)
+                val statNumberCompleted = homeScreenUiState.stepCountForTheDay
+                val statNumberGoal = homeScreenUiState.stepCountGoal
+                var endAngle: Float? = null
+                if (statNumberCompleted != null && statNumberGoal != null) {
+                    val percentage = (statNumberCompleted.toFloat() * 100 / (statNumberGoal))
+                    endAngle = convertPercentageToAngle(percentage)
+                }
+                StatsChartItem(
+                    diskChartStatNumber = statNumberCompleted ?: 0,
+                    endAngle = endAngle ?: 5f,
+                    totalEnergyBurned = homeScreenUiState.energyBurnedForTheDay ?: 0.0,
+                    totalWorkoutDuration = homeScreenUiState.totalWorkoutDurationForDay?.getValue(
+                        TimeUnits.HOURS
+                    )
+                )
             }
             statsItem {
-                StepsCount()
+                StepsCount(
+                    stepCountForTheDay = homeScreenUiState.stepCountForTheDay,
+                    stepCountGoal = homeScreenUiState.stepCountGoal
+                )
             }
             statsItem {
                 QuickNewWorkoutAccess(onClick = onAddNewClicked)
@@ -607,10 +638,15 @@ fun StatsSummaryScreen(
                 DailyTarget()
             }
             statsItem {
-                SleepTargetCount()
+                SleepTargetCount(
+                    sleepDuration = homeScreenUiState.sleepDuration ?: TimeDifference.zero()
+                )
             }
             statsItem {
-                WaterIntakeCount()
+                WaterIntakeCount(
+                    waterIntakeForTheDay = homeScreenUiState.waterIntakeCount,
+                    waterIntakeGoal = homeScreenUiState.waterIntakeGoal
+                )
             }
             statsItem {
                 WeightTarget()
@@ -619,10 +655,30 @@ fun StatsSummaryScreen(
     }
 }
 
+private fun testHomeScreenUiState(): HomeScreenUiState {
+    return HomeScreenUiState(
+        stepCountForTheDay = 1000,
+        stepCountGoal = 1500,
+        energyBurnedForTheDay = 40.0,
+        energyBurnedGoal = 1000.0,
+        totalWorkoutDurationForDay = TimeDifference.from(
+            System.currentTimeMillis(),
+            System.currentTimeMillis() + 10000 * 60 * 2
+        ),
+        sleepDuration = TimeDifference.from(
+            System.currentTimeMillis(),
+            System.currentTimeMillis() + 1000 * 60 * 60 * 7
+        ),
+        waterIntakeCount = 20,
+        waterIntakeGoal = 40,
+        weightsGraph = null
+    )
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun TestItem() {
     HarmonyTheme {
-        StatsSummaryScreen()
+        StatsSummaryScreen(homeScreenUiState = testHomeScreenUiState())
     }
 }

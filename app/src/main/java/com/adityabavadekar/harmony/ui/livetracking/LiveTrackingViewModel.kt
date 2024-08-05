@@ -34,7 +34,8 @@ import com.adityabavadekar.harmony.ui.common.Length
 import com.adityabavadekar.harmony.ui.common.LengthUnits
 import com.adityabavadekar.harmony.ui.common.Speed
 import com.adityabavadekar.harmony.ui.common.SpeedUnits
-import com.adityabavadekar.harmony.utils.CaloriesCalculator
+import com.adityabavadekar.harmony.ui.common.TimeUnits
+import com.adityabavadekar.harmony.utils.CaloriesCounter
 import com.adityabavadekar.harmony.utils.StepsCounter
 import com.adityabavadekar.harmony.utils.WorkoutPauseDetector
 import com.adityabavadekar.harmony.utils.WorkoutRouteManager
@@ -61,8 +62,10 @@ class LiveTrackingViewModel(
     private val workoutPauseDetector: WorkoutPauseDetector = WorkoutPauseDetector()
     private val workoutRouteManager: WorkoutRouteManager = WorkoutRouteManager()
     private val stepsCounter: StepsCounter = StepsCounter()
+    private val caloriesCounter: CaloriesCounter = CaloriesCounter()
     private val speeds: MutableList<Double> = mutableListOf()
     private var userWeight: Double = 0.0
+    private var captureWorker: ((name: String) -> Unit)? = null
 
     private var _uiState = MutableStateFlow(LiveTrackingUiState.nullState())
     val uiState: StateFlow<LiveTrackingUiState> = _uiState.asStateFlow()
@@ -104,12 +107,22 @@ class LiveTrackingViewModel(
             speed?.let { addNewSpeed(it) }
 
             if (!prevValue.locationCoordinates.isNullLocation()) {
-                workoutRouteManager.addLocation(
+                val locationStartTimestamp = prevValue.locationCoordinates.timestamp
+                val locationEndTimestamp = System.currentTimeMillis()
+
+                val newlyTravelledDistance = workoutRouteManager.addLocation(
                     WorkoutLocation.fromGeoLocation(
-                        startTimestamp = prevValue.locationCoordinates.timestamp,
-                        endTimestamp = System.currentTimeMillis(),
+                        startTimestamp = locationStartTimestamp,
+                        endTimestamp = locationEndTimestamp,
                         geoLocation = prevValue.locationCoordinates,
                     )
+                )
+                caloriesCounter.increment(
+                    newDistanceMeters = newlyTravelledDistance,
+                    durationSec = TimeDifference.from(
+                        startMillis = locationStartTimestamp,
+                        endMillis = locationEndTimestamp
+                    ).getValue(TimeUnits.SECONDS)
                 )
             }
 
@@ -256,6 +269,7 @@ class LiveTrackingViewModel(
             it.copy(workoutStatus = LiveWorkoutStatus.FINISHED)
         }
         updatePauses()
+        captureWorker?.invoke("w_map_" + requireNotNull(recordId).toString())
         viewModelScope.launch {
             withIOContext {
                 val record = repository.getIncompleteWorkoutRecord()
@@ -284,19 +298,10 @@ class LiveTrackingViewModel(
     }
 
     private fun getCalBurned(): Double {
-        val currentState = _uiState.value
-        val c = CaloriesCalculator.calculateCaloriesBurned(
-            currentState.workoutType,
-            currentState.liveTimeDifference.sumInSeconds(),
-            distanceInMeters = currentState.distance.getSIValue(),
-            weightKg = userWeight /* TODO */
-        )
+        val c = caloriesCounter.getCount()
         Log.d(
             TAG,
-            "getCalBurned: At " +
-                    "${currentState.liveTimeDifference.sumInSeconds()} sec, " +
-                    "${currentState.distance.getSIValue()} m, " +
-                    "*** cal=$c"
+            "getCalBurned: $c"
         )
         return c
     }
@@ -313,6 +318,7 @@ class LiveTrackingViewModel(
 
     fun setUserWeight(value: Double) {
         userWeight = value
+        caloriesCounter.setUserWeight(userWeight)
     }
 
     fun setUnits(speedUnit: SpeedUnits, distanceUnit: LengthUnits, heatUnit: HeatUnits) {
@@ -323,6 +329,10 @@ class LiveTrackingViewModel(
                 heatUnit = heatUnit
             )
         }
+    }
+
+    fun setCaptureWorker(worker: (name: String) -> Unit) {
+        captureWorker = worker
     }
 
     init {

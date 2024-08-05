@@ -40,6 +40,7 @@ class LiveTrackerService : Service(), LocationUpdateListener {
         super.onCreate()
         Log.d(TAG, "onCreate")
         locationClient = LiveLocationClient(applicationContext, this)
+        start()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -53,10 +54,12 @@ class LiveTrackerService : Service(), LocationUpdateListener {
 
 
     private fun start() {
+        Log.d(TAG, "start: Starting")
         startSelf()
     }
 
     private fun stop() {
+        Log.d(TAG, "stop: Stopping")
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
     }

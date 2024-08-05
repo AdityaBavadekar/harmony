@@ -16,6 +16,7 @@
 
 package com.adityabavadekar.harmony.ui.livetracking
 
+import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -58,32 +59,43 @@ import com.adityabavadekar.harmony.ui.common.component.HorizontalSpacer
 import com.adityabavadekar.harmony.ui.common.component.VerticalSpacer
 import com.adityabavadekar.harmony.ui.common.component.animations.CountDownAnimation
 import com.adityabavadekar.harmony.ui.theme.HarmonyTheme
+import com.adityabavadekar.harmony.utils.ComposeCapture
+import com.adityabavadekar.harmony.utils.ComposeCaptureState
 import com.adityabavadekar.harmony.utils.ConfigurationUtils
 import com.adityabavadekar.harmony.utils.LandscapePreview
 import com.adityabavadekar.harmony.utils.NumberUtils
+import com.adityabavadekar.harmony.utils.isLandscape
+import com.adityabavadekar.harmony.utils.rememberComposeCaptureState
 
 @Composable
 fun MapView(
     modifier: Modifier = Modifier,
     locationCoordinates: GeoLocation,
-    showMapView: Boolean = true
+    showMapView: Boolean = true,
+    captureState: ComposeCaptureState
 ) {
     Column(
         modifier
-            .fillMaxWidth()
+            .then(
+                if (isLandscape()) Modifier.fillMaxHeight()
+                else Modifier.fillMaxWidth()
+            )
     ) {
         if (showMapView) {
-            ComposeMapView(
-                initialize = true,
-                point = locationCoordinates,
-                disableTouchControls = true
-            ) {
-                //TODO
-                //it.onPause()
-                //it.onDetach()
-                //it.onResume()
+            ComposeCapture(captureControllerState = captureState) {
+                ComposeMapView(
+                    initialize = true,
+                    point = locationCoordinates,
+                    disableTouchControls = true
+                ) {
+                    //TODO
+                    //it.onPause()
+                    //it.onDetach()
+                    //it.onResume()
+                }
             }
         } else {
+            // For Preview Only
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -329,11 +341,11 @@ fun LiveTrackingTelemetryItem(
     }
 }
 
-enum class LiveWorkoutStatus {
-    NOT_STARTED,
-    PAUSED,
-    LIVE,
-    FINISHED;
+enum class LiveWorkoutStatus(@StringRes val ttsText: Int) {
+    NOT_STARTED(R.string.empty_string),
+    PAUSED(R.string.tts_status_paused),
+    LIVE(R.string.tts_status_resumed),
+    FINISHED(R.string.tts_status_finished);
 
     /**
      * Returns true if the value is equal to LIVE or PAUSED
@@ -482,6 +494,7 @@ fun LiveTrackingScreen(
     uiState: LiveTrackingUiState,
     listener: LiveTrackingEventsListener = LiveTrackingEventsListener.empty(),
     showMapView: Boolean = true,
+    captureState: ComposeCaptureState = rememberComposeCaptureState()
 ) {
     val isLandscape = ConfigurationUtils.isLandscape()
 
@@ -491,7 +504,8 @@ fun LiveTrackingScreen(
         MapView(
             modifier = modifier,
             locationCoordinates = uiState.locationCoordinates,
-            showMapView = showMapView
+            showMapView = showMapView,
+            captureState = captureState
         )
     }
 
@@ -565,18 +579,24 @@ fun LiveTrackingScreen(
             Modifier.fillMaxSize(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            telemetryContent(modifier = Modifier
-                .weight(1f)
-                .navigationBarsPadding())
-            mapContent(modifier = Modifier
-                .weight(1f)
-                .navigationBarsPadding())
+            telemetryContent(
+                modifier = Modifier
+                    .weight(1f)
+                    .navigationBarsPadding()
+            )
+            mapContent(
+                modifier = Modifier
+                    .weight(1f)
+                    .navigationBarsPadding()
+            )
         }
     } else {
         Column(Modifier.fillMaxSize()) {
-            mapContent(modifier = Modifier
-                .weight(1f)
-                .navigationBarsPadding())
+            mapContent(
+                modifier = Modifier
+                    .weight(1f)
+                    .navigationBarsPadding()
+            )
             telemetryContent(modifier = Modifier.navigationBarsPadding())
         }
     }
@@ -586,15 +606,21 @@ fun LiveTrackingScreen(
 fun LiveTrackingDeciderScreen(
     uiState: LiveTrackingUiState,
     listener: LiveTrackingEventsListener = LiveTrackingEventsListener.empty(),
-    showMapView: Boolean = true
+    showMapView: Boolean = true,
+    captureState: ComposeCaptureState = rememberComposeCaptureState()
 ) {
-    when (uiState.countDownFinished) {
-        false -> LiveTrackingCountDownScreen(onCompleted = { listener.onCountDownFinished() })
-        true -> LiveTrackingScreen(
-            uiState,
-            listener = listener,
-            showMapView = showMapView
-        )
+    if (uiState.showLoading) {
+        AnimationComponents.LoadingArcAnimation()
+    } else {
+        when (uiState.countDownFinished) {
+            false -> LiveTrackingCountDownScreen(onCompleted = { listener.onCountDownFinished() })
+            true -> LiveTrackingScreen(
+                uiState,
+                listener = listener,
+                showMapView = showMapView,
+                captureState = captureState
+            )
+        }
     }
 }
 
@@ -631,12 +657,7 @@ private fun testUiState(): LiveTrackingUiState = LiveTrackingUiState(
 //@Preview(name = "Workout Countdown", group = "LiveTracking")
 @Composable
 private fun LiveTrackingCountDownPrev() {
-    HarmonyTheme {
-        LiveTrackingDeciderScreen(
-            uiState = testUiState().copy(countDownFinished = false),
-            showMapView = false
-        )
-    }
+    HarmonyTheme { LiveTrackingCountDownScreen() }
 }
 
 //@LandscapePreview

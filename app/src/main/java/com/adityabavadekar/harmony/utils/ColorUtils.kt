@@ -19,12 +19,15 @@ package com.adityabavadekar.harmony.utils
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.adityabavadekar.harmony.ui.theme.CardColorElevation0Dark
 import com.adityabavadekar.harmony.ui.theme.CardColorElevation0Light
 import com.adityabavadekar.harmony.ui.theme.WarningColorDark
 import com.adityabavadekar.harmony.ui.theme.WarningColorLight
+import com.adityabavadekar.harmony.ui.theme.WorkoutActiveDark
+import com.adityabavadekar.harmony.ui.theme.WorkoutActiveLight
 
 class ColorUtils {
     companion object {
@@ -37,5 +40,16 @@ class ColorUtils {
         fun getCardColor(elevation: Dp = 0.dp, darkTheme: Boolean = isSystemInDarkTheme()): Color {
             return if (darkTheme) CardColorElevation0Dark else CardColorElevation0Light
         }
+
+        @Composable
+        fun getActiveWorkoutListItemColor(darkTheme: Boolean = isSystemInDarkTheme()): Color {
+            return if (darkTheme) WorkoutActiveDark else WorkoutActiveLight
+        }
+
+        fun getActiveWorkoutNotificationColor(): Int {
+            return WorkoutActiveLight.toArgb()
+        }
+
+
     }
 }

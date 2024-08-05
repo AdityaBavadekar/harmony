@@ -38,7 +38,7 @@ class WorkoutPauseDetector {
             pauseCounter++
             if (pauseCounter >= PAUSED_COUNTER_THRESHOLD) {
                 //Detected Paused State
-                Log.d(TAG, "isPaused: TRUE \t[SPEED=$speed]")
+                Log.d(TAG, "isPaused: TRUE \t[SPEED=${speed} m/s]")
                 return true
             }
         } else clear()

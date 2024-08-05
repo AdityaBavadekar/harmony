@@ -16,35 +16,28 @@
 
 package com.adityabavadekar.harmony.ui
 
+import android.Manifest
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.adityabavadekar.harmony.ui.common.activitybase.GoogleSigninActivity.Companion.getLastSigninAccount
-import com.adityabavadekar.harmony.ui.common.activitybase.PermissionActivity
+import com.adityabavadekar.harmony.ui.common.activitybase.PermissionActivityV2
 import com.adityabavadekar.harmony.ui.main.MainActivity
 import com.adityabavadekar.harmony.ui.onboarding.WelcomeScreen
+import com.adityabavadekar.harmony.ui.permissions.PermissionsRationaleActivity
 import com.adityabavadekar.harmony.ui.signin.SigninActivity
 import com.adityabavadekar.harmony.ui.theme.HarmonyTheme
-import com.adityabavadekar.harmony.utils.PermissionUtils
 import com.adityabavadekar.harmony.utils.preferences.PreferencesKeys
 import com.adityabavadekar.harmony.utils.preferences.preferencesManager
 
-class LauncherActivity : PermissionActivity() {
+class LauncherActivity : PermissionActivityV2() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
-        val askPermissions = PermissionUtils.locationPermissions().toMutableList()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            askPermissions.addAll(PermissionUtils.notificationPermissions())
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            askPermissions.addAll(PermissionUtils.physicalActivityPermissions())
-        }
-        requestMultiple(askPermissions)
 
         val isOnboardingCompleted =
             preferencesManager.getBoolean(PreferencesKeys.ONBOARDING_COMPLETED, false)
@@ -69,12 +62,74 @@ class LauncherActivity : PermissionActivity() {
                     )
                 }
             }
+            requestAllPermissions()
         }
     }
 
-    override fun onGranted(permission: String) {}
+    private fun requestAllPermissions() {
+        val permissionsToAsk = mutableListOf<String>()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            permissionsToAsk.add(Manifest.permission.ACTIVITY_RECOGNITION)
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permissionsToAsk.add(Manifest.permission.POST_NOTIFICATIONS)
+        }
+//        permissionsToAsk.addAll(PermissionUtils.locationPermissions())
+        requestMultiple(permissionsToAsk) {
+            /*listener(Manifest.permission.ACCESS_FINE_LOCATION) {
+                doOnGranted {
+                    Log.d(TAG, "onGranted: ACCESS_FINE_LOCATION")
+                }
+                doOnDenied {
+                    Log.d(TAG, "onDenied: ACCESS_FINE_LOCATION")
+                    false
+                }
+            }
+            listener(Manifest.permission.ACCESS_COARSE_LOCATION) {
+                doOnGranted {
+                    Log.d(TAG, "onGranted: ACCESS_COARSE_LOCATION")
+                }
+                doOnDenied {
+                    Log.d(TAG, "onDenied: ACCESS_COARSE_LOCATION")
+                    false
+                }
+            }*/
+            listener(Manifest.permission.ACTIVITY_RECOGNITION) {
+                doOnGranted {
+                    Log.d(TAG, "onGranted: ACTIVITY_RECOGNITION")
+                }
+                doOnDenied {
+                    Log.d(TAG, "onDenied: ACTIVITY_RECOGNITION")
+                    false
+                }
+                doOnShouldShowPermissionUI {
+                    Log.d(TAG, "OnShouldShowPermissionUI: ACTIVITY_RECOGNITION")
+                    PermissionsRationaleActivity.startActivityRecognitionPermissionRationale(
+                        applicationContext
+                    )
+                    false
+                }
+            }
+            listener(Manifest.permission.POST_NOTIFICATIONS) {
+                doOnGranted {
+                    Log.d(TAG, "onGranted: POST_NOTIFICATIONS")
+                }
+                doOnDenied {
+                    Log.d(TAG, "onDenied: POST_NOTIFICATIONS")
+                    false
+                }
+                doOnShouldShowPermissionUI {
+                    Log.d(TAG, "OnShouldShowPermissionUI: POST_NOTIFICATIONS")
+                    PermissionsRationaleActivity.startNotificationPermissionRationale(
+                        applicationContext
+                    )
+                    false
+                }
+            }
+        }
+    }
 
-    override fun onDenied(permission: String) {}
-
-    override fun onShouldShowPermissionUI(permission: String) {}
+    companion object {
+        private const val TAG = "[LauncherActivity]"
+    }
 }

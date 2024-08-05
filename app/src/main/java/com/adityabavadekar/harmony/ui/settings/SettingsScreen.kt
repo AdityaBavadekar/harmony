@@ -23,11 +23,18 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.adityabavadekar.harmony.BuildConfig
 import com.adityabavadekar.harmony.R
 import com.adityabavadekar.harmony.data.model.ThirdDegreeUserRecord
+import com.adityabavadekar.harmony.ui.common.Dialogs
 import com.adityabavadekar.harmony.ui.common.component.HarmonyTopAppBar
 import com.adityabavadekar.harmony.ui.common.icon.HarmonyIcons
 import com.adityabavadekar.harmony.ui.theme.HarmonyTheme
@@ -38,7 +45,10 @@ fun SettingsScreen(
     uiState: SettingsUiState,
     onLogoutClicked: () -> Unit = {},
     onShouldNavigateBack: () -> Unit = {},
+    openNotificationSettings: () -> Unit = {}
 ) {
+    var themeSelectionIsOpen by remember { mutableStateOf(false) }
+
     Scaffold(
         topBar = {
             HarmonyTopAppBar(
@@ -62,13 +72,15 @@ fun SettingsScreen(
         ) {
             settingsGroupItem(R.string.general) {
                 SettingsListTextItem(
-                    primaryText = "Theme",
-                    secondaryText = "Choose your light or dark theme",
-                    onClick = {}
+                    primaryText = stringResource(R.string.theme),
+                    secondaryText = stringResource(R.string.choose_your_light_or_dark_theme),
+                    onClick = {
+                        themeSelectionIsOpen = true
+                    }
                 )
                 SettingsListTextItem(
                     primaryText = "Notifications",
-                    onClick = {}
+                    onClick = { openNotificationSettings() }
                 )
             }
             settingsGroupItem(R.string.account) {
@@ -87,42 +99,52 @@ fun SettingsScreen(
                 )
                 SettingsListTextItem(
                     icon = HarmonyIcons.SignOut,
-                    primaryText = "Sign out",
+                    primaryText = stringResource(R.string.sign_out),
                     onClick = onLogoutClicked
                 )
             }
             settingsGroupItem(R.string.about) {
                 SettingsListTextItem(
-                    primaryText = "Help",
-                    secondaryText = "Find answers to your Harmony questions",
+                    primaryText = stringResource(R.string.help),
+                    secondaryText = stringResource(R.string.find_answers_to_your_harmony_questions),
                     onClick = {}
                 )
                 SettingsListTextItem(
-                    primaryText = "Send feedback",
-                    secondaryText = "Help us improve Harmony",
+                    primaryText = stringResource(R.string.send_feedback),
+                    secondaryText = stringResource(R.string.help_us_improve_harmony),
                     onClick = {}
                 )
                 SettingsListTextItem(
-                    primaryText = "Terms of Service",
+                    primaryText = stringResource(R.string.terms_of_service),
                     onClick = {}
                 )
                 SettingsListTextItem(
-                    primaryText = "Privacy Policy",
+                    primaryText = stringResource(R.string.privacy_policy),
                     onClick = {}
                 )
                 SettingsListTextItem(
-                    primaryText = "Open source licenses",
+                    primaryText = stringResource(R.string.open_source_licenses),
                     onClick = {}
                 )
                 SettingsListTextItem(
-                    primaryText = "App version",
-                    secondaryText = "1.0.0",
+                    primaryText = stringResource(R.string.app_version),
+                    secondaryText = BuildConfig.VERSION_NAME,
                     onClick = {}
                 )
                 SettingsListTextItem(
                     primaryText = "Created by Aditya Bavadekar"
                 )
 
+            }
+        }
+
+        when {
+            themeSelectionIsOpen -> {
+                Dialogs.ThemeSelectorDialog(
+                    onSelected = {
+                        themeSelectionIsOpen = false
+                    }
+                )
             }
         }
     }
