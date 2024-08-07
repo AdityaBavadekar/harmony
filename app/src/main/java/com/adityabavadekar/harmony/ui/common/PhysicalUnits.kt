@@ -137,7 +137,7 @@ class Length(lengthInMeters: Double) : PhysicalUnit<LengthUnits>() {
     private var length: Double = lengthInMeters
 
     override fun getValue(targetUnit: LengthUnits): Double {
-        return unit.fromSI(getSIValue())
+        return targetUnit.fromSI(getSIValue())
     }
 
     override fun getSIValue(): Double {
@@ -153,7 +153,7 @@ class Mass(massInKg: Double) : PhysicalUnit<MassUnits>() {
         private set
     private var mass: Double = massInKg
     override fun getValue(targetUnit: MassUnits): Double {
-        return unit.fromSI(getSIValue())
+        return targetUnit.fromSI(getSIValue())
     }
 
     override fun getSIValue(): Double {
@@ -169,7 +169,7 @@ class Temperature(temperatureInKelvin: Double) : PhysicalUnit<TemperatureUnits>(
         private set
     private var temperature: Double = temperatureInKelvin
     override fun getValue(targetUnit: TemperatureUnits): Double {
-        return unit.fromSI(getSIValue())
+        return targetUnit.fromSI(getSIValue())
     }
 
     override fun getSIValue(): Double {
@@ -185,7 +185,7 @@ class Speed constructor(speedInMetersSec: Double) : PhysicalUnit<SpeedUnits>() {
         private set
     private var speed: Double = speedInMetersSec
     override fun getValue(targetUnit: SpeedUnits): Double {
-        return unit.fromSI(getSIValue())
+        return targetUnit.fromSI(getSIValue())
     }
 
     override fun getSIValue(): Double {
@@ -215,7 +215,7 @@ class Volume(volumeInLitres: Float) : PhysicalUnit<SpeedUnits>() {
         private set
     private var volume = volumeInLitres
     override fun getValue(targetUnit: SpeedUnits): Double {
-        return unit.fromSI(getSIValue())
+        return targetUnit.fromSI(getSIValue())
     }
 
     override fun getSIValue(): Double {
