@@ -74,24 +74,26 @@ fun SelectNewWorkoutScreen(
             Row {
                 AnimatedContent(targetState = searchExpanded, label = "") { isExpanded ->
                     if (!isExpanded) {
-                        HarmonyTopAppBar(
-                            titleRes = R.string.select_workout_to_continue,
-                            navigationIcon = {
-                                Icon(
-                                    imageVector = HarmonyIcons.ArrowBack,
-                                    contentDescription = null
-                                )
-                            },
-                            onNavigationIconClicked = {
-                                onShouldFinish()
-                            },
-                            actionIcons = listOf(
-                                CommonMenuActions.search()
-                            ),
-                            onActionIconClicked = {
-                                searchExpanded = true
-                            },
-                        )
+                        Surface(color = MaterialTheme.colorScheme.surface) {
+                            HarmonyTopAppBar(
+                                titleRes = R.string.select_workout_to_continue,
+                                navigationIcon = {
+                                    Icon(
+                                        imageVector = HarmonyIcons.ArrowBack,
+                                        contentDescription = null
+                                    )
+                                },
+                                onNavigationIconClicked = {
+                                    onShouldFinish()
+                                },
+                                actionIcons = listOf(
+                                    CommonMenuActions.search()
+                                ),
+                                onActionIconClicked = {
+                                    searchExpanded = true
+                                },
+                            )
+                        }
                     } else {
                         HarmonySearchInputTopAppBar(
                             onBackClicked = {

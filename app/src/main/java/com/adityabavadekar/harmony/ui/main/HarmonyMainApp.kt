@@ -16,8 +16,8 @@
 
 package com.adityabavadekar.harmony.ui.main
 
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -91,7 +91,7 @@ private fun MainNavHost(
                 slideInHorizontally()
             },
             exitTransition = {
-                slideOutHorizontally()
+                fadeOut()
             }
         ) {
             HomeScreen(
@@ -108,7 +108,7 @@ private fun MainNavHost(
                 slideInHorizontally()
             },
             exitTransition = {
-                slideOutHorizontally()
+                fadeOut()
             }
         ) {
             ActivityScreen(workoutsData = workoutsData.value, onClick = onActivityItemClicked)
@@ -122,7 +122,7 @@ private fun MainNavHost(
                 slideInHorizontally()
             },
             exitTransition = {
-                slideOutHorizontally()
+                fadeOut()
             }
         ) {
             ProfileScreen(account = accountData.value)

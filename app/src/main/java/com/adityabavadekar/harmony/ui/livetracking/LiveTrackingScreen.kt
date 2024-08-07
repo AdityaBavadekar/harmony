@@ -527,10 +527,10 @@ fun LiveTrackingScreen(
                         ),
                     verticalArrangement = if (!isLandscape) Arrangement.Center else Arrangement.SpaceEvenly,
                 ) {
-                    Text(
-                        text = uiState.heatUnit.toSI(uiState.caloriesBurned)
-                            .toString() + " " + uiState.heatUnit.shortSymbol()
-                    )
+//                    Text(
+//                        text = uiState.heatUnit.toSI(uiState.caloriesBurned)
+//                            .toString() + " " + uiState.heatUnit.shortSymbol()
+//                    )
                     LiveTrackingActivityLabel(
                         activityLabel = stringResource(id = uiState.workoutType.nameRes),
                         status = uiState.workoutStatus

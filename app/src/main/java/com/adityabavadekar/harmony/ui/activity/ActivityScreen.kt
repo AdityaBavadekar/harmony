@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -121,19 +122,26 @@ private fun ActivityItem(
 
     val stepCount = NumberUtils.formatInt(record.stepsCount)
 
-    val workoutTypeNameTextStyle = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.W400)
+    val workoutTypeNameTextStyle =
+        MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.W400)
     val distanceTextStyle = MaterialTheme.typography.bodyMedium
     val timestampTextStyle = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium)
-    val durationTextStyle = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium)
+    val durationTextStyle =
+        MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium)
 
     @Composable
     fun workoutIconItem() {
         Surface(
-            modifier = Modifier.padding(end = 18.dp),
+            modifier = Modifier
+                .padding(end = 18.dp)
+                .size(40.dp),
             shape = CircleShape,
             color = MaterialTheme.colorScheme.primary
         ) {
-            Box(Modifier.padding(8.dp)) {
+            Box(
+                Modifier.padding(8.dp).fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
                 Icon(
                     painter = painterResource(id = record.type.drawableRes),
                     contentDescription = null
@@ -163,6 +171,8 @@ private fun ActivityItem(
                 )
                 .clip(RoundedCornerShape(18.dp))
                 .clickableRipple(onClick = { onClick(record.id, !record.completed) })
+
+
         ) {
             Row(
                 Modifier
@@ -228,7 +238,8 @@ private fun ActivityItem(
         Divider(
             Modifier
                 .alpha(0.4f)
-                .padding(horizontal = 18.dp))
+                .padding(horizontal = 18.dp)
+        )
     }
 
 }
