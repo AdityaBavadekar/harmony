@@ -62,6 +62,9 @@ class LiveTrackingActivityV2 : PermissionActivityV3(), LiveTrackingEventsListene
             viewModel.setWorkoutType(workoutType!!)
         } else {
             Log.d(TAG, "onCreate: Found existing active workout")
+
+            // The service will automatically update the incomplete workout record.
+            onCountDownFinished()
         }
 
         /* Register with a BroadcastReceiver for getting location updates */

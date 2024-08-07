@@ -167,7 +167,7 @@ class LiveTrackingViewModelV2(
     }
 
     companion object {
-        private const val TAG = "[LiveTrackingViewModel]"
+        private const val TAG = "[LiveTrackingViewModelV2]"
     }
 
     @Suppress("UNCHECKED_CAST")

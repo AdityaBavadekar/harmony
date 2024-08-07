@@ -146,7 +146,7 @@ fun HarmonyTopAppBar(
     }
     val backgroundColor = MaterialTheme.colorScheme.surface
     val contentColor = MaterialTheme.colorScheme.onSurface
-    val elevation = if (elevated) AppBarDefaults.TopAppBarElevation else 0.dp
+    val elevation = if (elevated) AppBarDefaults.TopAppBarElevation else 1.dp
 
     HarmonyBaseTopAppBar(
         modifier = modifier.heightIn(min = topAppBarMinHeight),
@@ -194,7 +194,7 @@ fun HarmonySearchInputTopAppBar(
 
     val backgroundColor = MaterialTheme.colorScheme.surface
     val contentColor = MaterialTheme.colorScheme.onSurface
-    val elevation = if (elevated) AppBarDefaults.TopAppBarElevation else 0.dp
+    val elevation = if (elevated) AppBarDefaults.TopAppBarElevation else 1.dp
 
     HarmonyBaseTopAppBar(
         modifier = modifier.heightIn(min = topAppBarMinHeight),

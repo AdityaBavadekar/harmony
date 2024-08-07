@@ -53,4 +53,4 @@ val CardColorElevation0Light = Color(0xFFCBF1F5)
 val CardColorElevation0Dark = Color(0xFF222831)
 
 val WorkoutActiveLight = Color(0xFFFFB22C)
-val WorkoutActiveDark = Color(0xFF512B81)
+val WorkoutActiveDark = Color(0xFF6E812B)

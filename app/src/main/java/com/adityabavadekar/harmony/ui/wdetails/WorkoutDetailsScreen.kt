@@ -240,9 +240,10 @@ fun LazyListScope.workoutChartItem(
     dataX: List<Double>,
     modifier: Modifier = Modifier
 ) {
+    val dataXAxis = dataX.map { it.toFloat() }
     val dataYAxis = List(dataX.size) { index -> index + 1 }
     val model = CartesianChartModel(
-        ColumnCartesianLayerModel.build { series(dataX, dataYAxis) }
+        ColumnCartesianLayerModel.build { series(dataXAxis, dataYAxis) }
     )
     item {
         Column(

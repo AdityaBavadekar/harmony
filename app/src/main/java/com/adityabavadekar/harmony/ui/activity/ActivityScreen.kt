@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -36,14 +37,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.adityabavadekar.harmony.R
 import com.adityabavadekar.harmony.data.WorkoutTypes
 import com.adityabavadekar.harmony.data.model.WorkoutSummaryRecord
+import com.adityabavadekar.harmony.ui.common.Length
+import com.adityabavadekar.harmony.ui.common.LengthUnits
 import com.adityabavadekar.harmony.ui.common.component.HorizontalSpacer
 import com.adityabavadekar.harmony.ui.common.component.VerticalSpacer
 import com.adityabavadekar.harmony.ui.common.component.clickableRipple
@@ -109,11 +114,17 @@ private fun ActivityItem(
     record: WorkoutSummaryRecord,
     onClick: (id: Long, isOngoing: Boolean) -> Unit = { _, _ -> }
 ) {
-    val distanceCovered = NumberUtils.formatDouble(record.distanceMeters)
+    val distanceCovered =
+        NumberUtils.formatDouble(Length(record.distanceMeters).getValue(LengthUnits.KILOMETERS))
     val energyBurned =
         record.totalEnergyBurnedJoules?.let { NumberUtils.formatDouble(it) } ?: 0.0
 
     val stepCount = NumberUtils.formatInt(record.stepsCount)
+
+    val workoutTypeNameTextStyle = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.W400)
+    val distanceTextStyle = MaterialTheme.typography.bodyMedium
+    val timestampTextStyle = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium)
+    val durationTextStyle = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium)
 
     @Composable
     fun workoutIconItem() {
@@ -137,10 +148,10 @@ private fun ActivityItem(
             modifier = modifier
                 .alpha(0.9f),
             text = stringResource(id = record.type.nameRes),
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.W400
+            style = workoutTypeNameTextStyle
         )
     }
+
     Column {
         Box(
             Modifier
@@ -150,6 +161,7 @@ private fun ActivityItem(
                         Modifier.background(ColorUtils.getActiveWorkoutListItemColor())
                     } else Modifier
                 )
+                .clip(RoundedCornerShape(18.dp))
                 .clickableRipple(onClick = { onClick(record.id, !record.completed) })
         ) {
             Row(
@@ -166,7 +178,7 @@ private fun ActivityItem(
                 ) {
                     if (!record.completed) {
                         Text(
-                            text = "Ongoing",
+                            text = stringResource(R.string.ongoing),
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.Bold
                         )
@@ -185,7 +197,7 @@ private fun ActivityItem(
                                 Text(
                                     modifier = Modifier.alpha(0.7f),
                                     text = DateFormattingUtils.formatWorkoutSummaryDate(record.startTimestamp),
-                                    style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
+                                    style = timestampTextStyle
                                 )
                             }
                         }
@@ -198,14 +210,14 @@ private fun ActivityItem(
                             Text(
                                 modifier = Modifier.alpha(0.6f),
                                 text = "$distanceCovered km",
-                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium),
+                                style = distanceTextStyle
                             )
                             if (record.completed) {
                                 Text(
                                     modifier = Modifier.alpha(0.7f),
                                     text = record.timeDifference()
                                         .formatForDisplayDescriptive(addSeconds = false),
-                                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium),
+                                    style = durationTextStyle
                                 )
                             }
                         }
@@ -213,7 +225,10 @@ private fun ActivityItem(
                 }
             }
         }
-        Divider(Modifier.alpha(0.4f).padding(horizontal = 18.dp))
+        Divider(
+            Modifier
+                .alpha(0.4f)
+                .padding(horizontal = 18.dp))
     }
 
 }
