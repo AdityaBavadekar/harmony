@@ -1,5 +1,7 @@
 # “Harmony” - Gemini API Developer Competition Solution App
 
+<img src="/screenshots/cap_1.png" height="500"></img> <img src="/screenshots/cap_2.png" height="500"></img>
+
 Competition - https://ai.google.dev/competition
 
 Last date of submission -  August 12, 2024
