@@ -505,7 +505,7 @@ fun WorkoutDetailsScreen(
             workoutLapsItem(laps = workoutRecord.laps)
             workoutNoteItem(workoutRecord.notes)
 
-            workoutChartItem("Speed", workoutRecord.speedsMetersSec)
+            //workoutChartItem("Speed", workoutRecord.speedsMetersSec)
         }
     }
 }
