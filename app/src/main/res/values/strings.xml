@@ -1,3 +1,105 @@
+<!--
+  ~ Copyright 2024 Aditya Bavadekar
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
 <resources>
     <string name="app_name">Harmony</string>
+
+    <string name="search">Search</string>
+    <string name="settings">Settings</string>
+    <string name="home">Home</string>
+    <string name="home_icon_description">Home Icon</string>
+    <string name="activity">Activity</string>
+    <string name="activity_icon_description">Activity Icon</string>
+    <string name="profile">Profile</string>
+    <string name="profile_icon_description">Profile Icon</string>
+    <string name="empty_string" />
+    <string name="about">About</string>
+    <string name="general">General</string>
+    <string name="account">Account</string>
+    <string name="notifications">Notifications</string>
+    <string name="more_options">More options</string>
+    <string name="distance">Distance</string>
+    <string name="steps">Steps</string>
+    <string name="speed">Speed</string>
+    <string name="start">Start</string>
+    <string name="finish">Finish</string>
+    <string name="pause">Pause</string>
+    <string name="resume">Resume</string>
+    <string name="status_paused">Paused</string>
+    <string name="status_finished">Finished</string>
+    <string name="status_not_started">Not Started</string>
+    <string name="tts_status_paused">Workout Paused</string>
+    <string name="tts_status_resumed">Workout Resumed</string>
+    <string name="tts_status_finished">Workout Finished</string>
+    <string name="ok">OK</string>
+    <string name="google_signout_failed_message">You could not be signed out. Please try again after some time</string>
+    <string name="something_went_wrong">Something went wrong!</string>
+    <string name="location_permission_dialog_title">Device location needed</string>
+    <string name="location_permission_dialog_description">Please give Harmony access to your location. Location permission is required to provide accurate workout tracking.</string>
+    <string name="location_permission_dialog_extra_information_text">If Harmony has access to your location, features like live map tracking, real-time speed, distance measurement, and auto pause detection will be more accurate.</string>
+    <string name="activity_recognition_permission_dialog_title">Activity recognition needed</string>
+    <string name="activity_recognition_permission_dialog_description">Please grant Harmony access to your activity data. This information helps us provide accurate workout detection and analysis.</string>
+    <string name="activity_recognition_permission_dialog_extra_information_text">With activity recognition enabled, Harmony can automatically detect your workout type, keep track of step count, provide personalized insights, and improve the overall workout experience.</string>
+    <string name="notification_permission_dialog_title">Get Notified</string>
+    <string name="notification_permission_dialog_description">Allow Harmony to send you important notifications.</string>
+    <string name="notification_permission_dialog_extra_information_text">Notifications will keep you updated on your workout progress, goals, and achievements. You can also receive reminders and personalized recommendations.</string>
+    <string name="open_settings_location_permission_dialog_title">Location Permission needed</string>
+    <string name="open_settings_location_permission_dialog_description">Harmony needs location permission to use this feature. You can grant the permission in app settings under Permissions section.</string>
+    <string name="open_settings_activity_permission_dialog_title">Activity recognition Permission needed</string>
+    <string name="open_settings_activity_permission_dialog_description">Harmony needs activity recognition permission to use this feature. You can grant the permission in app settings under Permissions section.</string>
+    <string name="open_settings_notification_permission_dialog_title">Notification Permission needed</string>
+    <string name="open_settings_notification_permission_dialog_description">Harmony needs notification permission to use this feature. You can grant the permission in app settings under Permissions section.</string>
+    <string name="select_workout_to_continue">Select workout to continue</string>
+    <string name="theme_light">Light theme</string>
+    <string name="theme_dark">Dark theme</string>
+    <string name="theme_system_default">System default</string>
+    <string name="app_version">App version</string>
+    <string name="open_source_licenses">Open source licenses</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="terms_of_service">Terms of Service</string>
+    <string name="help_us_improve_harmony">Help us improve Harmony</string>
+    <string name="send_feedback">Send feedback</string>
+    <string name="find_answers_to_your_harmony_questions">Find answers to your Harmony questions</string>
+    <string name="help">Help</string>
+    <string name="sign_out">Sign out</string>
+    <string name="choose_your_light_or_dark_theme">Choose your light or dark theme</string>
+    <string name="theme">Theme</string>
+    <string name="choose_a_theme">Choose a theme</string>
+    <string name="steps_goal">Steps goal</string>
+    <string name="you_are_getting_less_sleep_than_recommeneded_formatted" formatted="true">You are getting less sleep than recommended.
+        Consider aiming for %1d - %2d hours of sleep for better health.</string>
+    <string name="great_job_adequate_sleep_boosts_your_health">Great job! Adequate sleep boosts your health.</string>
+    <string name="excessive_sleep_can_impact_productivity_and_energy" formatted="true">Excessive sleep can impact productivity and energy.
+        Consult a healthcare professional if needed.
+        %1d - %2d hours of sleep is ideal for your age.</string>
+    <string name="sleep_routine">Sleep routine</string>
+    <string name="avg_sleep_duration">Avg sleep duration: </string>
+    <string name="did_you_know_drinking_water_formatted">Did you know? Drinking water %s</string>
+    <string name="water_drop">Water Drop</string>
+    <string name="ongoing">Ongoing</string>
+    <string name="energy">Energy</string>
+
+    <string-array name="drinking_water_benefits">
+        <item name="drinking_water_benefit_keeps_skin_healthy">Keeps skin healthy</item>
+        <item name="drinking_water_benefit_aids_digestion">Aids digestion</item>
+        <item name="drinking_water_benefit_temp_regulation">Regulates body temperature</item>
+        <item name="drinking_water_benefit_flushes_toxins">Flushes out toxins</item>
+        <item name="drinking_water_benefit_boost_energy">Boosts energy</item>
+        <item name="drinking_water_benefit_weight_loss">Supports weight loss</item>
+        <item name="drinking_water_benefit_concentration">Improves concentration</item>
+    </string-array>
+
 </resources>

@@ -1,0 +1,7 @@
+# ignored all files in .idea dir
+*
+# Don't ignore .gitignore and other required directories
+!.gitignore
+!copyright
+!codeStyles
+!inspectionProfiles
