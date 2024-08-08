@@ -16,6 +16,8 @@
 
 package com.adityabavadekar.harmony.ui.onboarding
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -45,11 +47,13 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
@@ -57,9 +61,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import com.adityabavadekar.harmony.R
+import com.adityabavadekar.harmony.ui.common.component.animateDpAsState
 import kotlinx.coroutines.launch
 
 @Preview(showBackground = true)
@@ -91,12 +97,46 @@ fun WelcomeScreen(
                     pagerState = pagerState,
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .navigationBarsPadding()
-                    ,
+                        .navigationBarsPadding(),
                     onCompleted = onCompleted,
                     onPageChanged = onPageChanged,
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun DotIndicators(
+    pagerState: PagerState,
+    modifier: Modifier = Modifier,
+) {
+    val pageCount = pagerState.pageCount
+    val animDuration = 500
+    Row(
+        modifier = modifier
+            .padding(top = 4.dp)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        repeat(pageCount) { pageIndex ->
+            val isActive = pagerState.currentPage == pageIndex
+            val dotSize by animateDpAsState(
+                targetValue = if (isActive) 8.dp else 6.dp,
+                animationSpec = tween(durationMillis = animDuration)
+            )
+            val dotAlpha by animateFloatAsState(
+                targetValue = if (isActive) 1f else 0.5f,
+                animationSpec = tween(durationMillis = animDuration), label = ""
+            )
+            DotIndicator(
+                isActive = isActive,
+                dotSize = dotSize,
+                dotAlpha = dotAlpha,
+                activeColor = MaterialTheme.colorScheme.onSurface,
+                inactiveColor = MaterialTheme.colorScheme.onSurface,
+            )
         }
     }
 }
@@ -107,12 +147,15 @@ fun DotIndicator(
     isActive: Boolean,
     activeColor: Color = MaterialTheme.colorScheme.onSurface,
     inactiveColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
+    dotSize: Dp = 8.dp,
+    dotAlpha: Float = 1f
 ) {
     Box(
         modifier = modifier
             .padding(8.dp)
+            .alpha(dotAlpha)
             .clip(CircleShape)
-            .size(8.dp)
+            .size(dotSize)
             .background(if (isActive) activeColor else inactiveColor)
     )
 }
@@ -124,7 +167,6 @@ fun PagerScrollIndicators(
     onCompleted: () -> Unit,
     onPageChanged: (pageIndex: Int) -> Unit = {},
 ) {
-    val pageCount = pagerState.pageCount
     val coroutineScope = rememberCoroutineScope()
 
     Box(
@@ -132,17 +174,12 @@ fun PagerScrollIndicators(
             .padding(vertical = 18.dp)
             .height(64.dp)
     ) {
-        Row(
+        DotIndicators(
+            pagerState = pagerState,
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.Center),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            repeat(pageCount) { i ->
-                DotIndicator(isActive = pagerState.currentPage == i)
-            }
-        }
-
+        )
         Button(
             modifier = Modifier
                 .align(Alignment.CenterEnd)

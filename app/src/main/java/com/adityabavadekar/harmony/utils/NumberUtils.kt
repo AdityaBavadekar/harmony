@@ -24,9 +24,11 @@ class NumberUtils {
     companion object {
         fun formatLong(number: Long): String = String.format("%,d", number)
         fun formatInt(number: Int): String = String.format("%,d", number)
-        fun formatFloat(number: Float): String = String.format("%,.1f", number)
+        fun formatFloat(number: Float, decimalPlaces: Int = 2): String =
+            String.format("%,.${decimalPlaces}f", number)
 
-        fun formatDouble(num: Double): String = String.format("%,.2f", num)
+        fun formatDouble(num: Double, decimalPlaces: Int = 2): String =
+            String.format("%,.${decimalPlaces}f", num)
 
         fun roundFloat(number: Float, decimalPlaces: Int = 1): Float =
             number.toBigDecimal().setScale(decimalPlaces, RoundingMode.UP).toFloat()

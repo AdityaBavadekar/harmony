@@ -31,6 +31,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -58,11 +60,11 @@ import com.adityabavadekar.harmony.ui.common.component.ComposeMapView
 import com.adityabavadekar.harmony.ui.common.component.HorizontalSpacer
 import com.adityabavadekar.harmony.ui.common.component.VerticalSpacer
 import com.adityabavadekar.harmony.ui.common.component.animations.CountDownAnimation
+import com.adityabavadekar.harmony.ui.onboarding.DotIndicators
 import com.adityabavadekar.harmony.ui.theme.HarmonyTheme
 import com.adityabavadekar.harmony.utils.ComposeCapture
 import com.adityabavadekar.harmony.utils.ComposeCaptureState
 import com.adityabavadekar.harmony.utils.ConfigurationUtils
-import com.adityabavadekar.harmony.utils.LandscapePreview
 import com.adityabavadekar.harmony.utils.NumberUtils
 import com.adityabavadekar.harmony.utils.isLandscape
 import com.adityabavadekar.harmony.utils.rememberComposeCaptureState
@@ -489,6 +491,36 @@ interface LiveTrackingEventsListener {
     }
 }
 
+data class LiveTrackingStatsItem(
+    @StringRes val telemetryLabel: Int,
+    val telemetry: String,
+    val telemetryUnit: String? = null,
+)
+
+@Composable
+private fun LiveTrackingStatsPager(items: List<LiveTrackingStatsItem>, itemsPerPage: Int = 3) {
+    val pages = items.chunked(itemsPerPage)
+    val pagerState = rememberPagerState { return@rememberPagerState pages.size }
+
+    Column(Modifier.fillMaxWidth()) {
+        HorizontalPager(
+            modifier = Modifier.fillMaxWidth(),
+            state = pagerState
+        ) { pageIndex ->
+            LiveTrackingSpaceEvenRow {
+                pages[pageIndex].forEach { item ->
+                    LiveTrackingTelemetryItem(
+                        telemetryLabel = stringResource(item.telemetryLabel),
+                        telemetry = item.telemetry,
+                        telemetryUnit = item.telemetryUnit
+                    )
+                }
+            }
+        }
+        DotIndicators(pagerState = pagerState)
+    }
+}
+
 @Composable
 fun LiveTrackingScreen(
     uiState: LiveTrackingUiState,
@@ -527,10 +559,6 @@ fun LiveTrackingScreen(
                         ),
                     verticalArrangement = if (!isLandscape) Arrangement.Center else Arrangement.SpaceEvenly,
                 ) {
-//                    Text(
-//                        text = uiState.heatUnit.toSI(uiState.caloriesBurned)
-//                            .toString() + " " + uiState.heatUnit.shortSymbol()
-//                    )
                     LiveTrackingActivityLabel(
                         activityLabel = stringResource(id = uiState.workoutType.nameRes),
                         status = uiState.workoutStatus
@@ -540,13 +568,50 @@ fun LiveTrackingScreen(
                         time = uiState.liveTimeDifference.formatForDisplay(),
                         workoutStatus = uiState.workoutStatus
                     )
-                    LiveTrackingSpaceEvenRow {
+                    val items = listOf(
+                        LiveTrackingStatsItem(
+                            telemetry = NumberUtils.formatDouble(
+                                uiState.distanceUnit.fromSI(uiState.distance.getSIValue())
+                            ),
+                            telemetryUnit = uiState.distanceUnit.shortSymbol(),
+                            telemetryLabel = R.string.distance
+                        ),
+                        LiveTrackingStatsItem(
+                            telemetry = NumberUtils.formatInt(
+                                uiState.heatUnit.toSI(uiState.caloriesBurned).toInt()
+                            ),
+                            telemetryUnit = uiState.heatUnit.shortSymbol(),
+                            telemetryLabel = R.string.energy
+                        ),
+                        LiveTrackingStatsItem(
+                            telemetry = uiState.stepsCount.toString(),
+                            telemetryLabel = R.string.steps
+                        ),
+                        LiveTrackingStatsItem(
+                            telemetry = NumberUtils.formatDouble(
+                                uiState.speedUnit.fromSI(uiState.speed.getSIValue())
+                            ),
+                            telemetryUnit = uiState.speedUnit.shortSymbol(),
+                            telemetryLabel = R.string.speed
+                        )
+                    )
+
+                    LiveTrackingStatsPager(items = items)
+
+                    /*LiveTrackingSpaceEvenRow {
                         LiveTrackingTelemetryItem(
                             telemetry = NumberUtils.formatDouble(
                                 uiState.distanceUnit.fromSI(uiState.distance.getSIValue())
                             ),
                             telemetryUnit = uiState.distanceUnit.shortSymbol(),
                             telemetryLabel = stringResource(R.string.distance)
+                        )
+                        LiveTrackingTelemetryItem(
+                            telemetry = NumberUtils.formatInt(
+                                uiState.heatUnit.toSI(uiState.caloriesBurned).toInt()
+                            ),
+                            telemetryUnit = uiState.heatUnit.shortSymbol(),
+                            telemetryLabel = stringResource(R.string.energy)
                         )
                         LiveTrackingTelemetryItem(
                             telemetry = uiState.stepsCount.toString(),
@@ -559,7 +624,7 @@ fun LiveTrackingScreen(
                             telemetryUnit = uiState.speedUnit.shortSymbol(),
                             telemetryLabel = stringResource(R.string.speed)
                         )
-                    }
+                    }*/
                     VerticalSpacer(size = if (isLandscape) 0.dp else 32.dp)
                     LiveTrackingBottomButtons(
                         status = uiState.workoutStatus,
@@ -673,7 +738,7 @@ private fun LiveTrackingLivePrev() {
 }
 
 @Preview(name = "Workout Paused", group = "LiveTracking")
-@LandscapePreview
+//@LandscapePreview
 @Composable
 private fun LiveTrackingPausedPrev() {
     HarmonyTheme {

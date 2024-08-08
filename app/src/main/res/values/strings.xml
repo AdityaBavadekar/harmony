@@ -90,6 +90,7 @@
     <string name="did_you_know_drinking_water_formatted">Did you know? Drinking water %s</string>
     <string name="water_drop">Water Drop</string>
     <string name="ongoing">Ongoing</string>
+    <string name="energy">Energy</string>
 
     <string-array name="drinking_water_benefits">
         <item name="drinking_water_benefit_keeps_skin_healthy">Keeps skin healthy</item>
