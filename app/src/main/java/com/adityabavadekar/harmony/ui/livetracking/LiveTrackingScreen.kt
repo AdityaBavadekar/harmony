@@ -319,7 +319,7 @@ fun LiveTrackingTelemetryItem(
             shape = RoundedCornerShape(8.dp),
         ) {
             Column(
-                Modifier.padding(8.dp),
+                Modifier.padding(vertical = 8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
@@ -446,7 +446,6 @@ fun LiveTrackingTime(
                         if (isLandscape) Modifier
                         else Modifier
                             .height(160.dp)
-                            .padding(8.dp)
                     ),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
@@ -555,7 +554,7 @@ fun LiveTrackingScreen(
                         )
                         .padding(
                             horizontal = if (isLandscape) 12.dp else 18.dp,
-                            vertical = if (isLandscape) 8.dp else 18.dp
+                            vertical = 8.dp
                         ),
                     verticalArrangement = if (!isLandscape) Arrangement.Center else Arrangement.SpaceEvenly,
                 ) {
@@ -577,13 +576,6 @@ fun LiveTrackingScreen(
                             telemetryLabel = R.string.distance
                         ),
                         LiveTrackingStatsItem(
-                            telemetry = NumberUtils.formatInt(
-                                uiState.heatUnit.toSI(uiState.caloriesBurned).toInt()
-                            ),
-                            telemetryUnit = uiState.heatUnit.shortSymbol(),
-                            telemetryLabel = R.string.energy
-                        ),
-                        LiveTrackingStatsItem(
                             telemetry = uiState.stepsCount.toString(),
                             telemetryLabel = R.string.steps
                         ),
@@ -593,39 +585,20 @@ fun LiveTrackingScreen(
                             ),
                             telemetryUnit = uiState.speedUnit.shortSymbol(),
                             telemetryLabel = R.string.speed
-                        )
-                    )
-
-                    LiveTrackingStatsPager(items = items)
-
-                    /*LiveTrackingSpaceEvenRow {
-                        LiveTrackingTelemetryItem(
-                            telemetry = NumberUtils.formatDouble(
-                                uiState.distanceUnit.fromSI(uiState.distance.getSIValue())
-                            ),
-                            telemetryUnit = uiState.distanceUnit.shortSymbol(),
-                            telemetryLabel = stringResource(R.string.distance)
-                        )
-                        LiveTrackingTelemetryItem(
+                        ),
+                        LiveTrackingStatsItem(
                             telemetry = NumberUtils.formatInt(
                                 uiState.heatUnit.toSI(uiState.caloriesBurned).toInt()
                             ),
                             telemetryUnit = uiState.heatUnit.shortSymbol(),
-                            telemetryLabel = stringResource(R.string.energy)
-                        )
-                        LiveTrackingTelemetryItem(
-                            telemetry = uiState.stepsCount.toString(),
-                            telemetryLabel = stringResource(R.string.steps)
-                        )
-                        LiveTrackingTelemetryItem(
-                            telemetry = NumberUtils.formatDouble(
-                                uiState.speedUnit.fromSI(uiState.speed.getSIValue())
-                            ),
-                            telemetryUnit = uiState.speedUnit.shortSymbol(),
-                            telemetryLabel = stringResource(R.string.speed)
-                        )
-                    }*/
-                    VerticalSpacer(size = if (isLandscape) 0.dp else 32.dp)
+                            telemetryLabel = R.string.energy
+                        ),
+                    )
+
+                    LiveTrackingStatsPager(items = items)
+
+                    VerticalSpacer(size = if (isLandscape) 0.dp else 24.dp)
+
                     LiveTrackingBottomButtons(
                         status = uiState.workoutStatus,
                         onStartClicked = { listener.onStartClicked() },
